@@ -1,0 +1,207 @@
+﻿<Window x:Class="SkyrimAnimationChecker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SkyrimAnimationChecker"
+        mc:Ignorable="d"
+        Title="SkyrimAnimationChecker" Height="450" Width="700">
+
+    <Grid x:Name="TopGrid" Margin="2">
+        <Grid.Resources>
+            <Style TargetType="Grid" x:Key="Normal"/>
+            <Style TargetType="Grid" x:Key="Line">
+                <Setter Property="local:GridUtils.ColumnDefinitions">
+                    <Setter.Value>
+                        <local:ColumnDefinitionCollection>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition />
+                        </local:ColumnDefinitionCollection>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style TargetType="TextBlock" x:Key="lineHeader">
+                <Setter Property="HorizontalAlignment" Value="Right"/>
+                <Setter Property="Padding" Value="2,0"/>
+            </Style>
+            <Style TargetType="CheckBox">
+                <Setter Property="Margin" Value="1,0"/>
+                <Setter Property="Padding" Value="0,-1"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <!--Left-->
+        <StackPanel>
+            <StackPanel.Resources>
+                <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
+            </StackPanel.Resources>
+            
+            <!--Setting-->
+            <StackPanel>
+                <Grid Style="{StaticResource Normal}">
+                    <WrapPanel>
+                        <Button HorizontalAlignment="Left" Click="VMreset_Button_Click" Content="Reset to default"/>
+                        <Rectangle Fill="Black" Width="2" Margin="5"/>
+                        <CheckBox Content="UseDesktop" IsChecked="{Binding useDesktop}" Padding="0,-1"/>
+                    </WrapPanel>
+                </Grid>
+                <TextBlock Text="Just don't touch what you don't know. They are useless normally." TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Rectangle Margin="5" Height="2" Fill="DimGray"/>
+            <!--DAR-->
+            <StackPanel>
+                <Grid>
+                    <WrapPanel>
+                        <local:Indicator Trigger="{Binding DARrunning}"/>
+                        <TextBlock Text="DAR"/>
+                    </WrapPanel>
+                    <Button Click="DARDuplicateCheck_Button_Click" Content="Duplicate Check" Grid.Column="1"/>
+                </Grid>
+                <Grid>
+                    <TextBlock Text="mods" Style="{StaticResource lineHeader}"/>
+                    <TextBox Text="{Binding dirMods}" Grid.Column="1"/>
+                </Grid>
+                <TextBlock x:Name="T"/>
+            </StackPanel>
+
+            <Rectangle Margin="5" Height="2" Fill="DimGray"/>
+            <!--NIF-CBPC-->
+            <StackPanel>
+                <StackPanel.Resources>
+                    <Style TargetType="Grid" x:Key="fornif1" BasedOn="{StaticResource Line}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsChecked, ElementName=RB_UseNif0}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style TargetType="Grid" x:Key="fornif0" BasedOn="{StaticResource Line}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsChecked, ElementName=RB_UseNif1}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Resources>
+                
+                <Grid>
+                    <WrapPanel>
+                        <local:Indicator Trigger="{Binding NIFrunning}"/>
+                        <TextBlock Text="NIF-CBPC"/>
+                    </WrapPanel>
+                    <CheckBox Content="Custom Sphere" IsChecked="{Binding useCustomExample}" Grid.Column="1" Padding="0,-1" HorizontalAlignment="Left"/>
+                    <WrapPanel x:Name="weightSelector" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Column="1">
+                        <WrapPanel.Resources>
+                            <Style TargetType="RadioButton">
+                                <Setter Property="GroupName" Value="weightGroup"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="2,0"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            </Style>
+                        </WrapPanel.Resources>
+                        <RadioButton x:Name="RB_UseNif1" Content="1" Padding="0" IsChecked="True"/>
+                        <RadioButton x:Name="RB_UseNif0" Content="0" Padding="0"/>
+                        <RadioButton Content="Both" Padding="0"/>
+                    </WrapPanel>
+                </Grid>
+                <Grid Style="{StaticResource fornif1}">
+                    <TextBlock Text="bodyslide nif_1" Style="{StaticResource lineHeader}"/>
+                    <TextBox Text="{Binding fileNIFO1}" Grid.Column="1"/>
+                </Grid>
+                <Grid Style="{StaticResource fornif0}">
+                    <TextBlock Text="bodyslide nif_0" Style="{StaticResource lineHeader}"/>
+                    <TextBox Text="{Binding fileNIFO0}" Grid.Column="1"/>
+                </Grid>
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding useCustomExample}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Grid Style="{StaticResource fornif1}">
+                        <TextBlock Text="example nif_1" Style="{StaticResource lineHeader}"/>
+                        <TextBox Text="{Binding fileNIFE1}" Grid.Column="1"/>
+                    </Grid>
+                    <Grid Style="{StaticResource fornif0}">
+                        <TextBlock Text="example nif_0" Style="{StaticResource lineHeader}"/>
+                        <TextBox Text="{Binding fileNIFE0}" Grid.Column="1"/>
+                    </Grid>
+                </StackPanel>
+                <Grid>
+                    <CheckBox x:Name="overwriteCheckBox" Content="overwrite" IsChecked="{Binding overwriteInterNIFs}" Padding="0,-1"/>
+                    <Button Click="MakeIntermediumNIFs_Button_Click" Content="1. Make Intermedium NIFs" Grid.Column="1"/>
+                </Grid>
+                <TextBlock x:Name="N"/>
+
+                <Grid Style="{StaticResource fornif1}">
+                    <TextBlock Text="nif_1" Style="{StaticResource lineHeader}"/>
+                    <TextBox Text="{Binding fileNIF1}" Grid.Column="1"/>
+                </Grid>
+                <Grid Style="{StaticResource fornif0}">
+                    <TextBlock Text="nif_0" Style="{StaticResource lineHeader}"/>
+                    <TextBox Text="{Binding fileNIF0}" Grid.Column="1"/>
+                </Grid>
+                <Grid>
+                    <TextBlock Text="cbpc" Style="{StaticResource lineHeader}"/>
+                    <TextBox Text="{Binding fileCBPC}" Grid.Column="1"/>
+                </Grid>
+                <Grid>
+                    <TextBlock Text="group filter" Style="{StaticResource lineHeader}"/>
+                    <TextBox Text="{Binding groupfilter}" Grid.Column="1"/>
+                </Grid>
+                <Grid>
+                    <Button Click="SphereSize_Button_Click" Content="2. Sphere Size" Grid.Column="1"/>
+                </Grid>
+            </StackPanel>
+        </StackPanel>
+
+        <local:VerticalDashedLine Grid.Column="1" Margin="0,8" Foreground="DimGray"/>
+
+        <!--Right-->
+        <StackPanel Grid.Column="2">
+            <!--NIF-CBPC result-->
+            <Grid Style="{StaticResource Line}">
+                <WrapPanel>
+                    <local:Indicator Trigger="{Binding CBPCrunning}"/>
+                    <TextBlock Text="NIF-CBPC result"/>
+                </WrapPanel>
+                <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                    <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
+                    <CheckBox IsChecked="{Binding CBPCfullcopy}" Content="Full Copy" Padding="0,-1"/>
+                </WrapPanel>
+            </Grid>
+            <Grid Style="{StaticResource Line}">
+                <TextBlock Text="write filter" Style="{StaticResource lineHeader}"/>
+                <TextBox Grid.Column="1"/>
+            </Grid>
+            <Grid Style="{StaticResource Line}">
+                <CheckBox Content="All" IsChecked="{Binding writeAll}" Click="CBPC_panel_All_CheckBox_Click" Padding="0,-1"/>
+                <Button Grid.Column="1" Click="WriteCollisionConfig_Button_Click">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Content" Value="3. Write Collision Config"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding writeSome}" Value="False">
+                                    <Setter Property="Content" Value="3. Copy Collision Config"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
+            <TextBlock x:Name="C"/>
+            <StackPanel x:Name="CBPC_panel"/>
+        </StackPanel>
+    </Grid>
+</Window>
