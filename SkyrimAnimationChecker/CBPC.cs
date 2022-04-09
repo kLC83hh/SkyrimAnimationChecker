@@ -24,17 +24,16 @@ namespace SkyrimAnimationChecker
                 All = buffer.Split(Environment.NewLine);
             }
             //M.D(lines.Count);
-            //All = lines.ToArray();
-            //M.D(All.Last());
             return All;
         }
         public void Save(CBPC_collider_object[] o, bool overwrite = true)
         {
             string path = vm.fileCBPC;
             if (System.IO.File.Exists(path) && !overwrite) return;
+            string data = MakeOrganized(o);
             using (System.IO.StreamWriter sw = new(path))
             {
-                sw.Write(MakeOrganized(o));
+                sw.Write(data);
             }
         }
 

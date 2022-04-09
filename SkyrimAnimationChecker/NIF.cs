@@ -85,11 +85,12 @@ namespace SkyrimAnimationChecker
                     break;
             }
             vm.NIFrunning = false;
-            return Mirror(res);
+            return Mirror(res, filter);
         }
-        private CBPC_collider_object[] Mirror(CBPC_collider_object[] co)
+        private CBPC_collider_object[] Mirror(CBPC_collider_object[] co, string[] filter)
         {
             List<CBPC_collider_object> all = new();
+            Func<string, string> TrimSub = (name) => { if (name.Contains('[') && name.Contains(']')) { return name.Substring(0, Math.Min(name.IndexOf('['), name.IndexOf(']'))); } else { return name; } };
             foreach (CBPC_collider_object c in co)
             {
                 all.Add(c);
@@ -99,7 +100,7 @@ namespace SkyrimAnimationChecker
                     for (int i = 0; i < CBPC_collider_object_nameSelector.Left.Count; i++)
                     {
                         if (c.Name.Contains(CBPC_collider_object_nameSelector.Left[i]))
-                            namebuffer = c.Name.Replace(CBPC_collider_object_nameSelector.Left[i], CBPC_collider_object_nameSelector.Right[i]);
+                            namebuffer = filter.First(n => n.Contains(TrimSub(c.Name.Replace(CBPC_collider_object_nameSelector.Left[i], CBPC_collider_object_nameSelector.Right[i]))));
                     }
                     string[] databuffer = c.Data.Split(' ').ForEach(x => x.Trim());
                     for (int i = 0; i < databuffer.Length; i++)

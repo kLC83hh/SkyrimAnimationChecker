@@ -140,7 +140,7 @@
                 </StackPanel>
                 <Grid>
                     <CheckBox x:Name="overwriteCheckBox" Content="overwrite" IsChecked="{Binding overwriteInterNIFs}" Padding="0,-1"/>
-                    <Button Click="MakeIntermediumNIFs_Button_Click" Content="1. Make Intermedium NIFs" Grid.Column="1"/>
+                    <Button Click="MakeIntermediumNIFs_1_Button_Click" Content="1. Make Intermedium NIFs" Grid.Column="1"/>
                 </Grid>
                 <TextBlock x:Name="N"/>
 
@@ -161,7 +161,7 @@
                     <TextBox Text="{Binding groupfilter}" Grid.Column="1"/>
                 </Grid>
                 <Grid>
-                    <Button Click="SphereSize_Button_Click" Content="2. Sphere Size" Grid.Column="1"/>
+                    <Button Click="SphereSize_2_Button_Click" Content="2. Sphere Size" Grid.Column="1"/>
                 </Grid>
             </StackPanel>
         </StackPanel>
@@ -187,7 +187,7 @@
             </Grid>
             <Grid Style="{StaticResource Line}">
                 <CheckBox Content="All" IsChecked="{Binding writeAll}" Click="CBPC_panel_All_CheckBox_Click" Padding="0,-1"/>
-                <Button Grid.Column="1" Click="WriteCollisionConfig_Button_Click">
+                <Button Grid.Column="1" Click="WriteCollisionConfig_3_Button_Click">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Content" Value="3. Write Collision Config"/>

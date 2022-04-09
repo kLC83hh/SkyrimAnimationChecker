@@ -100,9 +100,9 @@ namespace SkyrimAnimationChecker
         }
 
         private void DARDuplicateCheck_Button_Click(object sender, RoutedEventArgs e) => RunDAR();
-        private void MakeIntermediumNIFs_Button_Click(object sender, RoutedEventArgs e) => RunNIFE();
-        private void SphereSize_Button_Click(object sender, RoutedEventArgs e) => RunNIF_CBPC();
-        private void WriteCollisionConfig_Button_Click(object sender, RoutedEventArgs e) => RunCBPC();
+        private void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => RunNIFE();
+        private void SphereSize_2_Button_Click(object sender, RoutedEventArgs e) => RunNIF_CBPC();
+        private void WriteCollisionConfig_3_Button_Click(object sender, RoutedEventArgs e) => RunCBPC();
 
 
 
@@ -129,6 +129,7 @@ namespace SkyrimAnimationChecker
             foreach (CBPC_collider_object d in o)
             {
                 //C.Text += $"{d}\n";
+                d.Write = vm.writeAll;
                 var uc = new CBPC_collider() { ColliderObject = d };
                 uc.ColliderUpdateEvent += Uc_ColliderUpdateEvent;
                 CBPC_panel.Children.Add(uc);
