@@ -31,6 +31,7 @@ namespace SkyrimAnimationChecker
             string path = vm.fileCBPC;
             if (System.IO.File.Exists(path) && !overwrite) return;
             string data = MakeOrganized(o);
+            data += $"{Environment.NewLine}### Automatically writed by SAC at {DateTime.Now}{Environment.NewLine}";
             using (System.IO.StreamWriter sw = new(path))
             {
                 sw.Write(data);

@@ -19,6 +19,7 @@ namespace SkyrimAnimationChecker
             fileNIF_bodyslide1 = System.IO.Path.Combine(workdir, "femalebody_1.nif");
             fileNIF_bodyslide0 = System.IO.Path.Combine(workdir, "femalebody_0.nif");
             useCustomExample = false;
+            weightNumber = 1;
             fileNIF_sphere1 = System.IO.Path.Combine(workdir, "example_0.nif");
             fileNIF_sphere0 = System.IO.Path.Combine(workdir, "example_1.nif");
             fileNIF_out1 = System.IO.Path.Combine(workdir, "intermedium_1.nif");
@@ -44,6 +45,7 @@ namespace SkyrimAnimationChecker
         public string fileNIF_bodyslide0 { get => Get<string>(); set => Set(value); }
 
         public bool useCustomExample { get => Get<bool>(); set => Set(value); }
+        public int weightNumber { get => Get<int>(); set => Set(value); }
         public string fileNIF_sphere1 { get => Get<string>(); set => Set(value); }
         public string fileNIF_sphere0 { get => Get<string>(); set => Set(value); }
 

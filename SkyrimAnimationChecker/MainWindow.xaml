@@ -9,6 +9,8 @@
 
     <Grid x:Name="TopGrid" Margin="2">
         <Grid.Resources>
+            <local:WeightSelectionConverter x:Key="weightConverter"/>
+
             <Style TargetType="Grid" x:Key="Normal"/>
             <Style TargetType="Grid" x:Key="Line">
                 <Setter Property="local:GridUtils.ColumnDefinitions">
@@ -106,9 +108,9 @@
                                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                             </Style>
                         </WrapPanel.Resources>
-                        <RadioButton x:Name="RB_UseNif1" Content="1" Padding="0" IsChecked="True"/>
-                        <RadioButton x:Name="RB_UseNif0" Content="0" Padding="0"/>
-                        <RadioButton Content="Both" Padding="0"/>
+                        <RadioButton x:Name="RB_UseNif1" Content="1" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
+                        <RadioButton x:Name="RB_UseNif0" Content="0" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=0}"/>
+                        <RadioButton Content="Both" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=2}"/>
                     </WrapPanel>
                 </Grid>
                 <Grid Style="{StaticResource fornif1}">
