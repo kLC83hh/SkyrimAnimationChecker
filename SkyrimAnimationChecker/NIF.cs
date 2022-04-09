@@ -16,25 +16,41 @@ namespace SkyrimAnimationChecker
         /// </summary>
         /// <param name="overwrite"></param>
         /// <returns></returns>
-        public bool Run1(bool overwrite = false)
+        public int Run1(int weight = 1, bool overwrite = false)
         {
             vm.NIFrunning = true;
             string[] localExample = new string[2] {
-                System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"eaxmple_0.nif"),
-                System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"eaxmple_1.nif")
+                System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "example_0.nif"),
+                System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "example_1.nif")
             };
-            bool r1 = Replace3BA(vm.useCustomExample ? localExample[0] : vm.fileNIFE1, vm.fileNIFO1, vm.fileNIF1, overwrite);
-            bool r2 = Replace3BA(vm.useCustomExample ? localExample[1] : vm.fileNIFE0, vm.fileNIFO0, vm.fileNIF0, overwrite);
+            int r1 = 1, r2 = 1;
+            switch (weight)
+            {
+                case 2:
+                    r1 = Replace3BA(vm.useCustomExample ? localExample[0] : vm.fileNIF_sphere0, vm.fileNIF_bodyslide0, vm.fileNIF_out0, overwrite);
+                    r2 = Replace3BA(vm.useCustomExample ? localExample[1] : vm.fileNIF_sphere1, vm.fileNIF_bodyslide1, vm.fileNIF_out1, overwrite);
+                    break;
+                case 1:
+                    r2 = Replace3BA(vm.useCustomExample ? localExample[1] : vm.fileNIF_sphere1, vm.fileNIF_bodyslide1, vm.fileNIF_out1, overwrite);
+                    break;
+                case 0:
+                    r1 = Replace3BA(vm.useCustomExample ? localExample[0] : vm.fileNIF_sphere0, vm.fileNIF_bodyslide0, vm.fileNIF_out0, overwrite);
+                    break;
+                default:
+                    r1 = 0;
+                    break;
+            }
             vm.NIFrunning = false;
-            return r1 | r2;
+            return r1 * (r2 > 1 ? r2 + 1 : r2);
         }
-        private bool Replace3BA(string example, string bodyslide, string output, bool overwrite = false)
+        private int Replace3BA(string sphere, string bodyslide, string output, bool overwrite = false)
         {
-            if (System.IO.File.Exists(output) && !overwrite) return true;
-            nifly.NifFile eNI = new nifly.NifFile(), bsNI = new nifly.NifFile();
-            eNI.Load(example);
+            if (System.IO.File.Exists(output) && !overwrite) return 2;
+            if (!System.IO.File.Exists(sphere) || !System.IO.File.Exists(bodyslide)) return 4;
+            nifly.NifFile spNI = new nifly.NifFile(), bsNI = new nifly.NifFile();
+            spNI.Load(sphere);
             bsNI.Load(bodyslide);
-            nifly.vectorNiShape eShapes = eNI.GetShapes(), bsShapes = bsNI.GetShapes();
+            nifly.vectorNiShape eShapes = spNI.GetShapes(), bsShapes = bsNI.GetShapes();
             for (int i = 0; i < eShapes.Count; i++)
             {
                 if (eShapes[i].name.get() == "3BA")
@@ -46,8 +62,8 @@ namespace SkyrimAnimationChecker
                     }
                     if (shape != null)
                     {
-                        eNI.DeleteShape(eShapes[i]);
-                        eNI.CloneShape(shape, shape.name.get(), bsNI);
+                        spNI.DeleteShape(eShapes[i]);
+                        spNI.CloneShape(shape, shape.name.get(), bsNI);
                         //new nifly.NiAlphaProperty().Put(0.34);
                         //new nifly.BSLightingShaderProperty(eNI.GetHeader().GetVersion()).
                         //eNI.GetAlphaProperty(shape).Put(new nifly.NiOStream());
@@ -55,8 +71,9 @@ namespace SkyrimAnimationChecker
                     break;
                 }
             }
-            eNI.Save(output);
-            return false;
+            spNI.FinalizeData();
+            spNI.Save(output);
+            return 1;
         }
 
         /// <summary>
@@ -72,15 +89,15 @@ namespace SkyrimAnimationChecker
             switch (weight)
             {
                 case 2:
-                    res = Combine(GetTriShapes(vm.fileNIF0, filter), GetTriShapes(vm.fileNIF1, filter));
+                    res = Combine(GetTriShapes(vm.fileNIF_out0, filter), GetTriShapes(vm.fileNIF_out1, filter));
                     break;
                 case 0:
-                    res = GetTriShapes(vm.fileNIF0, filter);
+                    res = GetTriShapes(vm.fileNIF_out0, filter);
                     res = Combine(res, res);
                     break;
                 case 1:
                 default:
-                    res = GetTriShapes(vm.fileNIF1, filter);
+                    res = GetTriShapes(vm.fileNIF_out1, filter);
                     res = Combine(res, res);
                     break;
             }

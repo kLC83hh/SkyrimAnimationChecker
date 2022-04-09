@@ -113,11 +113,11 @@
                 </Grid>
                 <Grid Style="{StaticResource fornif1}">
                     <TextBlock Text="bodyslide nif_1" Style="{StaticResource lineHeader}"/>
-                    <TextBox Text="{Binding fileNIFO1}" Grid.Column="1"/>
+                    <TextBox Text="{Binding fileNIF_bodyslide1}" Grid.Column="1"/>
                 </Grid>
                 <Grid Style="{StaticResource fornif0}">
                     <TextBlock Text="bodyslide nif_0" Style="{StaticResource lineHeader}"/>
-                    <TextBox Text="{Binding fileNIFO0}" Grid.Column="1"/>
+                    <TextBox Text="{Binding fileNIF_bodyslide0}" Grid.Column="1"/>
                 </Grid>
                 <StackPanel>
                     <StackPanel.Style>
@@ -130,12 +130,12 @@
                         </Style>
                     </StackPanel.Style>
                     <Grid Style="{StaticResource fornif1}">
-                        <TextBlock Text="example nif_1" Style="{StaticResource lineHeader}"/>
-                        <TextBox Text="{Binding fileNIFE1}" Grid.Column="1"/>
+                        <TextBlock Text="sphere nif_1" Style="{StaticResource lineHeader}"/>
+                        <TextBox Text="{Binding fileNIF_sphere1}" Grid.Column="1"/>
                     </Grid>
                     <Grid Style="{StaticResource fornif0}">
-                        <TextBlock Text="example nif_0" Style="{StaticResource lineHeader}"/>
-                        <TextBox Text="{Binding fileNIFE0}" Grid.Column="1"/>
+                        <TextBlock Text="sphere nif_0" Style="{StaticResource lineHeader}"/>
+                        <TextBox Text="{Binding fileNIF_sphere0}" Grid.Column="1"/>
                     </Grid>
                 </StackPanel>
                 <Grid>
@@ -146,11 +146,11 @@
 
                 <Grid Style="{StaticResource fornif1}">
                     <TextBlock Text="nif_1" Style="{StaticResource lineHeader}"/>
-                    <TextBox Text="{Binding fileNIF1}" Grid.Column="1"/>
+                    <TextBox Text="{Binding fileNIF_out1}" Grid.Column="1"/>
                 </Grid>
                 <Grid Style="{StaticResource fornif0}">
                     <TextBlock Text="nif_0" Style="{StaticResource lineHeader}"/>
-                    <TextBox Text="{Binding fileNIF0}" Grid.Column="1"/>
+                    <TextBox Text="{Binding fileNIF_out0}" Grid.Column="1"/>
                 </Grid>
                 <Grid>
                     <TextBlock Text="cbpc" Style="{StaticResource lineHeader}"/>

@@ -23,7 +23,8 @@ namespace SkyrimAnimationChecker
         public MainWindow()
         {
             InitializeComponent();
-            vm = new VM().Load();
+            vm = VM.Load();
+            if (vm.LoadFailed) M.D("vmFile load failed");
             this.DataContext = vm;
             this.Closing += MainWindow_Closing;
         }
@@ -38,7 +39,23 @@ namespace SkyrimAnimationChecker
 
         private async void RunNIFE()
         {
-            if (await Task.Run(() => new NIF(vm).Run1(vm.overwriteInterNIFs))) await ControlFlash(overwriteCheckBox);
+            int res = await Task.Run(() => new NIF(vm).Run1(OutputWeight(), vm.overwriteInterNIFs));
+            if (res != 1)
+            {
+                Action<string> msg = o => MessageBox.Show($"Error Code 01-{res}: {o}");
+                switch (res)
+                {
+                    case 0: msg("Nothing is done"); break;
+                    case 2: await ControlFlash(overwriteCheckBox); break;//msg("Output_0 file exists"); 
+                    case 3: await ControlFlash(overwriteCheckBox); break;//msg("Output_1 file exists"); 
+                    case 4: msg("Some of input_0 files are not exists"); break;
+                    case 5: msg("Some of input_1 files are not exists"); break;
+                    case 6: await ControlFlash(overwriteCheckBox); break;//msg("Output_0 and Output_1 files are exists"); 
+                    case 10: msg("Output_0 file exists and some of input_1 files are not exists"); await ControlFlash(overwriteCheckBox); break;
+                    case 12: msg("Output_1 file exists and some of input_0 files are not exists"); await ControlFlash(overwriteCheckBox); break;
+                    case 20: msg("Some of input_0 and input_1 files are not exists"); break;
+                }
+            }
         }
         private List<int> flashing = new();
         private async Task ControlFlash(Control c)
