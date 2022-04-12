@@ -24,19 +24,19 @@ namespace SkyrimAnimationChecker
 
 
         public CBPC_Physics() { InitializeComponent(); DataContext = PhysicsObject; }
-        public CBPC_Physics(CBPC_Breast_data o) { InitializeComponent(); PhysicsObject = o; DataContext = PhysicsObject; }
+        public CBPC_Physics(physics_object_set o) { InitializeComponent(); PhysicsObject = o; DataContext = PhysicsObject; }
 
 
-        public CBPC_Breast_data PhysicsObject
+        public physics_object_set PhysicsObject
         {
-            get => (CBPC_Breast_data)GetValue(PhysicsObjectProperty);
+            get => (physics_object_set)GetValue(PhysicsObjectProperty);
             set => SetValue(PhysicsObjectProperty, value);
         }
 
         public static readonly DependencyProperty PhysicsObjectProperty
             = DependencyProperty.Register(
                   "PhysicsObject",
-                  typeof(CBPC_Breast_data),
+                  typeof(physics_object_set),
                   typeof(CBPC_Physics),
                   new PropertyMetadata(null, new PropertyChangedCallback((d, e) =>
                   {
@@ -47,7 +47,7 @@ namespace SkyrimAnimationChecker
 
 
 
-        public delegate void PhysicsUpdateEventHandler(CBPC_Breast_data obj);
+        public delegate void PhysicsUpdateEventHandler(physics_object_set obj);
 
         public event PhysicsUpdateEventHandler? PhysicsUpdateEvent;
 

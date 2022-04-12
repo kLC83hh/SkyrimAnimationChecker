@@ -11,6 +11,7 @@ namespace SkyrimAnimationChecker.Common
         public physics_object() { }
         public physics_object(string name, string key, params double[] value)
         {
+            Use = true;
             Name = name;
             Key = key;
             _ = SetValue(value);
@@ -27,7 +28,7 @@ namespace SkyrimAnimationChecker.Common
             }
         }
 
-
+        public bool Use { get => Get<bool>(); set => Set(value); }
         public string Name { get => Get<string>(); set => Set(value); }
         public string Key { get => Get<string>(); set => Set(value); }
         public double Value0 { get => Get<double>(); set => Set(value); }

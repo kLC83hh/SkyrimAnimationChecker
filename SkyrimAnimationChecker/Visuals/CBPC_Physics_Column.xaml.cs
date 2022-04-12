@@ -65,37 +65,56 @@ namespace SkyrimAnimationChecker
                       ((CBPC_Physics_Column)d).Make();
                   }))
               );
+        public object[]? Option
+        {
+            get => (object[])GetValue(OptionProperty);
+            set => SetValue(OptionProperty, value);
+        }
+        public static readonly DependencyProperty OptionProperty
+            = DependencyProperty.Register(
+                  "Option", typeof(object[]), typeof(CBPC_Physics_Column),
+                  new PropertyMetadata(null, new PropertyChangedCallback((d, e) =>
+                  {
+                      if (d is not CBPC_Physics_Column) return;
+                      ((CBPC_Physics_Column)d).Make();
+                  }))
+              );
         #endregion
 
         private void Make()
         {
             if (Data == null) return;
+            if (Option != null && Data.Length != Option.Length) return;
+            
             if (Data is string[]) { H0.Visibility = Visibility.Hidden; H1.Visibility = Visibility.Hidden; HL.Visibility = Visibility.Hidden; HR.Visibility = Visibility.Hidden; }
             panel.Children.Clear();
-            foreach (var item in Data)
+            
+            for (int i = 0; i < Data.Length; i++)
             {
-                if (TryMakeOne(out UIElement? o, item)) continue;
+                if (TryMakeOne(out UIElement? o, Option?[i], Data[i])) continue;
                 else panel.Children.Add(o);
             }
         }
-        private bool TryMakeOne(out UIElement? o, params object[] d)
+        private bool TryMakeOne(out UIElement? o, object? op = null, params object[] d)
         {
-            if (d.Length == 1 && d[0] is Common.physics_object) return TryMakeOne(out o, (Common.physics_object)d[0]);
-            else if (d.Length == 1 && d[0] is string) return TryMakeOne(out o, (string)d[0]);
-            else if (d.Length == 1 && d[0] is double[]) return TryMakeOne(out o, (double[])d[0]);
+            if (d.Length == 1 && d[0] is Common.physics_object dpo) return TryMakeOne(out o, dpo);
+            else if (d.Length == 1 && d[0] is string ds) return TryMakeOne(out o, ds, (Common.physics_object)op);
+            else if (d.Length == 1 && d[0] is double[] dd) return TryMakeOne(out o, dd);
             
             o = null;
             return true;
         }
         private bool TryMakeOne(out UIElement? o, Common.physics_object d)
         {
+            if (!d.Use) { o = null; return true; }
             o = new Visuals.PhysicsBox() { Physics = d };
             //if ((o as Visuals.PhysicsBox) != null) (o as Visuals.PhysicsBox).PhysicsUpdated += (o) => DataUpdated?.Invoke(o);
             BindingOperations.SetBinding(o, Control.HeightProperty, new Binding() { Source = StackHeight });
             return false;
         }
-        private bool TryMakeOne(out UIElement? o, string d)
+        private bool TryMakeOne(out UIElement? o, string d, Common.physics_object? op)
         {
+            if (op != null && !op.Use) { o = null; return true; }
             o = new TextBlock() { Text = d };
             BindingOperations.SetBinding(o, Control.HeightProperty, new Binding() { Source = StackHeight });
             return false;

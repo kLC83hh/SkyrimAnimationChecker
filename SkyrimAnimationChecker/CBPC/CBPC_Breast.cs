@@ -13,13 +13,13 @@ namespace SkyrimAnimationChecker.CBPC
             _Data = new();
             _Data.ValueUpdated += (o) => ValueUpdated?.Invoke(o);
         }
-        public CBPC_Breast(string name, CBPC_Breast_data? data = null)
+        public CBPC_Breast(string name, physics_object_set? data = null)
         {
             Name = NameParser(name);
             _Data = data ?? new();
             _Data.ValueUpdated += (o) => ValueUpdated?.Invoke(o);
         }
-        public CBPC_Breast(int num, Sides side, CBPC_Breast_data? data = null)
+        public CBPC_Breast(int num, Sides side, physics_object_set? data = null)
         {
             Name = NumSideParser(num, side);
             _Data = data ?? new();
@@ -71,8 +71,8 @@ namespace SkyrimAnimationChecker.CBPC
         public enum Sides { L, R }
         public Sides Side { get => Get<Sides>(); set => Set(value); }
 
-        public CBPC_Breast_data _Data;
-        public CBPC_Breast_data Data
+        public physics_object_set _Data;
+        public physics_object_set Data
         {
             get { return _Data; }
             set { _Data = value; OnPropertyChanged(); }

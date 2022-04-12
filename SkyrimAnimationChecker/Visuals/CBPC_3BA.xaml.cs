@@ -99,7 +99,7 @@ namespace SkyrimAnimationChecker
         private string[] GetMirrorFilter(string[] filter) => CheckMirrorFilter(filter) ? Data.Mirrorable : filter;
         private bool CheckMirrorFilter(string[]? filter) => filter?.All(x => string.IsNullOrWhiteSpace(x)) ?? true;
 
-        private void AddColumn(string key, object[] data)
+        private void AddColumn(string key, object[] data, object[]? options = null)
         {
             ColumnDefinition cd = new();
             if (data is string[]) { cd.MinWidth = 120; cd.MaxWidth = 200; }
@@ -108,6 +108,7 @@ namespace SkyrimAnimationChecker
             CBPC_Physics_Column c = new();
             c.Header = key;
             c.Data = data;
+            if (options?.Length > 0) c.Option = options;
             //c.DataUpdated += Column_DataUpdated;
             c.SetValue(Grid.ColumnProperty, panel.ColumnDefinitions.Count - 1);
             panel.Children.Add(c);
@@ -121,7 +122,7 @@ namespace SkyrimAnimationChecker
             panel.ColumnDefinitions.Clear();
             if (vm.VM3BA_BoneAll)
             {
-                AddColumn(string.Empty, Data.L1.Data.Keys);
+                AddColumn(string.Empty, Data.L1.Data.Keys, Data.L1.Data.Values);
                 Data.Keys.ForEach(key =>
                 {
                     var br = Data.GetPropertyHandleValue<CBPC_Breast>(key);
@@ -130,7 +131,7 @@ namespace SkyrimAnimationChecker
             }
             else
             {
-                AddColumn(string.Empty, Data.L1.Data.Keys);
+                AddColumn(string.Empty, Data.L1.Data.Keys, Data.L1.Data.Values);
                 switch (vm.VM3BA_BoneSelect)
                 {
                     case 1:
