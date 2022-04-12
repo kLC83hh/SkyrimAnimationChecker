@@ -4,12 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SkyrimAnimationChecker"
-        mc:Ignorable="d"
-        Title="SkyrimAnimationChecker" Height="450" Width="700">
+        xmlns:common="clr-namespace:SkyrimAnimationChecker.Common"
+        mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=common:VM}"
+        Title="SkyrimAnimationChecker" Height="570" Width="800">
 
     <Grid x:Name="TopGrid" Margin="2">
         <Grid.Resources>
-            <local:WeightSelectionConverter x:Key="weightConverter"/>
+            <local:RadioButtonSelector x:Key="weightConverter"/>
 
             <Style TargetType="Grid" x:Key="Normal"/>
             <Style TargetType="Grid" x:Key="Line">
@@ -27,9 +28,14 @@
                 <Setter Property="Padding" Value="2,0"/>
             </Style>
             <Style TargetType="CheckBox">
-                <Setter Property="Margin" Value="1,0"/>
+                <Setter Property="Margin" Value="1"/>
                 <Setter Property="Padding" Value="0,-1"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            <Style TargetType="RadioButton" x:Key="rbGroup">
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Margin" Value="2,0"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
             </Style>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
@@ -54,9 +60,10 @@
                     </WrapPanel>
                 </Grid>
                 <TextBlock Text="Just don't touch what you don't know. They are useless normally." TextWrapping="Wrap"/>
+                
             </StackPanel>
-
             <Rectangle Margin="5" Height="2" Fill="DimGray"/>
+            
             <!--DAR-->
             <StackPanel>
                 <Grid>
@@ -72,9 +79,19 @@
                 </Grid>
                 <TextBlock x:Name="T"/>
             </StackPanel>
-
             <Rectangle Margin="5" Height="2" Fill="DimGray"/>
-            <!--NIF-CBPC-->
+            
+            <WrapPanel>
+                <WrapPanel.Resources>
+                    <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
+                        <Setter Property="GroupName" Value="panelGroup"/>
+                    </Style>
+                </WrapPanel.Resources>
+                <RadioButton Content="Collision" Padding="0" IsChecked="{Binding panelNumber, Converter={StaticResource weightConverter}, ConverterParameter=0}"/>
+                <RadioButton Content="Physics" Padding="0" IsChecked="{Binding panelNumber, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
+            </WrapPanel>
+            <Rectangle Height="1" Margin="2"/>
+            <!--NIF-CBPC collision-->
             <StackPanel>
                 <StackPanel.Resources>
                     <Style TargetType="Grid" x:Key="fornif1" BasedOn="{StaticResource Line}">
@@ -92,20 +109,28 @@
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Resources>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <d:Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding panelNumber}" Value="0">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
                 
                 <Grid>
                     <WrapPanel>
                         <local:Indicator Trigger="{Binding NIFrunning}"/>
-                        <TextBlock Text="NIF-CBPC"/>
+                        <TextBlock Text="NIF"/>
                     </WrapPanel>
                     <CheckBox Content="Custom Sphere" IsChecked="{Binding useCustomExample}" Grid.Column="1" Padding="0,-1" HorizontalAlignment="Left"/>
                     <WrapPanel x:Name="weightSelector" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Column="1">
                         <WrapPanel.Resources>
-                            <Style TargetType="RadioButton">
+                            <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
                                 <Setter Property="GroupName" Value="weightGroup"/>
-                                <Setter Property="Padding" Value="0"/>
-                                <Setter Property="Margin" Value="2,0"/>
-                                <Setter Property="VerticalContentAlignment" Value="Center"/>
                             </Style>
                         </WrapPanel.Resources>
                         <RadioButton x:Name="RB_UseNif1" Content="1" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
@@ -144,8 +169,12 @@
                     <CheckBox x:Name="overwriteCheckBox" Content="overwrite" IsChecked="{Binding overwriteInterNIFs}" Padding="0,-1"/>
                     <Button Click="MakeIntermediumNIFs_1_Button_Click" Content="1. Make Intermedium NIFs" Grid.Column="1"/>
                 </Grid>
-                <TextBlock x:Name="N"/>
 
+                <Rectangle Margin="5"/>
+                <WrapPanel>
+                    <local:Indicator Fill="DimGray" Stroke="DimGray"/>
+                    <TextBlock Text="NIF-CBPC"/>
+                </WrapPanel>
                 <Grid Style="{StaticResource fornif1}">
                     <TextBlock Text="nif_1" Style="{StaticResource lineHeader}"/>
                     <TextBox Text="{Binding fileNIF_out1}" Grid.Column="1"/>
@@ -166,44 +195,158 @@
                     <Button Click="SphereSize_2_Button_Click" Content="2. Sphere Size" Grid.Column="1"/>
                 </Grid>
             </StackPanel>
+
+            <!--CBPC physics-->
+            <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <d:Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding panelNumber}" Value="1">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
+                <Grid>
+                    <WrapPanel>
+                        <local:Indicator Trigger="{Binding CBPC_Physics_running}"/>
+                        <TextBlock Text="CBPC"/>
+                    </WrapPanel>
+                </Grid>
+                <Grid Visibility="Collapsed">
+                    <TextBlock Text="Mirror" Style="{StaticResource lineHeader}"/>
+                    <WrapPanel Grid.Column="1">
+                        <!--<CheckBox Content="L/R" Padding="0,-1" IsChecked="{Binding CBPC_Phy_Mirror_LR}"/>
+                        <CheckBox Content="Min/Max" Padding="0,-1" IsChecked="{Binding CBPC_Phy_Mirror_MinMax}"/>-->
+                    </WrapPanel>
+                </Grid>
+                <!--<Grid>
+                    <TextBlock Text="3BA" Style="{StaticResource lineHeader}"/>
+                    <WrapPanel Grid.Column="1">
+                        <WrapPanel.Resources>
+                            <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
+                                <Setter Property="GroupName" Value="3ba"/>
+                            </Style>
+                        </WrapPanel.Resources>
+                        <CheckBox Content="All" Padding="0,-1" IsChecked="{Binding CBPC_Phy_3BA_All}"/>
+                        <RadioButton Content="EB1" Padding="0" IsChecked="{Binding CBPC_Phy_3BA_Select, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
+                        <RadioButton Content="EB2" Padding="0" IsChecked="{Binding CBPC_Phy_3BA_Select, Converter={StaticResource weightConverter}, ConverterParameter=2}"/>
+                        <RadioButton Content="EB3" Padding="0" IsChecked="{Binding CBPC_Phy_3BA_Select, Converter={StaticResource weightConverter}, ConverterParameter=3}"/>
+                    </WrapPanel>
+                </Grid>-->
+                <Grid>
+                    <TextBlock Text="physics file" Style="{StaticResource lineHeader}"/>
+                    <TextBox Text="{Binding fileCBPC_Physics}" Grid.Column="1"/>
+                </Grid>
+                <Grid>
+                    <Button Content="Read" Click="ReadPhysics_Button_Click" Grid.Column="1"/>
+                </Grid>
+            </StackPanel>
         </StackPanel>
 
+        
         <local:VerticalDashedLine Grid.Column="1" Margin="0,8" Foreground="DimGray"/>
+
 
         <!--Right-->
         <StackPanel Grid.Column="2">
+            <StackPanel.Resources>
+                <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
+            </StackPanel.Resources>
+            
             <!--NIF-CBPC result-->
-            <Grid Style="{StaticResource Line}">
-                <WrapPanel>
-                    <local:Indicator Trigger="{Binding CBPCrunning}"/>
-                    <TextBlock Text="NIF-CBPC result"/>
-                </WrapPanel>
-                <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
-                    <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
-                    <CheckBox IsChecked="{Binding CBPCfullcopy}" Content="Full Copy" Padding="0,-1"/>
-                </WrapPanel>
-            </Grid>
-            <Grid Style="{StaticResource Line}">
-                <TextBlock Text="write filter" Style="{StaticResource lineHeader}"/>
-                <TextBox Grid.Column="1"/>
-            </Grid>
-            <Grid Style="{StaticResource Line}">
-                <CheckBox Content="All" IsChecked="{Binding writeAll}" Click="CBPC_panel_All_CheckBox_Click" Padding="0,-1"/>
-                <Button Grid.Column="1" Click="WriteCollisionConfig_3_Button_Click">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Content" Value="3. Write Collision Config"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding writeSome}" Value="False">
-                                    <Setter Property="Content" Value="3. Copy Collision Config"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-            </Grid>
-            <TextBlock x:Name="C"/>
-            <StackPanel x:Name="CBPC_panel"/>
+            <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <d:Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding panelNumber}" Value="0">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                
+                <Grid>
+                    <WrapPanel Grid.ColumnSpan="2">
+                        <local:Indicator Trigger="{Binding CBPCrunning}"/>
+                        <TextBlock Text="Collision Result"/>
+                    </WrapPanel>
+                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                        <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
+                        <CheckBox IsChecked="{Binding CBPCfullcopy}" Content="Full Copy" Padding="0,-1"/>
+                    </WrapPanel>
+                </Grid>
+                <Grid>
+                    <TextBlock Text="write filter" Style="{StaticResource lineHeader}"/>
+                    <TextBox Grid.Column="1"/>
+                </Grid>
+                <Grid>
+                    <CheckBox Content="All" IsChecked="{Binding writeAll}" Click="CBPC_panel_All_CheckBox_Click" Padding="0,-1"/>
+                    <Button Grid.Column="1" Click="WriteCollisionConfig_3_Button_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Content" Value="3. Write Collision Config"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding writeSome}" Value="False">
+                                        <Setter Property="Content" Value="3. Copy Collision Config"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+                <TextBlock x:Name="C"/>
+                <StackPanel x:Name="CBPC_panel"/>
+            </StackPanel>
+
+            <!--CBPC physics-->
+            <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <d:Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding panelNumber}" Value="1">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
+                <Grid>
+                    <WrapPanel Grid.ColumnSpan="2">
+                        <local:Indicator Fill="DimGray" Stroke="DimGray"/>
+                        <TextBlock Text="Physics Data"/>
+                    </WrapPanel>
+                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                        <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
+                    </WrapPanel>
+                </Grid>
+                <Grid>
+                    <CheckBox x:Name="cbpcPhysicsOverwriteCB" Content="overwrite" IsChecked="{Binding overwriteCBPC_Physics}" Padding="0,-1"/>
+                    <Button Grid.Column="1" Click="WritePhysics_Button_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Content" Value="Copy"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding overwriteCBPC_Physics}" Value="True">
+                                        <Setter Property="Content" Value="Write"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+                <StackPanel x:Name="cbpcPhyPanel">
+                    
+                </StackPanel>
+            </StackPanel>
         </StackPanel>
+        
     </Grid>
 </Window>

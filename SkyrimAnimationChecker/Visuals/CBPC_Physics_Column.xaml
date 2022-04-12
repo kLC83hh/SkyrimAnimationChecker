@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="SkyrimAnimationChecker.CBPC_Physics_Column"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SkyrimAnimationChecker"
+             xmlns:vis="clr-namespace:SkyrimAnimationChecker.Visuals"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="60">
+    <UserControl.Resources>
+
+        <Style TargetType="Grid" x:Key="Normal"/>
+        <Style TargetType="TextBlock" x:Key="lineHeader" x:Name="lineHeader">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Padding" Value="2,0"/>
+        </Style>
+    </UserControl.Resources>
+    <StackPanel>
+        <Grid Style="{StaticResource Normal}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="30" MaxWidth="70"/>
+                <ColumnDefinition MinWidth="30" MaxWidth="70"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="H0" Text="0" HorizontalAlignment="Center"/>
+            <WrapPanel Grid.ColumnSpan="2" HorizontalAlignment="Center">
+                <TextBlock x:Name="HL" Text="[ "/>
+                <d:TextBlock Text="1L"/>
+                <TextBlock HorizontalAlignment="Center" Grid.ColumnSpan="2" Text="{Binding Header, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                <TextBlock x:Name="HR" Text=" ]"/>
+            </WrapPanel>
+            <TextBlock x:Name="H1" Text="1" HorizontalAlignment="Center" Grid.Column="1"/>
+        </Grid>
+        <StackPanel x:Name="panel">
+            <StackPanel.Resources>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>
+                <Style TargetType="TextBox"/>
+                <Style TargetType="Grid"/>
+            </StackPanel.Resources>
+            <!--<TextBox/>-->
+            <vis:PhysicsBox/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

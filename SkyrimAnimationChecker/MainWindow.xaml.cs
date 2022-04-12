@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SkyrimAnimationChecker.Common;
 
 namespace SkyrimAnimationChecker
 {
@@ -24,40 +25,28 @@ namespace SkyrimAnimationChecker
         public MainWindow()
         {
             InitializeComponent();
-            vm = VM.Load();
-            if (vm.LoadFailed) M.D("vmFile load failed");
+            vmm = new VM();
+            if (!vmm.Load()) M.D("vmFile load failed");
+            this.vm = vmm.GENERAL;
             this.DataContext = vm;
             this.Closing += MainWindow_Closing;
         }
-
-        private VM vm;
+        private VM vmm;
+        private VM_GENERAL vm;
+        private void VMreset_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Reset settings to default", "Warning", MessageBoxButton.OKCancel) == MessageBoxResult.OK) vm.Reset();
+        }
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            vm.Save();
+            vmm.Save();
         }
 
-        private async void RunDAR() => T.Text = await Task.Run(new DAR(vm).Run);
-
-        private async void RunNIFE()
-        {
-            int res = await Task.Run(() => new NIF(vm).Run1(OutputWeight(), vm.overwriteInterNIFs));
-            if (res != 1)
-            {
-                Action<string> msg = o => MessageBox.Show($"Error Code 01-{res}: {o}");
-                switch (res)
-                {
-                    case 0: msg("Nothing is done"); break;
-                    case 2: await ControlFlash(overwriteCheckBox); break;//msg("Output_0 file exists"); 
-                    case 3: await ControlFlash(overwriteCheckBox); break;//msg("Output_1 file exists"); 
-                    case 4: msg("Some of input_0 files are not exists"); break;
-                    case 5: msg("Some of input_1 files are not exists"); break;
-                    case 6: await ControlFlash(overwriteCheckBox); break;//msg("Output_0 and Output_1 files are exists"); 
-                    case 10: msg("Output_0 file exists and some of input_1 files are not exists"); await ControlFlash(overwriteCheckBox); break;
-                    case 12: msg("Output_1 file exists and some of input_0 files are not exists"); await ControlFlash(overwriteCheckBox); break;
-                    case 20: msg("Some of input_0 and input_1 files are not exists"); break;
-                }
-            }
-        }
+        #region DAR
+        private async void RunDAR() => T.Text = await Task.Run(new DAR.DAR(vmm).Run);
+        private void DARDuplicateCheck_Button_Click(object sender, RoutedEventArgs e) => RunDAR();
+        #endregion
+        #region Collision
         private List<int> flashing = new();
         private async Task ControlFlash(Control c)
         {
@@ -77,74 +66,43 @@ namespace SkyrimAnimationChecker
             flashing.RemoveAll(item => item == c.GetHashCode());
         }
 
-        CBPC_collider_object[]? DATA;
+
+        private void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => RunMakeInterNIF();
+        private async void RunMakeInterNIF()
+        {
+            int res = await Task.Run(() => new NIF.CollisionNIFs(vm).Make());
+            if (res != 1)
+            {
+                Action<string> msg = o => MessageBox.Show($"Error Code 01-{res}: {o}");
+                switch (res)
+                {
+                    case 0: msg("Nothing is done"); break;
+                    case 2: await ControlFlash(overwriteCheckBox); break;//msg("Output_0 file exists"); 
+                    case 3: await ControlFlash(overwriteCheckBox); break;//msg("Output_1 file exists"); 
+                    case 4: msg("Some of input_0 files are not exists"); break;
+                    case 5: msg("Some of input_1 files are not exists"); break;
+                    case 6: await ControlFlash(overwriteCheckBox); break;//msg("Output_0 and Output_1 files are exists"); 
+                    case 10: msg("Output_0 file exists and some of input_1 files are not exists"); await ControlFlash(overwriteCheckBox); break;
+                    case 12: msg("Output_1 file exists and some of input_0 files are not exists"); await ControlFlash(overwriteCheckBox); break;
+                    case 20: msg("Some of input_0 and input_1 files are not exists"); break;
+                }
+            }
+        }
+
+
+        private void SphereSize_2_Button_Click(object sender, RoutedEventArgs e) => RunNIF_CBPC();
+        collider_object[]? DATA_Colliders;
         private async void RunNIF_CBPC()
         {
-            DATA = await Task.Run(() => { return new NIF(vm).Run2(OutputWeight()); });
-            if (DATA != null && DATA.Length > 0) Clist(DATA);
+            var result = await Task.Run(() => new NIF.Colliders(vm).Get(out DATA_Colliders));
+            if (result.code > 0) MessageBox.Show(result.msg);
+            if (DATA_Colliders != null && DATA_Colliders.Length > 0) Clist(DATA_Colliders);
         }
-        private int OutputWeight()
-        {
-            int val = -1;
-            Dispatcher?.Invoke(() =>
-            {
-                foreach (RadioButton r in weightSelector.Children)
-                {
-                    if (r.IsChecked == true)
-                    {
-                        switch (r.Content.ToString())
-                        {
-                            case "Both": val = 2; break;
-                            case "0": val = 0; break;
-                            case "1":
-                            default: val = 1; break;
-                        }
-                    }
-                }
-            });
-            return val;
-        }
-
-        private async void RunCBPC()
-        {
-            if (DATA == null) return;
-            //if (vm.writeSome) Clipboard.SetText(await Task.Run(() => new CBPC(vm).MakeOrganized(DATA)));
-            if (vm.writeSome) await Task.Run(() => new CBPC(vm).Save(DATA));
-            else
-            {
-                if (vm.CBPCfullcopy) Clipboard.SetText(await Task.Run(() => new CBPC(vm).MakeOrganized(DATA)));
-                else Clipboard.SetText(await Task.Run(() => new CBPC(vm).MakeMessy(DATA)));
-            }
-        }
-
-        private void DARDuplicateCheck_Button_Click(object sender, RoutedEventArgs e) => RunDAR();
-        private void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => RunNIFE();
-        private void SphereSize_2_Button_Click(object sender, RoutedEventArgs e) => RunNIF_CBPC();
-        private void WriteCollisionConfig_3_Button_Click(object sender, RoutedEventArgs e) => RunCBPC();
-
-
-
-        private void Tlist(object[] o)
-        {
-            T.Text = string.Empty;
-            foreach(var d in o)
-            {
-                T.Text += $"{d}\n";
-            }
-        }
-        private void Nlist(object[] o)
-        {
-            N.Text = string.Empty;
-            foreach (var d in o)
-            {
-                N.Text += $"{d}\n";
-            }
-        }
-        private void Clist(CBPC_collider_object[] o)
+        private void Clist(collider_object[] o)
         {
             //C.Text = string.Empty;
             CBPC_panel.Children.Clear();
-            foreach (CBPC_collider_object d in o)
+            foreach (collider_object d in o)
             {
                 //C.Text += $"{d}\n";
                 d.Write = vm.writeAll;
@@ -153,20 +111,34 @@ namespace SkyrimAnimationChecker
                 CBPC_panel.Children.Add(uc);
             }
         }
-        private void Uc_ColliderUpdateEvent(CBPC_collider_object collider)
+        private void Uc_ColliderUpdateEvent(collider_object collider)
         {
             //System.Diagnostics.Debug.WriteLine("Uc_ColliderUpdateEvent");
             if (collider.Write)
             {
                 vm.writeSome = true;
-                if (EveryWriteCheckboxIs(true)) vm.writeAll = true;
+                if (IsEveryWriteCheckbox(true)) vm.writeAll = true;
             }
             else
             {
                 vm.writeAll = false;
-                if (EveryWriteCheckboxIs(false)) vm.writeSome = false;
+                if (IsEveryWriteCheckbox(false)) vm.writeSome = false;
             }
         }
+
+
+        private void WriteCollisionConfig_3_Button_Click(object sender, RoutedEventArgs e) => RunCBPC();
+        private async void RunCBPC()
+        {
+            if (DATA_Colliders == null) return;
+            if (vm.writeSome) await Task.Run(() => new CBPC.Colliders(vmm).Save(DATA_Colliders));
+            else
+            {
+                if (vm.CBPCfullcopy) Clipboard.SetText(await Task.Run(() => new CBPC.Colliders(vmm).MakeOrganized(DATA_Colliders)));
+                else Clipboard.SetText(await Task.Run(() => new CBPC.Colliders(vmm).MakeMessy(DATA_Colliders)));
+            }
+        }
+
 
         private void CBPC_panel_All_CheckBox_Click(object sender, RoutedEventArgs e)
         {
@@ -180,9 +152,9 @@ namespace SkyrimAnimationChecker
             };
             set((sender as CheckBox)?.IsChecked == true);
             if ((sender as CheckBox)?.IsChecked == true) vm.writeSome = true;
-            else if (EveryWriteCheckboxIs(false)) vm.writeSome = false;
+            else if (IsEveryWriteCheckbox(false)) vm.writeSome = false;
         }
-        private bool EveryWriteCheckboxIs(bool tf)
+        private bool IsEveryWriteCheckbox(bool tf)
         {
             if (tf)
             {
@@ -203,45 +175,49 @@ namespace SkyrimAnimationChecker
                 return !checker;
             }
         }
-
-        private void VMreset_Button_Click(object sender, RoutedEventArgs e)
+        #endregion
+        #region Physics
+        CBPC.breast_3ba_object? DATA_3BA;
+        private volatile bool PhysicsReading = false;
+        private async void ReadPhysics()
         {
-            if (MessageBox.Show("Reset settings to default", "Warning", MessageBoxButton.OKCancel) == MessageBoxResult.OK) vm = new VM();
+            if (PhysicsReading) return;
+            PhysicsReading = true;
+            vm.CBPC_Physics_running = true;
+            await Task.Run(() => {
+                //M.D(DATA_3BA?.L1.Data.collisionElastic.Value1);
+                DATA_3BA = new CBPC.FPhysics(vm).GetPhysics();
+                Dispatcher?.Invoke(() => {
+                    if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_3BA)
+                        (cbpcPhyPanel.Children[0] as CBPC_3BA).Data = DATA_3BA;
+                    else
+                    {
+                        cbpcPhyPanel.Children.Clear();
+                        cbpcPhyPanel.Children.Add(new CBPC_3BA(vmm, DATA_3BA));
+                    }
+                });
+            });
+            vm.CBPC_Physics_running = false;
+            PhysicsReading = false;
         }
+        private void ReadPhysics_Button_Click(object sender, RoutedEventArgs e) => ReadPhysics();
+
+        private async void WritePhysics()
+        {
+            if (DATA_3BA == null) return;
+            vm.CBPC_Physics_running = true;
+            await Task.Run(() =>
+            {
+                if (vm.overwriteCBPC_Physics) new CBPC.FPhysics(vm).Save(DATA_3BA, vm.overwriteCBPC_Physics);
+                else Dispatcher?.Invoke(() => Clipboard.SetText(new CBPC.FPhysics(vm).Make3BA(DATA_3BA)));
+            });
+            vm.CBPC_Physics_running = false;
+        }
+        private void WritePhysics_Button_Click(object sender, RoutedEventArgs e) => WritePhysics();
 
 
-
+        #endregion
 
     }
 
-    public class WeightSelectionConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            int param = -1;
-            try { param = System.Convert.ToInt32(parameter); }
-            catch { throw new ArgumentException("Parameter type is not int."); }
-            if (param != 0 && param != 1 && param != 2) throw new ArgumentException("Parameter is not set to 0, 1 or 2.");
-            if (value is int)
-            {
-                if ((int)value == (int)param) return true;
-                else return false;
-            }
-            else throw new ArgumentException("Value type is not int.");
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            int param = -1;
-            try { param = System.Convert.ToInt32(parameter); }
-            catch { throw new ArgumentException("Parameter type is not int."); }
-            if (param != 0 && param != 1 && param != 2) throw new ArgumentException("Parameter is not set to 0, 1 or 2.");
-            if (value is bool)
-            {
-                if ((bool)value == true) return param;
-                else return -1;
-            }
-            else throw new ArgumentException("Value type is not bool.");
-        }
-    }
 }
