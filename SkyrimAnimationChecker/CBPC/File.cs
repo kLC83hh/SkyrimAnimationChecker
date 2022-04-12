@@ -12,7 +12,8 @@ namespace SkyrimAnimationChecker.CBPC
         public File(Common.VM_GENERAL linker) => vm = linker;
         public File(Common.VM linker) => vm = linker.GENERAL;
 
-        private string AutoWriteComment = "### Automatically writed by SAC";
+        private string AutoWriteComment = "### Automatically wrote by SAC";
+        private string[] AutoWriteCommentDelete = new[] { "### Automatically writed by SAC" };
 
         protected void Backup(string path) => System.IO.File.Copy(path, System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), path.Split('\\').Last()), true);
         public string[] ReadLines(string path, bool backup = false)
@@ -27,6 +28,7 @@ namespace SkyrimAnimationChecker.CBPC
                 outputArray = buffer.Split(Environment.NewLine);
             }
             List<string> list = outputArray.ToList();
+            foreach (string awcdel in AutoWriteCommentDelete) list.RemoveAll(x => x.StartsWith(awcdel));
             list.RemoveAll(x => x.StartsWith(AutoWriteComment));
             outputArray = list.ToArray();
             //M.D(lines.Count);
