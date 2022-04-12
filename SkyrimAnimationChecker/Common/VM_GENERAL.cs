@@ -57,7 +57,9 @@ namespace SkyrimAnimationChecker.Common
             CBPCbackup = true;
 
             panelNumber = 1;
-            fileCBPC_Physics = System.IO.Path.Combine(workdir, "CBPConfig_3b.txt");
+            locationCBPC_Physics = workdir;
+            fileCBPC_Physics = "CBPConfig_3b.txt";
+            //fileCBPC_Physics = System.IO.Path.Combine(workdir, "CBPConfig_3b.txt");
             //CBPC_Phy_Mirror_LR = true;
             //CBPC_Phy_Mirror_MinMax = true;
             //CBPC_Phy_3BA_All = true;
@@ -98,6 +100,7 @@ namespace SkyrimAnimationChecker.Common
 
 
         public int panelNumber { get => Get<int>(); set => Set(value); }
+        public string locationCBPC_Physics { get => Get<string>(); set => Set(value); }
         public string fileCBPC_Physics { get => Get<string>(); set => Set(value); }
         //public bool CBPC_Phy_Mirror_LR { get => Get<bool>(); set => Set(value); }
         //public bool CBPC_Phy_Mirror_MinMax { get => Get<bool>(); set => Set(value); }

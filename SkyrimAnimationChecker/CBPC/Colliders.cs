@@ -28,7 +28,7 @@ namespace SkyrimAnimationChecker.CBPC
         public string[] Filter()
         {
             if (CollisionAll.Length == 0) Read();
-            if (CollisionAll.Length == 0) throw EF.NewException(1, "Can not retrieve CBPC Config data.");
+            if (CollisionAll.Length == 0) throw EE.New(1, "Can not retrieve CBPC Config data.");
             string[] lines = CollisionAll;
             //string[] checker = { "# Collision spheres", "# Affected Nodes", "# Collider Nodes" };
             string[] checker = vm.CBPC_Checker.ToArray();

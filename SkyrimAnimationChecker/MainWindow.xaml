@@ -23,6 +23,10 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <Style TargetType="Label" x:Key="lableHeader">
+                <Setter Property="HorizontalAlignment" Value="Right"/>
+                <Setter Property="Padding" Value="2,0"/>
+            </Style>
             <Style TargetType="TextBlock" x:Key="lineHeader">
                 <Setter Property="HorizontalAlignment" Value="Right"/>
                 <Setter Property="Padding" Value="2,0"/>
@@ -238,11 +242,17 @@
                     </WrapPanel>
                 </Grid>-->
                 <Grid>
-                    <TextBlock Text="physics file" Style="{StaticResource lineHeader}"/>
-                    <TextBox Text="{Binding fileCBPC_Physics}" Grid.Column="1"/>
+                    <Label x:Name="PhyLocTB" Content="files location" Style="{StaticResource lableHeader}"/>
+                    <TextBox Text="{Binding locationCBPC_Physics}" KeyDown="PhysicsLocation_TextBox_KeyDown" Grid.Column="1"/>
                 </Grid>
                 <Grid>
-                    <Button Content="Read" Click="ReadPhysics_Button_Click" Grid.Column="1"/>
+                    <Button Content="Reload" Click="ReloadPhysics_Button_Click" Grid.Column="1"/>
+                </Grid>
+                <Rectangle Height="5"/>
+                <Grid>
+                    <TextBlock Text="physics file" Style="{StaticResource lineHeader}"/>
+                    <!--<TextBox Text="{Binding fileCBPC_Physics}" Grid.Column="1"/>-->
+                    <ComboBox x:Name="PhyFileCB" Grid.Column="1" SelectionChanged="PhysicsFile_ComboBox_SelectionChanged"/>
                 </Grid>
             </StackPanel>
         </StackPanel>

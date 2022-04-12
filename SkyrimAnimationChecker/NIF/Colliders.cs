@@ -26,7 +26,7 @@ namespace SkyrimAnimationChecker.NIF
             catch (Exception e) {
                 o = Array.Empty<collider_object>();
                 vm.NIFrunning = false;
-                return EF.ParseException(e);
+                return EE.Parse(e);
             }
 
             collider_object[] res;
@@ -34,16 +34,34 @@ namespace SkyrimAnimationChecker.NIF
             switch (weight)
             {
                 case 2:
-                    res = Combine(GetTriShapes(vm.fileNIF_out0, filter), GetTriShapes(vm.fileNIF_out1, filter));
+                    try { res = Combine(GetTriShapes(vm.fileNIF_out0, filter), GetTriShapes(vm.fileNIF_out1, filter)); }
+                    catch (Exception e)
+                    {
+                        o = Array.Empty<collider_object>();
+                        vm.NIFrunning = false;
+                        return EE.Parse(e);
+                    }
                     break;
                 case 0:
                     res = GetTriShapes(vm.fileNIF_out0, filter);
-                    res = Combine(res, res);
+                    try { res = Combine(res, res); }
+                    catch (Exception e)
+                    {
+                        o = Array.Empty<collider_object>();
+                        vm.NIFrunning = false;
+                        return EE.Parse(e);
+                    }
                     break;
                 case 1:
                 default:
                     res = GetTriShapes(vm.fileNIF_out1, filter);
-                    res = Combine(res, res);
+                    try { res = Combine(res, res); }
+                    catch (Exception e)
+                    {
+                        o = Array.Empty<collider_object>();
+                        vm.NIFrunning = false;
+                        return EE.Parse(e);
+                    }
                     break;
             }
 
@@ -85,13 +103,13 @@ namespace SkyrimAnimationChecker.NIF
         {
             if (colObj == null) throw new ArgumentNullException(nameof(colObj));
 
-            if (colObj[0].Length != colObj[1].Length) throw new Exception("Invalid data: Length of both outputs are different.");
+            if (colObj[0].Length != colObj[1].Length) throw EE.New(1001);
             collider_object[] combined = new collider_object[colObj[0].Length];
             for (int i = 0; i < combined.Length; i++)
             {
-                if (colObj[0][i].Write != colObj[1][i].Write) throw new Exception("Invalid data: Write statuses are different.");
-                if (colObj[0][i].Group != colObj[1][i].Group) throw new Exception("Invalid data: Group statuses are different.");
-                if (colObj[0][i].Name != colObj[1][i].Name) throw new Exception("Invalid data: Sphere names are different.");
+                if (colObj[0][i].Write != colObj[1][i].Write) throw EE.New(1002);
+                if (colObj[0][i].Group != colObj[1][i].Group) throw EE.New(1003);
+                if (colObj[0][i].Name != colObj[1][i].Name) throw EE.New(1004);
 
                 string data = string.Empty;
                 if (colObj[0][i].Data.Contains(Environment.NewLine) && colObj[1][i].Data.Contains(Environment.NewLine) &&

@@ -17,7 +17,7 @@ namespace SkyrimAnimationChecker.CBPC
         public string[] Read(bool backup = false, bool force = false)
         {
             if (PhysicsAll == null || PhysicsAll.Length == 0 || force)
-                PhysicsAll = ReadLines(vm.fileCBPC_Physics, backup);
+                PhysicsAll = ReadLines(System.IO.Path.Combine(vm.locationCBPC_Physics, vm.fileCBPC_Physics), backup);
             return PhysicsAll;
         }
         public int Save(object o, bool overwrite = false)
@@ -38,7 +38,7 @@ namespace SkyrimAnimationChecker.CBPC
         private breast_3ba_object Parse3BA()
         {
             if (PhysicsAll.Length == 0) Read();
-            if (PhysicsAll.Length == 0) throw new Exception("Can not retrieve CBPC Config data.");
+            if (PhysicsAll.Length == 0) throw EE.New(2001);
             string[] lines = PhysicsAll;
             //vm.CBPC_Physics_running = true;
 

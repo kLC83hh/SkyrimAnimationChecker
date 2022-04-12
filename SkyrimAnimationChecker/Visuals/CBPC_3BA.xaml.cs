@@ -81,8 +81,8 @@ namespace SkyrimAnimationChecker
               );
         #endregion
         #region Events
-        public delegate void DataUpdateEventHandler(physics_object o);
-        public event DataUpdateEventHandler? DataUpdated;
+        //public delegate void DataUpdateEventHandler(physics_object o);
+        //public event DataUpdateEventHandler? DataUpdated;
         #endregion
 
 
@@ -102,7 +102,7 @@ namespace SkyrimAnimationChecker
         private void AddColumn(string key, object[] data, object[]? options = null)
         {
             ColumnDefinition cd = new();
-            if (data is string[]) { cd.MinWidth = 120; cd.MaxWidth = 200; }
+            if (data is string[]) { cd.MinWidth = 120; cd.MaxWidth = 200; cd.Width = new GridLength(1.5, GridUnitType.Star); }
             panel.ColumnDefinitions.Add(cd);
 
             CBPC_Physics_Column c = new();

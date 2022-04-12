@@ -30,7 +30,9 @@ namespace SkyrimAnimationChecker
             this.vm = vmm.GENERAL;
             this.DataContext = vm;
             this.Closing += MainWindow_Closing;
+            this.ContentRendered += MainWindow_ContentRendered;
         }
+
         private VM vmm;
         private VM_GENERAL vm;
         private void VMreset_Button_Click(object sender, RoutedEventArgs e)
@@ -41,19 +43,18 @@ namespace SkyrimAnimationChecker
         {
             vmm.Save();
         }
+        private void MainWindow_ContentRendered(object? sender, EventArgs e)
+        {
+            LoadPhysicsLocation();
+        }
 
-        #region DAR
-        private async void RunDAR() => T.Text = await Task.Run(new DAR.DAR(vmm).Run);
-        private void DARDuplicateCheck_Button_Click(object sender, RoutedEventArgs e) => RunDAR();
-        #endregion
-        #region Collision
         private List<int> flashing = new();
-        private async Task ControlFlash(Control c)
+        private async Task FlashUI(Control c)
         {
             if (flashing.Contains(c.GetHashCode())) return;
             flashing.Add(c.GetHashCode());
             int delay = 100;
-            if (c is CheckBox)
+            if (c is CheckBox || c is Label)
             {
                 c.FontWeight = FontWeights.Bold;
                 await Task.Delay(delay);
@@ -67,6 +68,11 @@ namespace SkyrimAnimationChecker
         }
 
 
+        #region DAR
+        private async void RunDAR() => T.Text = await Task.Run(new DAR.DAR(vmm).Run);
+        private void DARDuplicateCheck_Button_Click(object sender, RoutedEventArgs e) => RunDAR();
+        #endregion
+        #region Collision
         private void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => RunMakeInterNIF();
         private async void RunMakeInterNIF()
         {
@@ -77,13 +83,13 @@ namespace SkyrimAnimationChecker
                 switch (res)
                 {
                     case 0: msg("Nothing is done"); break;
-                    case 2: await ControlFlash(overwriteCheckBox); break;//msg("Output_0 file exists"); 
-                    case 3: await ControlFlash(overwriteCheckBox); break;//msg("Output_1 file exists"); 
+                    case 2: await FlashUI(overwriteCheckBox); break;//msg("Output_0 file exists"); 
+                    case 3: await FlashUI(overwriteCheckBox); break;//msg("Output_1 file exists"); 
                     case 4: msg("Some of input_0 files are not exists"); break;
                     case 5: msg("Some of input_1 files are not exists"); break;
-                    case 6: await ControlFlash(overwriteCheckBox); break;//msg("Output_0 and Output_1 files are exists"); 
-                    case 10: msg("Output_0 file exists and some of input_1 files are not exists"); await ControlFlash(overwriteCheckBox); break;
-                    case 12: msg("Output_1 file exists and some of input_0 files are not exists"); await ControlFlash(overwriteCheckBox); break;
+                    case 6: await FlashUI(overwriteCheckBox); break;//msg("Output_0 and Output_1 files are exists"); 
+                    case 10: msg("Output_0 file exists and some of input_1 files are not exists"); await FlashUI(overwriteCheckBox); break;
+                    case 12: msg("Output_1 file exists and some of input_0 files are not exists"); await FlashUI(overwriteCheckBox); break;
                     case 20: msg("Some of input_0 and input_1 files are not exists"); break;
                 }
             }
@@ -94,9 +100,13 @@ namespace SkyrimAnimationChecker
         collider_object[]? DATA_Colliders;
         private async void RunNIF_CBPC()
         {
-            var result = await Task.Run(() => new NIF.Colliders(vm).Get(out DATA_Colliders));
-            if (result.code > 0) MessageBox.Show(result.msg);
-            if (DATA_Colliders != null && DATA_Colliders.Length > 0) Clist(DATA_Colliders);
+            try
+            {
+                var result = await Task.Run(() => new NIF.Colliders(vm).Get(out DATA_Colliders));
+                if (result.code > 0) MessageBox.Show(result.msg);
+                if (DATA_Colliders != null && DATA_Colliders.Length > 0) Clist(DATA_Colliders);
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
         private void Clist(collider_object[] o)
         {
@@ -177,6 +187,50 @@ namespace SkyrimAnimationChecker
         }
         #endregion
         #region Physics
+        private void ReloadPhysics_Button_Click(object sender, RoutedEventArgs e) => LoadPhysicsLocation();
+        private void PhysicsLocation_TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter || e.Key == Key.Return)
+            {
+                LoadPhysicsLocation();
+            }
+        }
+        private async void LoadPhysicsLocation()
+        {
+            if (System.IO.Directory.Exists(vm.locationCBPC_Physics))
+            {
+                PhyFileCB.Items.Clear();
+                string[] files = System.IO.Directory.GetFiles(vm.locationCBPC_Physics, "CBPConfig*").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+                string[] filter = new string[] { "3b" };
+                foreach (string file in files)
+                {
+                    foreach (string filterItem in filter)
+                    {
+                        if (file.Contains(filterItem))
+                        {
+                            string name = file;
+                            if (name.Contains('/')) name = file.Split('/').Last();
+                            if (name.Contains('\\')) name = file.Split('\\').Last();
+                            if (name.Contains("\\\\")) name = file.Split("\\\\").Last();
+                            PhyFileCB.Items.Add(name);
+                        }
+                    }
+                }
+                //if (PhyFileCB.Items.Contains(vm.fileCBPC_Physics)) PhyFileCB.SelectedIndex = PhyFileCB.Items.IndexOf(vm.fileCBPC_Physics);
+                //else PhyFileCB.SelectedIndex = 0;
+            }
+            else { await FlashUI(PhyLocTB); MessageBox.Show(EE.List[12001]); }
+        }
+
+        private void PhysicsFile_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string? buffer = PhyFileCB.Items.GetItemAt(PhyFileCB.SelectedIndex).ToString();
+            if (buffer != null)
+            {
+                vm.fileCBPC_Physics = buffer;
+                ReadPhysics();
+            }
+        }
         CBPC.breast_3ba_object? DATA_3BA;
         private volatile bool PhysicsReading = false;
         private async void ReadPhysics()
@@ -186,7 +240,15 @@ namespace SkyrimAnimationChecker
             vm.CBPC_Physics_running = true;
             await Task.Run(() => {
                 //M.D(DATA_3BA?.L1.Data.collisionElastic.Value1);
-                DATA_3BA = new CBPC.FPhysics(vm).GetPhysics();
+                try { DATA_3BA = new CBPC.FPhysics(vm).GetPhysics(); }
+                catch (Exception e)
+                {
+                    (int c, string msg) = EE.Parse(e);
+                    MessageBox.Show(msg);
+                    vm.CBPC_Physics_running = false;
+                    PhysicsReading = false;
+                    return;
+                }
                 Dispatcher?.Invoke(() => {
                     if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_3BA)
                         (cbpcPhyPanel.Children[0] as CBPC_3BA).Data = DATA_3BA;
@@ -200,8 +262,8 @@ namespace SkyrimAnimationChecker
             vm.CBPC_Physics_running = false;
             PhysicsReading = false;
         }
-        private void ReadPhysics_Button_Click(object sender, RoutedEventArgs e) => ReadPhysics();
 
+        private void WritePhysics_Button_Click(object sender, RoutedEventArgs e) => WritePhysics();
         private async void WritePhysics()
         {
             if (DATA_3BA == null) return;
@@ -213,7 +275,6 @@ namespace SkyrimAnimationChecker
             });
             vm.CBPC_Physics_running = false;
         }
-        private void WritePhysics_Button_Click(object sender, RoutedEventArgs e) => WritePhysics();
 
 
         #endregion
