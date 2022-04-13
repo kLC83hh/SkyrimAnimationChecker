@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SkyrimAnimationChecker"
         xmlns:common="clr-namespace:SkyrimAnimationChecker.Common"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=common:VM}"
-        Title="SkyrimAnimationChecker" Height="570" Width="800">
+        Title="SAC" Height="570" Width="800">
 
     <Grid x:Name="TopGrid" Margin="2">
         <Grid.Resources>

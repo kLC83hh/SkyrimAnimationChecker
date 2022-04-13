@@ -31,6 +31,13 @@ namespace SkyrimAnimationChecker
             this.DataContext = vm;
             this.Closing += MainWindow_Closing;
             this.ContentRendered += MainWindow_ContentRendered;
+            foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (a.GetName().Name == "SkyrimAnimationChecker")
+                {
+                    this.Title += $" {a.GetName().Version}";
+                }
+            }
         }
 
         private VM vmm;
