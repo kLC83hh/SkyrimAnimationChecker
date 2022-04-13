@@ -7,7 +7,7 @@ using SkyrimAnimationChecker.Common;
 
 namespace SkyrimAnimationChecker.CBPC
 {
-    public class Physics : File
+    public class Physics : CBPC
     {
         public Physics(VM_GENERAL linker) : base(linker) { }
         public Physics(VM linker) : base(linker) { }

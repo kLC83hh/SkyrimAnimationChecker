@@ -14,24 +14,5 @@ namespace SkyrimAnimationChecker.NIF
         public NIF(VM linker) => vm = linker.GENERAL;
 
     }
-    //public class CBPC_collider_object_nameSelector : Notify.NotifyPropertyChanged
-    //{
-    //    public CBPC_collider_object_nameSelector()
-    //    {
-    //        Left = new System.Collections.ObjectModel.ObservableCollection<string>() { "NPC L", "L Breast" };
-    //        Right = new System.Collections.ObjectModel.ObservableCollection<string>() { "NPC R", "R Breast" };
-    //    }
-
-    //    public System.Collections.ObjectModel.ObservableCollection<string> Left
-    //    {
-    //        get => Get<System.Collections.ObjectModel.ObservableCollection<string>>();
-    //        set => Set(value);
-    //    }
-    //    public System.Collections.ObjectModel.ObservableCollection<string> Right
-    //    {
-    //        get => Get<System.Collections.ObjectModel.ObservableCollection<string>>();
-    //        set => Set(value);
-    //    }
-    //}
 
 }

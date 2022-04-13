@@ -83,7 +83,7 @@ namespace SkyrimAnimationChecker
         private void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => RunMakeInterNIF();
         private async void RunMakeInterNIF()
         {
-            int res = await Task.Run(() => new NIF.CollisionNIFs(vm).Make());
+            int res = await Task.Run(() => new NIF.Collider(vm).Make());
             if (res != 1)
             {
                 Action<string> msg = o => MessageBox.Show($"Error Code 01-{res}: {o}");
@@ -105,13 +105,22 @@ namespace SkyrimAnimationChecker
 
         private void SphereSize_2_Button_Click(object sender, RoutedEventArgs e) => RunNIF_CBPC();
         collider_object[]? DATA_Colliders;
+        (cc_options_object op, cc_extraoptions_object eop)? Options;
         private async void RunNIF_CBPC()
         {
             try
             {
-                var result = await Task.Run(() => new NIF.Colliders(vm).Get(out DATA_Colliders));
+                Options = await Task.Run(() => new CBPC.Collision(vm).Option());
+                var result = await Task.Run(() => new NIF.Collision(vm).Get(out DATA_Colliders));
                 if (result.code > 0) MessageBox.Show(result.msg);
-                if (DATA_Colliders != null && DATA_Colliders.Length > 0) Clist(DATA_Colliders);
+                if (DATA_Colliders != null && DATA_Colliders.Length > 0)
+                {
+                    Clist(DATA_Colliders);
+                    if (Options != null)
+                    {
+                        ColOptions.Options = Options.Value.op;
+                    }
+                }
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
@@ -148,11 +157,11 @@ namespace SkyrimAnimationChecker
         private async void RunCBPC()
         {
             if (DATA_Colliders == null) return;
-            if (vm.writeSome) await Task.Run(() => new CBPC.Colliders(vmm).Save(DATA_Colliders));
+            if (vm.writeSome) await Task.Run(() => new CBPC.Collision(vmm).Save(DATA_Colliders, Options));
             else
             {
-                if (vm.CBPCfullcopy) Clipboard.SetText(await Task.Run(() => new CBPC.Colliders(vmm).MakeOrganized(DATA_Colliders)));
-                else Clipboard.SetText(await Task.Run(() => new CBPC.Colliders(vmm).MakeMessy(DATA_Colliders)));
+                if (vm.CBPCfullcopy) Clipboard.SetText(await Task.Run(() => new CBPC.Collision(vmm).MakeOrganized(DATA_Colliders, Options)));
+                else Clipboard.SetText(await Task.Run(() => new CBPC.Collision(vmm).MakeMessy(DATA_Colliders, Options)));
             }
         }
 

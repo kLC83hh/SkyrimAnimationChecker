@@ -52,6 +52,7 @@
         <StackPanel>
             <StackPanel.Resources>
                 <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
+                <Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>
             </StackPanel.Resources>
             
             <!--Setting-->
@@ -85,16 +86,19 @@
             </StackPanel>
             <Rectangle Margin="5" Height="2" Fill="DimGray"/>
             
-            <WrapPanel>
+            <!--C-P selector-->
+            <WrapPanel Margin="10,2">
                 <WrapPanel.Resources>
                     <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
                         <Setter Property="GroupName" Value="panelGroup"/>
+                        <Setter Property="FontWeight" Value="DemiBold"/>
                     </Style>
                 </WrapPanel.Resources>
                 <RadioButton Content="Collision" Padding="0" IsChecked="{Binding panelNumber, Converter={StaticResource weightConverter}, ConverterParameter=0}"/>
                 <RadioButton Content="Physics" Padding="0" IsChecked="{Binding panelNumber, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
             </WrapPanel>
             <Rectangle Height="1" Margin="2"/>
+            
             <!--NIF-CBPC collision-->
             <StackPanel>
                 <StackPanel.Resources>
@@ -199,6 +203,20 @@
                     <Button Click="SphereSize_2_Button_Click" Content="2. Sphere Size" Grid.Column="1"/>
                 </Grid>
             </StackPanel>
+            <local:CollisionOptions x:Name="ColOptions">
+                <local:CollisionOptions.Style>
+                    <Style TargetType="local:CollisionOptions">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <d:Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding panelNumber}" Value="0">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </local:CollisionOptions.Style>
+            </local:CollisionOptions>
+
 
             <!--CBPC physics-->
             <StackPanel>
@@ -227,22 +245,8 @@
                         <CheckBox Content="Min/Max" Padding="0,-1" IsChecked="{Binding CBPC_Phy_Mirror_MinMax}"/>-->
                     </WrapPanel>
                 </Grid>
-                <!--<Grid>
-                    <TextBlock Text="3BA" Style="{StaticResource lineHeader}"/>
-                    <WrapPanel Grid.Column="1">
-                        <WrapPanel.Resources>
-                            <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
-                                <Setter Property="GroupName" Value="3ba"/>
-                            </Style>
-                        </WrapPanel.Resources>
-                        <CheckBox Content="All" Padding="0,-1" IsChecked="{Binding CBPC_Phy_3BA_All}"/>
-                        <RadioButton Content="EB1" Padding="0" IsChecked="{Binding CBPC_Phy_3BA_Select, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
-                        <RadioButton Content="EB2" Padding="0" IsChecked="{Binding CBPC_Phy_3BA_Select, Converter={StaticResource weightConverter}, ConverterParameter=2}"/>
-                        <RadioButton Content="EB3" Padding="0" IsChecked="{Binding CBPC_Phy_3BA_Select, Converter={StaticResource weightConverter}, ConverterParameter=3}"/>
-                    </WrapPanel>
-                </Grid>-->
                 <Grid>
-                    <Label x:Name="PhyLocTB" Content="files location" Style="{StaticResource lableHeader}"/>
+                    <Label x:Name="PhyLocTB" Content="files location"/>
                     <TextBox Text="{Binding locationCBPC_Physics}" KeyDown="PhysicsLocation_TextBox_KeyDown" Grid.Column="1"/>
                 </Grid>
                 <Grid>

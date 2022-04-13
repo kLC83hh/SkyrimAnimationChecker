@@ -14,7 +14,7 @@ namespace SkyrimAnimationChecker.Common
 
         public delegate void ValueUpdateEventHandler(physics_object o);
         public event ValueUpdateEventHandler? ValueUpdated;
-        protected void Set(physics_object o, [System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        protected void Set(physics_object o, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
         {
             o.ValueUpdated += (o) => ValueUpdated?.Invoke(o);
             base.Set(o, name);
@@ -23,7 +23,7 @@ namespace SkyrimAnimationChecker.Common
 
 
         #region Values
-        public new physics_object[] Values => GetPropertyHandleValues<physics_object>();
+        public new physics_object[] Values => PropertyHandleGetValues<physics_object>();
         #endregion
 
         #region Property Handling

@@ -74,7 +74,7 @@ namespace SkyrimAnimationChecker.CBPC
         /// <summary>
         /// Get breast datas for all 3 bones
         /// </summary>
-        public new cbpc_breast[] Values => GetPropertyHandleValues<cbpc_breast>();
+        public new cbpc_breast[] Values => PropertyHandleGetValues<cbpc_breast>();
 
         /// <summary>
         /// 

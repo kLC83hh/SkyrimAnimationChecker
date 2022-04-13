@@ -142,12 +142,12 @@ namespace SkyrimAnimationChecker
                 AddColumn(string.Empty, Data.GetData(1).Left.Keys, Data.GetData(1).Left.Values);
                 Data.Keys.ForEach(key =>
                 {
-                    var br = Data.GetPropertyHandleValue<cbpc_breast>(key);
+                    var br = Data.PropertyHandleGetValue<cbpc_breast>(key);
                     AddColumn($"{br.Number}{br.Left}", br.Left.Values);
                 });
                 if (!vm.VMbreast_ShowLeftOnly) Data.Keys.ForEach(key =>
                 {
-                    var br = Data.GetPropertyHandleValue<cbpc_breast>(key);
+                    var br = Data.PropertyHandleGetValue<cbpc_breast>(key);
                     AddColumn($"{br.Number}{br.Right}", br.Right.Values);
                 });
             }

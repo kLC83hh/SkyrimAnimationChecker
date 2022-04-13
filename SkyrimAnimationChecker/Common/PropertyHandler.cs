@@ -16,21 +16,21 @@ namespace SkyrimAnimationChecker.Common
 
         #region Values
         [System.Text.Json.Serialization.JsonIgnore]
-        public object[] Values => GetPropertyHandleValues<object>();
-        public virtual T[] GetPropertyHandleValues<T>()
+        public object[] Values => PropertyHandleGetValues<object>();
+        public virtual T[] PropertyHandleGetValues<T>()
         {
             T[] vals = new T[Keys.Length];
             for (int i = 0; i < Keys.Length; i++)
             {
-                vals[i] = GetPropertyHandleValue<T>(Keys[i]);
+                vals[i] = PropertyHandleGetValue<T>(Keys[i]);
             }
             return vals;
         }
         #endregion
 
         #region Property Handling
-        public virtual T GetPropertyHandleValue<T>(string key) => (T)(GetType().GetProperty(key)?.GetValue(this) ?? new());
-        public virtual void SetPropertyHandleValue<T>(string key, T data) => GetType().GetProperty(key)?.SetValue(this, data);
+        public virtual T PropertyHandleGetValue<T>(string key) => (T)(GetType().GetProperty(key)?.GetValue(this) ?? new());
+        public virtual void PropertyHandleSetValue<T>(string key, T data) => GetType().GetProperty(key)?.SetValue(this, data);
         #endregion
 
     }
@@ -46,7 +46,7 @@ namespace SkyrimAnimationChecker.Common
             if (KeysOrder != null) this.KeysOrder = KeysOrder;
             if (KeysOrder2 != null) this.KeysOrder2 = KeysOrder2;
             if (RawOrderData != null) this.RawOrderData = (bool)RawOrderData;
-            MakePropertyHandleKeys();
+            PropertyHandleMakeKeys();
         }
 
         #region Keys
@@ -111,7 +111,7 @@ namespace SkyrimAnimationChecker.Common
             }
             order = r;
         }
-        private void MakePropertyHandleKeys()
+        private void PropertyHandleMakeKeys()
         {
             var messyprops = GetType().GetProperties();
             if (messyprops.Length == 0) return;
@@ -135,21 +135,21 @@ namespace SkyrimAnimationChecker.Common
 
         #region Values
         [System.Text.Json.Serialization.JsonIgnore]
-        public object[] Values => GetPropertyHandleValues<object>();
-        public virtual T[] GetPropertyHandleValues<T>()
+        public object[] Values => PropertyHandleGetValues<object>();
+        public virtual T[] PropertyHandleGetValues<T>()
         {
             T[] vals = new T[Keys.Length];
             for (int i = 0; i < Keys.Length; i++)
             {
-                vals[i] = GetPropertyHandleValue<T>(Keys[i]);
+                vals[i] = PropertyHandleGetValue<T>(Keys[i]);
             }
             return vals;
         }
         #endregion
 
         #region Property Handling
-        public virtual T GetPropertyHandleValue<T>(string key) => (T)(GetType().GetProperty(key)?.GetValue(this) ?? new());
-        public virtual void SetPropertyHandleValue<T>(string key, T data) => GetType().GetProperty(key)?.SetValue(this, data);
+        public virtual T PropertyHandleGetValue<T>(string key) => (T)(GetType().GetProperty(key)?.GetValue(this) ?? new());
+        public virtual void PropertyHandleSetValue<T>(string key, T data) => GetType().GetProperty(key)?.SetValue(this, data);
         #endregion
 
 

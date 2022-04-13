@@ -16,7 +16,7 @@ namespace SkyrimAnimationChecker
             { 1002, $"NIF: Colliders: Combine: {Environment.NewLine}Invalid data: Write statuses are different." },
             { 1003, $"NIF: Colliders: Combine: {Environment.NewLine}Invalid data: Group statuses are different." },
             { 1004, $"NIF: Colliders: Combine: {Environment.NewLine}Invalid data: Sphere names are different." },
-            // 2000 cbpc
+            // 2000 cbpc physics
             { 2001, $"CBPC: Physics: Parse_Type: {Environment.NewLine}Can not retrieve CBPConfig data." },
             { 2008, $"CBPC: Physics: Parse_Type: {Environment.NewLine}Can not recognize CBPConfig data type." },
             //{ 2009, $"CBPC: Physics: Parse_Type: {Environment.NewLine}Can not recognize CBPConfig data type." },
@@ -26,11 +26,17 @@ namespace SkyrimAnimationChecker
             { 2203, $"CBPC: Physics: Parse3BA:" },
             { 2901, $"cbpc_breast: Can not recognize breast bone side" },
             { 2902, $"cbpc_breast: Can not recognize breast bone number" },
+            // 5000 cbpc collision
+            { 5001, $"CBPC: CollisionCBPC: Filter: Can not retrieve CBPConfig data." },
+            { 5201, $"CBPC: CollisionCBPC: Option: Can not retrieve CBPConfig data." },
+            { 5202, $"CBPC: CollisionCBPC: Option: Can not convert priority value to int" },
+            { 5203, $"CBPC: CollisionCBPC: Option: Can not convert extraoptions to double" },
+            { 5011, $"CBPC: CollisionCBPC: MakeOrganized: Can not retrieve CBPConfig data." },
             // 11000 mainwindow nif
             // 12000 mainwindow cbpc
             { 12001, $"Invalid CBPC Physics location" }
         };
-        internal static Exception New(int code, string? msg = null, System.Diagnostics.StackTrace? trace = null)
+        internal static Exception New(int code, string? msg = null, System.Diagnostics.StackTrace? trace = null, [System.Runtime.CompilerServices.CallerMemberName] string? caller = null)
         {
             if (List[code] != msg)
             {
@@ -39,6 +45,7 @@ namespace SkyrimAnimationChecker
             }
             else if (List[code] == null && msg == null) msg = trace?.ToString();
             else msg = List[code];
+            if (caller != null) msg += $"{Environment.NewLine}Caller: {caller}";
             var e = new Exception($"[{code}]{Environment.NewLine}{msg}");
             e.Data.Add("Code", code);
             return e;

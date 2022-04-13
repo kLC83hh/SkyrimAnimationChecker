@@ -1,0 +1,67 @@
+﻿<UserControl x:Class="SkyrimAnimationChecker.CollisionOptions"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SkyrimAnimationChecker"
+             mc:Ignorable="d" 
+             d:DesignHeight="150" d:DesignWidth="300">
+    <UserControl.Resources>
+        <Style TargetType="Grid" x:Key="Normal"/>
+        <Style TargetType="Grid" x:Key="Line">
+            <Setter Property="local:GridUtils.ColumnDefinitions">
+                <Setter.Value>
+                    <local:ColumnDefinitionCollection>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition />
+                    </local:ColumnDefinitionCollection>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="Label" x:Key="lableHeader">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Padding" Value="2,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <StackPanel.Resources>
+            <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
+            <Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>
+        </StackPanel.Resources>
+
+        <Rectangle Height="5"/>
+        <WrapPanel>
+            <local:Indicator Fill="DimGray" Stroke="DimGray"/>
+            <TextBlock Text="Options"/>
+        </WrapPanel>
+        <Grid Style="{StaticResource Normal}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="30"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="Conditions"/>
+            <TextBox Text="{Binding Options.Conditions, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="1"/>
+            <Label Content="Priority" Grid.Column="2"/>
+            <TextBox Text="{Binding Options.Priority, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="3"/>
+        </Grid>
+        <WrapPanel>
+            <local:Indicator Fill="DimGray" Stroke="DimGray"/>
+            <TextBlock Text="ExtraOptions"/>
+        </WrapPanel>
+        <Grid Style="{StaticResource Normal}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.75*"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="1.75*"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <d:Label Content="BellyBulge"/>
+            <d:TextBox Grid.Column="1"/>
+            <d:Label Content="VaginaOpeningMultiplier" Grid.Column="2"/>
+            <d:TextBox Grid.Column="3"/>
+        </Grid>
+    </StackPanel>
+</UserControl>
