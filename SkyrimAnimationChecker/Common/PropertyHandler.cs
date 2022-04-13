@@ -6,30 +6,64 @@ using System.Threading.Tasks;
 
 namespace SkyrimAnimationChecker.Common
 {
-    public class PropertyHandler : Notify.NotifyPropertyChanged
+    public interface IPropertyHandler
     {
-        public PropertyHandler(string[]? KeysException = null, bool? AddibleKeysException = null, object[]? KeysOrder = null, bool? RegexOrder = null)
+        #region Keys
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string[] Keys { get; }
+        public abstract int KeysOrderComparer(string key);
+        #endregion
+
+        #region Values
+        [System.Text.Json.Serialization.JsonIgnore]
+        public object[] Values => GetPropertyHandleValues<object>();
+        public virtual T[] GetPropertyHandleValues<T>()
         {
-            if (KeysException != null)
+            T[] vals = new T[Keys.Length];
+            for (int i = 0; i < Keys.Length; i++)
             {
-                if (AddibleKeysException != null && (bool)AddibleKeysException) this.PropertyHandleKeysException = this.PropertyHandleKeysException.Concat(KeysException).ToArray();
-                else this.PropertyHandleKeysException = KeysException;
+                vals[i] = GetPropertyHandleValue<T>(Keys[i]);
+            }
+            return vals;
+        }
+        #endregion
+
+        #region Property Handling
+        public virtual T GetPropertyHandleValue<T>(string key) => (T)(GetType().GetProperty(key)?.GetValue(this) ?? new());
+        public virtual void SetPropertyHandleValue<T>(string key, T data) => GetType().GetProperty(key)?.SetValue(this, data);
+        #endregion
+
+    }
+    public class PropertyHandler : Notify.NotifyPropertyChanged, IPropertyHandler
+    {
+        public PropertyHandler(string[]? KeysIgnore = null, bool? ReplaceKeysException = null, object[]? KeysOrder = null, object[]? KeysOrder2 = null, bool? RawOrderData = null)
+        {
+            if (KeysIgnore != null)
+            {
+                if (ReplaceKeysException != null && (bool)ReplaceKeysException) this.PropertyHandleKeysIgnore = KeysIgnore;
+                else this.PropertyHandleKeysIgnore = this.PropertyHandleKeysIgnore.Concat(KeysIgnore).ToArray();
             }
             if (KeysOrder != null) this.KeysOrder = KeysOrder;
-            if (RegexOrder != null) this.RegexOrder = (bool)RegexOrder;
+            if (KeysOrder2 != null) this.KeysOrder2 = KeysOrder2;
+            if (RawOrderData != null) this.RawOrderData = (bool)RawOrderData;
             MakePropertyHandleKeys();
         }
 
         #region Keys
         [System.Text.Json.Serialization.JsonIgnore]
-        public string[] PropertyHandleKeysException = new string[] { "Keys", "Values" };
+        public string[] PropertyHandleKeysIgnore = new string[] { "Keys", "Values" };
         /// <summary>
         /// string[], Regex[] or string[] (regexpattern when RegexOrder=true)
         /// </summary>
         [System.Text.Json.Serialization.JsonIgnore]
         public object[] KeysOrder = Array.Empty<object>();
+        /// <summary>
+        /// string[], Regex[] or string[] (regexpattern when RegexOrder=true)
+        /// </summary>
         [System.Text.Json.Serialization.JsonIgnore]
-        public bool RegexOrder = false;
+        public object[] KeysOrder2 = Array.Empty<object>();
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool RawOrderData = false;
         [System.Text.Json.Serialization.JsonIgnore]
         public string[] Keys => _PropertyHandleKeys ?? Array.Empty<string>();
 
@@ -37,33 +71,54 @@ namespace SkyrimAnimationChecker.Common
         private string[]? _PropertyHandleKeys;
         private bool CheckPropertyHandleKeyException(string propname)
         {
-            foreach (string ex in PropertyHandleKeysException)
+            foreach (string ex in PropertyHandleKeysIgnore)
             {
                 if (propname == ex) return false;
             }
             return true;
         }
+        private int Ordering(string key, object[] order, int mult = 1)
+        {
+            for (int i = 0; i < order.Length; i++)
+            {
+                if (order[i] is string s && key.Contains(s)) return i * mult;
+                if (order[i] is System.Text.RegularExpressions.Regex r && r.IsMatch(key)) return i * mult;
+            }
+            return mult > 1 ? 0 : order.Length;
+        }
+        private int ReverseOrdering(string key, object[] order)
+        {
+            int f = int.MaxValue;
+            for (int i = order.Length - 1; i >= 0; i--)
+            {
+                if (order[i] is string && key.Contains((string)order[i])) f -= (order.Length - i);
+                if (order[i] is System.Text.RegularExpressions.Regex r && r.IsMatch(key)) f -= (order.Length - i);
+            }
+            return f;
+        }
         public virtual int KeysOrderComparer(string key)
         {
-            for (int i = 0; i < KeysOrder.Length; i++)
+            int i = Ordering(key, KeysOrder);
+            int f = Ordering(key, KeysOrder2, 10000);
+            return i + f;
+        }
+        private void Regexize(ref object[] order)
+        {
+            System.Text.RegularExpressions.Regex[] r = new System.Text.RegularExpressions.Regex[order.Length];
+            for (int i = 0; i < order.Length; i++)
             {
-                if (KeysOrder[i] is string && key.Contains((string)KeysOrder[i])) return i;
-                if (KeysOrder[i] is System.Text.RegularExpressions.Regex r && r.IsMatch(key)) return i;
+                if (order[i] is string) r[i] = new System.Text.RegularExpressions.Regex((string)order[i]);
             }
-            return int.MaxValue;
+            order = r;
         }
         private void MakePropertyHandleKeys()
         {
             var messyprops = GetType().GetProperties();
             if (messyprops.Length == 0) return;
-            if (RegexOrder)
+            if (!RawOrderData)
             {
-                System.Text.RegularExpressions.Regex[] r = new System.Text.RegularExpressions.Regex[KeysOrder.Length];
-                for (int i = 0; i < KeysOrder.Length; i++)
-                {
-                    if (KeysOrder[i] is string) r[i] = new System.Text.RegularExpressions.Regex((string)KeysOrder[i]);
-                }
-                KeysOrder = r;
+                Regexize(ref KeysOrder);
+                Regexize(ref KeysOrder2);
             }
             var props = (from prop in messyprops
                          orderby KeysOrderComparer(prop.Name), prop.Name
@@ -96,6 +151,7 @@ namespace SkyrimAnimationChecker.Common
         public virtual T GetPropertyHandleValue<T>(string key) => (T)(GetType().GetProperty(key)?.GetValue(this) ?? new());
         public virtual void SetPropertyHandleValue<T>(string key, T data) => GetType().GetProperty(key)?.SetValue(this, data);
         #endregion
+
 
     }
 }

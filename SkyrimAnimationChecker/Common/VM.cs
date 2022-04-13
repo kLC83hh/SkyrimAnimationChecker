@@ -14,7 +14,7 @@ namespace SkyrimAnimationChecker.Common
             Load();
         }
         public VM_GENERAL GENERAL { get; set; } = new();
-        public VM_V3BA VM_V3BA { get; set; } = new();
+        public VM_Vbreast Vbreast { get; set; } = new();
 
         //public static ref VM GETVM<T>() { return ref _VM; }
 
@@ -27,7 +27,7 @@ namespace SkyrimAnimationChecker.Common
                 if (o[0] is System.Text.Json.JsonElement)
                     GENERAL = System.Text.Json.JsonSerializer.Deserialize<VM_GENERAL>((System.Text.Json.JsonElement)o[0]) ?? new();
                 if (o[1] is System.Text.Json.JsonElement)
-                    VM_V3BA = System.Text.Json.JsonSerializer.Deserialize<VM_V3BA>((System.Text.Json.JsonElement)o[1]) ?? new();
+                    Vbreast = System.Text.Json.JsonSerializer.Deserialize<VM_Vbreast>((System.Text.Json.JsonElement)o[1]) ?? new();
                 return true;
             }
             //VMs = new() { GENERAL, VM_V3BA };

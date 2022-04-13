@@ -22,7 +22,7 @@ namespace SkyrimAnimationChecker.CBPC
         }
         public void Save(collider_object[] o, bool overwrite = true)
         {
-            if (CanSave(vm.fileCBPC_Collision, overwrite)) Save(MakeOrganized(o), vm.fileCBPC_Collision, overwrite, vm.CBPCbackup);
+            if (CanWrite(vm.fileCBPC_Collision, overwrite)) Write(MakeOrganized(o), vm.fileCBPC_Collision, overwrite, vm.CBPCbackup);
         }
 
         public string[] Filter()

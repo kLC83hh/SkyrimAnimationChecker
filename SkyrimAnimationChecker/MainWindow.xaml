@@ -252,7 +252,7 @@
                 <Grid>
                     <TextBlock Text="physics file" Style="{StaticResource lineHeader}"/>
                     <!--<TextBox Text="{Binding fileCBPC_Physics}" Grid.Column="1"/>-->
-                    <ComboBox x:Name="PhyFileCB" Grid.Column="1" SelectionChanged="PhysicsFile_ComboBox_SelectionChanged"/>
+                    <ComboBox x:Name="PhyFileCB" Grid.Column="1" SelectionChanged="PhysicsFile_ComboBox_SelectionChanged" MouseEnter="PhyFileCB_MouseEnter"/>
                 </Grid>
             </StackPanel>
         </StackPanel>

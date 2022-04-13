@@ -195,13 +195,13 @@ namespace SkyrimAnimationChecker
                 LoadPhysicsLocation();
             }
         }
+        string[] filter = new string[] { "3b", "BBP" };
         private async void LoadPhysicsLocation()
         {
             if (System.IO.Directory.Exists(vm.locationCBPC_Physics))
             {
                 PhyFileCB.Items.Clear();
                 string[] files = System.IO.Directory.GetFiles(vm.locationCBPC_Physics, "CBPConfig*").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-                string[] filter = new string[] { "3b" };
                 foreach (string file in files)
                 {
                     foreach (string filterItem in filter)
@@ -222,6 +222,7 @@ namespace SkyrimAnimationChecker
             else { await FlashUI(PhyLocTB); MessageBox.Show(EE.List[12001]); }
         }
 
+        private void PhyFileCB_MouseEnter(object sender, MouseEventArgs e) => (sender as ComboBox)?.Focus();
         private void PhysicsFile_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string? buffer = PhyFileCB.Items.GetItemAt(PhyFileCB.SelectedIndex).ToString();
@@ -231,34 +232,42 @@ namespace SkyrimAnimationChecker
                 ReadPhysics();
             }
         }
-        CBPC.breast_3ba_object? DATA_3BA;
+        CBPC.Icbpc_data? DATA_CBPC;
         private volatile bool PhysicsReading = false;
         private async void ReadPhysics()
         {
             if (PhysicsReading) return;
             PhysicsReading = true;
             vm.CBPC_Physics_running = true;
+
             await Task.Run(() => {
                 //M.D(DATA_3BA?.L1.Data.collisionElastic.Value1);
-                try { DATA_3BA = new CBPC.FPhysics(vm).GetPhysics(); }
+                try { DATA_CBPC = new CBPC.Physics(vm).GetPhysics(); }
                 catch (Exception e)
                 {
                     (int c, string msg) = EE.Parse(e);
                     MessageBox.Show(msg);
-                    vm.CBPC_Physics_running = false;
-                    PhysicsReading = false;
                     return;
                 }
-                Dispatcher?.Invoke(() => {
-                    if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_3BA)
-                        (cbpcPhyPanel.Children[0] as CBPC_3BA).Data = DATA_3BA;
-                    else
-                    {
-                        cbpcPhyPanel.Children.Clear();
-                        cbpcPhyPanel.Children.Add(new CBPC_3BA(vmm, DATA_3BA));
-                    }
-                });
+
+                switch (DATA_CBPC.DataType)
+                {
+                    case "3ba":
+                    case "bbp":
+                        Dispatcher?.Invoke(() =>
+                        {
+                            if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_Breast w)
+                                w.Data = (CBPC.Icbpc_breast_data)DATA_CBPC;
+                            else
+                            {
+                                cbpcPhyPanel.Children.Clear();
+                                cbpcPhyPanel.Children.Add(new CBPC_Breast(vmm, (CBPC.Icbpc_breast_data)DATA_CBPC));
+                            }
+                        });
+                        break;
+                }
             });
+
             vm.CBPC_Physics_running = false;
             PhysicsReading = false;
         }
@@ -266,12 +275,12 @@ namespace SkyrimAnimationChecker
         private void WritePhysics_Button_Click(object sender, RoutedEventArgs e) => WritePhysics();
         private async void WritePhysics()
         {
-            if (DATA_3BA == null) return;
+            if (DATA_CBPC == null) return;
             vm.CBPC_Physics_running = true;
             await Task.Run(() =>
             {
-                if (vm.overwriteCBPC_Physics) new CBPC.FPhysics(vm).Save(DATA_3BA, vm.overwriteCBPC_Physics);
-                else Dispatcher?.Invoke(() => Clipboard.SetText(new CBPC.FPhysics(vm).Make3BA(DATA_3BA)));
+                if (vm.overwriteCBPC_Physics) new CBPC.Physics(vm).Save(DATA_CBPC, vm.overwriteCBPC_Physics);
+                else Dispatcher?.Invoke(() => Clipboard.SetText(new CBPC.Physics(vm).MakeBreast((CBPC.Icbpc_breast_data)DATA_CBPC)));
             });
             vm.CBPC_Physics_running = false;
         }

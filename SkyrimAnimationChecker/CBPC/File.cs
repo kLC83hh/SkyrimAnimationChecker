@@ -34,11 +34,11 @@ namespace SkyrimAnimationChecker.CBPC
             //M.D(lines.Count);
             return outputArray;
         }
-        private bool SaveRefused(string path, bool overwrite = true) => System.IO.File.Exists(path) && !overwrite;
-        protected bool CanSave(string path, bool overwrite = true) => !SaveRefused(path, overwrite);
-        public void Save(string data, string path, bool overwrite = true, bool backup = true)
+        private bool WriteRefused(string path, bool overwrite = true) => System.IO.File.Exists(path) && !overwrite;
+        protected bool CanWrite(string path, bool overwrite = true) => !WriteRefused(path, overwrite);
+        public void Write(string data, string path, bool overwrite = true, bool backup = true)
         {
-            if (SaveRefused(path, overwrite)) return;
+            if (WriteRefused(path, overwrite)) return;
             if (backup) Backup(path);
             data += $"{Environment.NewLine}{AutoWriteComment} at {DateTime.Now}";
             using (System.IO.StreamWriter sw = new(path))
