@@ -9,7 +9,7 @@ namespace SkyrimAnimationChecker.CBPC
 {
     public class cbpc_breast_3ba : Common.PropertyHandler, Icbpc_breast_data
     {
-        public cbpc_breast_3ba() : base(KeysIgnore: new string[] { "MirrorKeys", "Name", "DataType" })
+        public cbpc_breast_3ba() : base(KeysIgnore: new string[] { "MirrorKeys", "Name", "NameShort", "DataType" })
         {
             B1 = new(1);
             B2 = new(2);
@@ -21,7 +21,8 @@ namespace SkyrimAnimationChecker.CBPC
         /// A short name from bone 1. Short names of all 3 bones should be same.
         /// </summary>
         [System.Text.Json.Serialization.JsonIgnore]
-        public string Name => B1.NameShort;
+        public string Name { get => B1.NameShort; set { } }
+        public string NameShort => Name;
         public string[] MirrorKeys
         {
             get
@@ -82,7 +83,7 @@ namespace SkyrimAnimationChecker.CBPC
         /// <param name="num">1,2,3</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public cbpc_breast GetData(int? num = null)
+        public Icbpc_data GetData(int? num = null)
         {
             if (num == null) throw new ArgumentNullException(nameof(num));
             switch (num)

@@ -211,7 +211,7 @@ namespace SkyrimAnimationChecker
                 LoadPhysicsLocation();
             }
         }
-        string[] filter = new string[] { "3b", "BBP" };
+        string[] filter = new string[] { "3b", "BBP", "butt", "belly", "leg", "Vagina" };
         private async void LoadPhysicsLocation()
         {
             if (System.IO.Directory.Exists(vm.locationCBPC_Physics))
@@ -269,15 +269,32 @@ namespace SkyrimAnimationChecker
                 switch (DATA_CBPC.DataType)
                 {
                     case "3ba":
-                    case "bbp":
+                    case "leg":
+                    case "vagina":
                         Dispatcher?.Invoke(() =>
                         {
-                            if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_Breast w)
-                                w.Data = (CBPC.Icbpc_breast_data)DATA_CBPC;
+                            if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_Physics_MultiBone w)
+                                w.Data = (CBPC.Icbpc_data_multibone)DATA_CBPC;
                             else
                             {
                                 cbpcPhyPanel.Children.Clear();
-                                cbpcPhyPanel.Children.Add(new CBPC_Breast(vmm, (CBPC.Icbpc_breast_data)DATA_CBPC));
+                                cbpcPhyPanel.Children.Add(new CBPC_Physics_MultiBone(vmm, (CBPC.Icbpc_data_multibone)DATA_CBPC));
+                            }
+                        });
+                        break;
+                    case "bbp":
+                    case "belly":
+                    case "butt":
+                    case "single":
+                    case "mirrored":
+                        Dispatcher?.Invoke(() =>
+                        {
+                            if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_Physics w)
+                                w.Data = DATA_CBPC;
+                            else
+                            {
+                                cbpcPhyPanel.Children.Clear();
+                                cbpcPhyPanel.Children.Add(new CBPC_Physics(vmm, DATA_CBPC));
                             }
                         });
                         break;
@@ -296,7 +313,7 @@ namespace SkyrimAnimationChecker
             await Task.Run(() =>
             {
                 if (vm.overwriteCBPC_Physics) new CBPC.Physics(vm).Save(DATA_CBPC, vm.overwriteCBPC_Physics);
-                else Dispatcher?.Invoke(() => Clipboard.SetText(new CBPC.Physics(vm).MakeBreast((CBPC.Icbpc_breast_data)DATA_CBPC)));
+                else Dispatcher?.Invoke(() => Clipboard.SetText(new CBPC.Physics(vm).MakeCBPConfig(DATA_CBPC)));
             });
             vm.CBPC_Physics_running = false;
         }

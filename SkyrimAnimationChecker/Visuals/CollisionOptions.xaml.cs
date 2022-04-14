@@ -26,7 +26,8 @@ namespace SkyrimAnimationChecker
         {
             InitializeComponent();
             Options = op.Item1;
-            DataContext = Options;
+            ExtraOptions = op.Item2;
+            //DataContext = Options;
         }
 
         #region Properties

@@ -27,9 +27,15 @@
                 <Setter Property="HorizontalAlignment" Value="Right"/>
                 <Setter Property="Padding" Value="2,0"/>
             </Style>
+            <Style TargetType="Label" BasedOn="{StaticResource lableHeader}" x:Key="emlbHeader">
+                <Setter Property="Foreground" Value="OrangeRed"/>
+            </Style>
             <Style TargetType="TextBlock" x:Key="lineHeader">
                 <Setter Property="HorizontalAlignment" Value="Right"/>
                 <Setter Property="Padding" Value="2,0"/>
+            </Style>
+            <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}" x:Key="emtbHeader">
+                <Setter Property="Foreground" Value="OrangeRed"/>
             </Style>
             <Style TargetType="CheckBox">
                 <Setter Property="Margin" Value="1"/>
@@ -147,11 +153,11 @@
                     </WrapPanel>
                 </Grid>
                 <Grid Style="{StaticResource fornif1}">
-                    <TextBlock Text="bodyslide nif_1" Style="{StaticResource lineHeader}"/>
+                    <TextBlock Text="bodyslide nif_1" Style="{StaticResource emtbHeader}"/>
                     <TextBox Text="{Binding fileNIF_bodyslide1}" Grid.Column="1"/>
                 </Grid>
                 <Grid Style="{StaticResource fornif0}">
-                    <TextBlock Text="bodyslide nif_0" Style="{StaticResource lineHeader}"/>
+                    <TextBlock Text="bodyslide nif_0" Style="{StaticResource emtbHeader}"/>
                     <TextBox Text="{Binding fileNIF_bodyslide0}" Grid.Column="1"/>
                 </Grid>
                 <StackPanel>
@@ -192,7 +198,7 @@
                     <TextBox Text="{Binding fileNIF_out0}" Grid.Column="1"/>
                 </Grid>
                 <Grid>
-                    <TextBlock Text="cbpc" Style="{StaticResource lineHeader}"/>
+                    <TextBlock Text="cbpcollision" Style="{StaticResource emtbHeader}"/>
                     <TextBox Text="{Binding fileCBPC}" Grid.Column="1"/>
                 </Grid>
                 <Grid>
@@ -216,7 +222,6 @@
                     </Style>
                 </local:CollisionOptions.Style>
             </local:CollisionOptions>
-
 
             <!--CBPC physics-->
             <StackPanel>
@@ -246,7 +251,7 @@
                     </WrapPanel>
                 </Grid>
                 <Grid>
-                    <Label x:Name="PhyLocTB" Content="files location"/>
+                    <Label x:Name="PhyLocTB" Content="cbpconfig folder" Style="{StaticResource emlbHeader}"/>
                     <TextBox Text="{Binding locationCBPC_Physics}" KeyDown="PhysicsLocation_TextBox_KeyDown" Grid.Column="1"/>
                 </Grid>
                 <Grid>
@@ -291,8 +296,8 @@
                         <TextBlock Text="Collision Result"/>
                     </WrapPanel>
                     <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
-                        <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
                         <CheckBox IsChecked="{Binding CBPCfullcopy}" Content="Full Copy" Padding="0,-1"/>
+                        <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
                     </WrapPanel>
                 </Grid>
                 <Grid>
@@ -338,6 +343,7 @@
                         <TextBlock Text="Physics Data"/>
                     </WrapPanel>
                     <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                        <CheckBox IsChecked="{Binding CBPCremoveUnnecessary}" Content="Remove Unnecessary" Padding="0,-1"/>
                         <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
                     </WrapPanel>
                 </Grid>

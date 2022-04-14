@@ -5,27 +5,101 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SkyrimAnimationChecker"
              mc:Ignorable="d" 
-             d:DesignHeight="22" d:DesignWidth="350">
+             d:DesignHeight="450" d:DesignWidth="450">
     <UserControl.Resources>
+        <local:RadioButtonSelector x:Key="weightConverter"/>
+
+        <Style TargetType="Grid" x:Key="Normal"/>
+        <Style TargetType="Grid" x:Key="Line">
+            <Setter Property="local:GridUtils.ColumnDefinitions">
+                <Setter.Value>
+                    <local:ColumnDefinitionCollection>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition />
+                    </local:ColumnDefinitionCollection>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="lineHeader">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Padding" Value="2,0"/>
+        </Style>
         <Style TargetType="CheckBox">
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <!--<Setter Property="HorizontalAlignment" Value="Center"/>-->
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="Padding" Value="0,-1"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="RadioButton" x:Key="rbGroup">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2.5*" MinWidth="100" MaxWidth="250"/>
-            <ColumnDefinition Width="*" MinWidth="30" MaxWidth="100"/>
-            <ColumnDefinition Width="*" MinWidth="30" MaxWidth="100"/>
-            <!--<ColumnDefinition Width="16"/>-->
-        </Grid.ColumnDefinitions>
-        <!--<CheckBox IsChecked="{Binding Write}" Content="{Binding Name}" Click="Write_CheckBox_Click" Padding="0,-1"/>-->
-        <TextBlock Text="{Binding Key}"/>
-        <TextBox Text="{Binding Data1}" Grid.Column="1"/>
-        <TextBox Text="{Binding Data0}" Grid.Column="2"/>
-        <!--<CheckBox IsChecked="{Binding Group}" Grid.Column="2" Padding="0,-1"/>-->
+    <Grid Style="{StaticResource Normal}">
+
+        <StackPanel>
+            <StackPanel.Resources>
+                <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
+                <Style TargetType="Grid" BasedOn="{StaticResource Normal}" x:Key="Head1">
+                    <Setter Property="local:GridUtils.ColumnDefinitions">
+                        <Setter.Value>
+                            <local:ColumnDefinitionCollection>
+                                <ColumnDefinition MinWidth="120" MaxWidth="200"/>
+                                <ColumnDefinition Width="3*" MinWidth="220"/>
+                            </local:ColumnDefinitionCollection>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+                <Style TargetType="Grid" BasedOn="{StaticResource Normal}" x:Key="Head2">
+                    <Setter Property="local:GridUtils.ColumnDefinitions">
+                        <Setter.Value>
+                            <local:ColumnDefinitionCollection>
+                                <ColumnDefinition Width="65"/>
+                                <ColumnDefinition/>
+                            </local:ColumnDefinitionCollection>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </StackPanel.Resources>
+
+            <Rectangle Fill="DimGray" Height="1" Margin="5"/>
+            <Grid Style="{StaticResource Head1}">
+                <TextBlock Text="{Binding VMPhysics_Name}"/>
+                <Grid Grid.Column="1" Style="{StaticResource Head2}">
+                    <TextBlock Text="Mirror filter"/>
+                    <TextBox Text="{Binding VMPhysics_MirrorFilter}" KeyDown="MirrorFilter_TextBox_KeyDown" Grid.Column="1"/>
+                </Grid>
+            </Grid>
+            <Grid Style="{StaticResource Head1}">
+                <WrapPanel Grid.Column="1">
+                    <Grid Style="{StaticResource Head2}">
+                        <!--<TextBlock Text="3BA" Style="{StaticResource lineHeader}"/>-->
+                        <WrapPanel Grid.Column="1">
+                            <WrapPanel.Resources>
+                                <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
+                                    <Setter Property="GroupName" Value="boneselect"/>
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding VMPhysics_BoneAll}" Value="False">
+                                            <Setter Property="IsEnabled" Value="True"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </WrapPanel.Resources>
+                            <!--<CheckBox Content="ALL" Padding="0,-1" IsChecked="{Binding VMPhysics_BoneAll}" Click="When_Click_toMake"/>
+                            <RadioButton Content="B1" Padding="0" IsChecked="{Binding VMPhysics_BoneSelect, Converter={StaticResource weightConverter}, ConverterParameter=1}" Click="When_Click_toMake"/>
+                            <RadioButton Content="B2" Padding="0" IsChecked="{Binding VMPhysics_BoneSelect, Converter={StaticResource weightConverter}, ConverterParameter=2}" Click="When_Click_toMake"/>
+                            <RadioButton Content="B3" Padding="0" IsChecked="{Binding VMPhysics_BoneSelect, Converter={StaticResource weightConverter}, ConverterParameter=3}" Click="When_Click_toMake"/>-->
+                            <CheckBox Content="L-Only" Padding="0,-1" IsChecked="{Binding VMPhysics_ShowLeftOnly}" Click="When_Click_toMake"/>
+                        </WrapPanel>
+                    </Grid>
+                </WrapPanel>
+            </Grid>
+
+            <Grid x:Name="panel" Style="{StaticResource Normal}"/>
+
+        </StackPanel>
+
     </Grid>
 </UserControl>

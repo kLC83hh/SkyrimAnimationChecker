@@ -55,6 +55,7 @@ namespace SkyrimAnimationChecker.Common
             CBPC_Checker = new System.Collections.ObjectModel.ObservableCollection<string> { "# Collision spheres", "# Affected Nodes", "# Collider Nodes" };
             CBPCfullcopy = true;
             CBPCbackup = true;
+            CBPCremoveUnnecessary = true;
 
             panelNumber = 1;
             locationCBPC_Physics = workdir;
@@ -96,6 +97,7 @@ namespace SkyrimAnimationChecker.Common
         public System.Collections.ObjectModel.ObservableCollection<string> CBPC_Checker { get => Get<System.Collections.ObjectModel.ObservableCollection<string>>(); set => Set(value); }
         public bool CBPCfullcopy { get => Get<bool>(); set => Set(value); }
         public bool CBPCbackup { get => Get<bool>(); set => Set(value); }
+        public bool CBPCremoveUnnecessary { get => Get<bool>(); set => Set(value); }
 
 
 

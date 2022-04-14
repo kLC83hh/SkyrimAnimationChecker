@@ -3,49 +3,67 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SkyrimAnimationChecker.Common
 {
     public class VM : PropertyHandler
     {
-        public VM()
-        {
-            //VMs = new() { GENERAL, VM_V3BA };
-            Load();
-        }
+        public VM() => Load();
         public VM_GENERAL GENERAL { get; set; } = new();
         public VM_Vbreast Vbreast { get; set; } = new();
+        public VM_VPhysics Vphysics { get; set; } = new();
 
-        //public static ref VM GETVM<T>() { return ref _VM; }
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         private object[] VMs => Values;
         private bool NewVMs(object[]? o = null)
         {
             if (o != null)
             {
-                if (o[0] is System.Text.Json.JsonElement)
-                    GENERAL = System.Text.Json.JsonSerializer.Deserialize<VM_GENERAL>((System.Text.Json.JsonElement)o[0]) ?? new();
-                if (o[1] is System.Text.Json.JsonElement)
-                    Vbreast = System.Text.Json.JsonSerializer.Deserialize<VM_Vbreast>((System.Text.Json.JsonElement)o[1]) ?? new();
+                for (int i = 0; i < o.Length; i++)
+                {
+                    if (o[i] is JsonElement v)
+                    {
+                        switch (i)
+                        {
+                            case 0:
+                                GENERAL = JsonSerializer.Deserialize<VM_GENERAL>(v) ?? new();
+                                break;
+                            case 1:
+                                Vbreast = JsonSerializer.Deserialize<VM_Vbreast>(v) ?? new();
+                                break;
+                            case 2:
+                                Vphysics = JsonSerializer.Deserialize<VM_VPhysics>(v) ?? new();
+                                break;
+                        }
+                    }
+                }
+                //if (o[0] is JsonElement v)
+                //    GENERAL = JsonSerializer.Deserialize<VM_GENERAL>(v) ?? new();
+                //if (o[1] is JsonElement vb)
+                //    Vbreast = JsonSerializer.Deserialize<VM_Vbreast>(vb) ?? new();
+                //if (o[2] is JsonElement vp)
+                //    Vphysics = JsonSerializer.Deserialize<VM_VPhysics>(vp) ?? new();
                 return true;
             }
-            //VMs = new() { GENERAL, VM_V3BA };
             return false;
         }
 
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        #region Save to file
+        [JsonIgnore]
         private static string vmFilePath => System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SkyrimAnimationCheckerConfig.json");
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public static int LoadCount = 0;
 
         public void Save()
         {
             using (System.IO.StreamWriter sw = new(vmFilePath, false))
             {
-                System.Text.Json.JsonSerializer.Serialize(sw.BaseStream, VMs, VMs.GetType(), new System.Text.Json.JsonSerializerOptions() { WriteIndented = true });
+                JsonSerializer.Serialize(sw.BaseStream, VMs, VMs.GetType(), new JsonSerializerOptions() { WriteIndented = true });
                 sw.Flush();
             }
         }
@@ -64,13 +82,14 @@ namespace SkyrimAnimationChecker.Common
                 object? buffer = null;
                 using (System.IO.StreamReader sr = new(vmFilePath))
                 {
-                    try { buffer = System.Text.Json.JsonSerializer.Deserialize(sr.BaseStream, VMs.GetType()); }
-                    catch (System.Text.Json.JsonException) { }
+                    try { buffer = JsonSerializer.Deserialize(sr.BaseStream, VMs.GetType()); }
+                    catch (JsonException) { }
                 }
                 return NewVMs((object[]?)buffer);
             }
             return false;
         }
+        #endregion
 
     }
 }

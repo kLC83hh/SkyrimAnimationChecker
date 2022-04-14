@@ -79,10 +79,10 @@ namespace SkyrimAnimationChecker.Common
         }
         private int Ordering(string key, object[] order, int mult = 1)
         {
-            for (int i = 0; i < order.Length; i++)
+            for (int i = 1; i < order.Length + 1; i++)
             {
-                if (order[i] is string s && key.Contains(s)) return i * mult;
-                if (order[i] is System.Text.RegularExpressions.Regex r && r.IsMatch(key)) return i * mult;
+                if (order[i - 1] is string s && key.Contains(s)) return i * mult;
+                if (order[i - 1] is System.Text.RegularExpressions.Regex r && r.IsMatch(key)) return i * mult;
             }
             return mult > 1 ? 0 : order.Length;
         }
@@ -141,7 +141,11 @@ namespace SkyrimAnimationChecker.Common
             T[] vals = new T[Keys.Length];
             for (int i = 0; i < Keys.Length; i++)
             {
-                vals[i] = PropertyHandleGetValue<T>(Keys[i]);
+                try
+                {
+                    vals[i] = PropertyHandleGetValue<T>(Keys[i]);
+                }
+                catch { throw; }
             }
             return vals;
         }

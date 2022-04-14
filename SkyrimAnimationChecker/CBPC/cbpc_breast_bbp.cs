@@ -3,57 +3,61 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SkyrimAnimationChecker.Common;
 
 namespace SkyrimAnimationChecker.CBPC
 {
-    internal class cbpc_breast_bbp : Common.PropertyHandler, Icbpc_breast_data
+    public class cbpc_breast_bbp : cbpc_data_mirrored, Icbpc_data_mirrored
     {
-        public cbpc_breast_bbp() : base(KeysIgnore: new string[] { "MirrorKeys", "Name", "DataType" })
-        {
-            B0 = new(0);
-        }
+
+        public cbpc_breast_bbp() : base() { }
+        public cbpc_breast_bbp(string name, physics_object_set? left = null, physics_object_set? right = null) : base(name, left, right) { }
+        public cbpc_breast_bbp(int num, physics_object_set? left = null, physics_object_set? right = null) : base(num, left, right) { }
+
+
         [System.Text.Json.Serialization.JsonIgnore]
-        public string DataType => "bbp";
-        /// <summary>
-        /// A short name from bone 0
-        /// </summary>
+        public override string DataType => "bbp";
         [System.Text.Json.Serialization.JsonIgnore]
-        public string Name => B0.NameShort;
-        public string[] MirrorKeys
-        {
-            get
-            {
-                if (B0.MirrorKeys != null) return B0.MirrorKeys;
-                else throw new Exception("[Can not be happen] MirrorKeys not exists");
-            }
-            set
-            {
-                B0.MirrorKeys = value;
-            }
-        }
+        protected override string DefaultName => "Breast";
 
         /// <summary>
         /// Find a specific data set with it fullname
         /// </summary>
         /// <param name="name">Fullname e.g. ExtraBreast1L</param>
         /// <returns></returns>
-        public Common.physics_object_set? Find(string name)
+        public override physics_object_set? Find(string name)
         {
             switch (name)
             {
-                case "LBreast": return B0.Left;
-                case "RBreast": return B0.Right;
+                case "LBreast": return Left;
+                case "RBreast": return Right;
             }
             return null;
         }
 
-        /// <summary>
-        /// breast data of bone 0. bbp data has only one bone.
-        /// </summary>
-        public cbpc_breast B0 { get => Get<cbpc_breast>(); set => Set(value); }
 
+        protected override string NameParser(string name)
+        {
+            //if (name.Contains('1')) Number = 1;
+            //else if (name.Contains('2')) Number = 2;
+            //else if (name.Contains('3')) Number = 3;
+            //else Number = 0;
+            //else throw EE.New(2902);
 
-        public cbpc_breast GetData(int? num = null) => B0;
-        //public new cbpc_breast[] Values => GetPropertyHandleValues<cbpc_breast>();
+            //if (name.StartsWith('L') || name.EndsWith('L')) Side = Sides.L;
+            //else if (name.StartsWith('R') || name.EndsWith('R')) Side = Sides.R;
+            //else throw EE.New(2901);
+
+            return name;
+        }
+        protected override string NumSideParser(int num = 0)
+        {
+            if (num == 0) return "Breast";
+            //if (num == 1 || num == 2 || num == 3)
+            //{
+            //    return $"ExtraBreast{num}";
+            //}
+            throw EE.New(2902);
+        }
     }
 }

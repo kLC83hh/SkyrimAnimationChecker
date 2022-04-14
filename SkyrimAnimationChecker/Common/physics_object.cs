@@ -19,7 +19,7 @@ namespace SkyrimAnimationChecker.Common
 
         public delegate void ValueUpdateEventHandler(physics_object o);
         public event ValueUpdateEventHandler? ValueUpdated;
-        protected void Set(double value, [System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        protected void Set(double value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
         {
             if (Get<double>(name) != value)
             {

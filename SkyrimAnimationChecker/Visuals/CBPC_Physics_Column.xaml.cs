@@ -98,9 +98,13 @@ namespace SkyrimAnimationChecker
         private bool TryMakeOne(out UIElement? o, object? op = null, params object[] d)
         {
             if (d.Length == 1 && d[0] is Common.physics_object dpo) return TryMakeOne(out o, dpo);
-            else if (d.Length == 1 && d[0] is string ds) return TryMakeOne(out o, ds, (Common.physics_object)op);
+            else if (d.Length == 1 && d[0] is string ds)
+            {
+                if (op == null) return TryMakeOne(out o, ds);
+                else return TryMakeOne(out o, ds, (Common.physics_object)op);
+            }
             else if (d.Length == 1 && d[0] is double[] dd) return TryMakeOne(out o, dd);
-            
+
             o = null;
             return true;
         }

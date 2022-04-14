@@ -21,6 +21,7 @@ namespace SkyrimAnimationChecker
             { 2008, $"CBPC: Physics: Parse_Type: {Environment.NewLine}Can not recognize CBPConfig data type." },
             //{ 2009, $"CBPC: Physics: Parse_Type: {Environment.NewLine}Can not recognize CBPConfig data type." },
             //{ 2011, $"CBPC: Physics: Parse_Breast: {Environment.NewLine}Can not recognize CBPConfig data type." },
+            { 2101, "CBPC_Physics_Keywords: Can not find keyword name" },
             { 2201, $"CBPC: Physics: Parse3BA:" },
             { 2202, $"CBPC: Physics: Parse3BA:" },
             { 2203, $"CBPC: Physics: Parse3BA:" },
