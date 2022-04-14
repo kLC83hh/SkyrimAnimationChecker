@@ -55,10 +55,57 @@ namespace SkyrimAnimationChecker
                 new PropertyMetadata(null, new PropertyChangedCallback((d, e) =>
                 {
                     if (d is not CollisionOptions) return;
-                    //((CollisionOptions)d).DataContext = e.NewValue;
+                    ((CollisionOptions)d).Make();
                 }))
             );
         #endregion
+
+        private void Make()
+        {
+            if (ExtraOptions == null) return;
+            extrapanel.Children.Clear();
+            for (int i = 0; i < ExtraOptions?.Keys.Length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    var g = new Grid();
+                    string key = ExtraOptions.Keys[i];M.D(ExtraOptions.Find(key));
+
+                    var vb = new Viewbox();
+                    vb.SetValue(Grid.ColumnProperty, 0);
+                    var lb = new TextBlock();
+                    lb.SetBinding(TextBlock.TextProperty, new Binding() { Source = key });
+                    vb.Child = lb;
+                    g.Children.Add(vb);
+
+                    var tb = new TextBox();
+                    tb.SetBinding(TextBox.TextProperty, new Binding() { Path= new PropertyPath(key), Source = ExtraOptions });
+                    tb.SetValue(Grid.ColumnProperty, 1);
+                    g.Children.Add(tb);
+
+                    extrapanel.Children.Add(g);
+                }
+                else
+                {
+                    var g = (Grid)extrapanel.Children[extrapanel.Children.Count - 1];
+                    string key = ExtraOptions.Keys[i];
+
+                    var vb = new Viewbox();
+                    vb.SetValue(Grid.ColumnProperty, 2);
+                    var lb = new TextBlock();
+                    lb.SetBinding(TextBlock.TextProperty, new Binding() { Source = key });
+                    vb.Child = lb;
+                    g.Children.Add(vb);
+
+                    var tb = new TextBox();
+                    tb.SetBinding(TextBox.TextProperty, new Binding() { Path = new PropertyPath(key), Source = ExtraOptions });
+                    tb.SetValue(Grid.ColumnProperty, 3);
+                    g.Children.Add(tb);
+                }
+            }
+        }
+
+
 
     }
 }

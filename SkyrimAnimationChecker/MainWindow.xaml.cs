@@ -119,6 +119,7 @@ namespace SkyrimAnimationChecker
                     if (Options != null)
                     {
                         ColOptions.Options = Options.Value.op;
+                        ColOptions.ExtraOptions = Options.Value.eop;
                     }
                 }
             }

@@ -22,46 +22,99 @@
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="Padding" Value="2,0"/>
         </Style>
+        <Style TargetType="TextBlock" x:Key="lineHeader">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Padding" Value="2,0"/>
+        </Style>
     </UserControl.Resources>
 
     <StackPanel>
         <StackPanel.Resources>
             <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
             <Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>
+            <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>
         </StackPanel.Resources>
 
         <Rectangle Height="5"/>
-        <WrapPanel>
-            <local:Indicator Fill="DimGray" Stroke="DimGray"/>
-            <TextBlock Text="Options"/>
-        </WrapPanel>
-        <Grid Style="{StaticResource Normal}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="70"/>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="60"/>
-                <ColumnDefinition Width="30"/>
-            </Grid.ColumnDefinitions>
-            <Label Content="Conditions"/>
-            <TextBox Text="{Binding Options.Conditions, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="1"/>
-            <Label Content="Priority" Grid.Column="2"/>
-            <TextBox Text="{Binding Options.Priority, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="3"/>
-        </Grid>
-        <WrapPanel>
-            <local:Indicator Fill="DimGray" Stroke="DimGray"/>
-            <TextBlock Text="ExtraOptions"/>
-        </WrapPanel>
-        <Grid Style="{StaticResource Normal}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.75*"/>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="1.75*"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <d:Label Content="BellyBulge"/>
-            <d:TextBox Grid.Column="1"/>
-            <d:Label Content="VaginaOpeningMultiplier" Grid.Column="2"/>
-            <d:TextBox Grid.Column="3"/>
-        </Grid>
+        <StackPanel>
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <d:Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Options.Use, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+            
+            <WrapPanel>
+                <local:Indicator Fill="DimGray" Stroke="DimGray"/>
+                <TextBlock Text="Options"/>
+            </WrapPanel>
+            <Grid Style="{StaticResource Normal}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Conditions"/>
+                <TextBox Text="{Binding Options.Conditions, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="1"/>
+                <Label Content="Priority" Grid.Column="2"/>
+                <TextBox Text="{Binding Options.Priority, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="3"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel>
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <d:Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ExtraOptions.Use, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+            
+            <WrapPanel>
+                <local:Indicator Fill="DimGray" Stroke="DimGray"/>
+                <TextBlock Text="ExtraOptions"/>
+            </WrapPanel>
+            <StackPanel x:Name="extrapanel">
+                <StackPanel.Resources>
+                    <Style TargetType="Grid" BasedOn="{StaticResource Normal}">
+                        <Setter Property="local:GridUtils.ColumnDefinitions">
+                            <Setter.Value>
+                                <local:ColumnDefinitionCollection>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition/>
+                                </local:ColumnDefinitionCollection>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                    <Style TargetType="Viewbox">
+                        <Setter Property="StretchDirection" Value="DownOnly"/>
+                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                    </Style>
+                </StackPanel.Resources>
+
+                <d:Grid>
+                    <d:Viewbox>
+                        <d:Label Content="BellyBulge"/>
+                    </d:Viewbox>
+                    <d:TextBox Grid.Column="1"/>
+                    <d:Viewbox Grid.Column="2">
+                        <d:TextBlock Text="VaginaOpeningMultiplier"/>
+                    </d:Viewbox>
+                    <d:TextBox Grid.Column="3"/>
+                </d:Grid>
+            </StackPanel>
+        </StackPanel>
+        
     </StackPanel>
 </UserControl>

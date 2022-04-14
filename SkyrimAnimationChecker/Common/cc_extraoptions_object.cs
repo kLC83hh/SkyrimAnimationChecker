@@ -20,5 +20,6 @@ namespace SkyrimAnimationChecker.Common
         public double VaginaOpeningMultiplier { get => Get<double>(); set => Set(value); }
         public double VaginaOpeningLimit { get => Get<double>(); set => Set(value); }
 
+        public double Find(string key) => PropertyHandleGetValue<double>(key);
     }
 }
