@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SkyrimAnimationChecker.Common
@@ -12,22 +14,22 @@ namespace SkyrimAnimationChecker.Common
         public void Reset()
         {
             DefaultCommon();
-            DefaultVisual3BA();
+            //DefaultVisual3BA();
         }
         partial void DefaultCommon();
-        partial void DefaultVisual3BA();
+        //partial void DefaultVisual3BA();
 
     }
     public partial class VM_GENERAL : Notify.NotifyPropertyChanged
     {
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool DARrunning { get => Get<bool>(); set => Set(value); }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool NIFrunning { get => Get<bool>(); set => Set(value); }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool CBPCrunning { get => Get<bool>(); set => Set(value); }
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool CBPC_Physics_running { get => Get<bool>(); set => Set(value); }
     }
     public partial class VM_GENERAL : Notify.NotifyPropertyChanged
@@ -50,7 +52,8 @@ namespace SkyrimAnimationChecker.Common
             readFromNIFs = false;
             fileNIF_out1 = System.IO.Path.Combine(workdir, "inter_1.nif");
             fileNIF_out0 = System.IO.Path.Combine(workdir, "inter_0.nif");
-            fileCBPC_Collision = System.IO.Path.Combine(workdir, "CBPCollisionConfig_Female.txt");
+            fileCBPC_Collision = "CBPCollisionConfig_Female.txt";
+            fileCBPC_Collisions = new() { "CBPCollisionConfig.txt", "CBPCollisionConfig_Female.txt" };
             groupfilter = "[NPC L Pussy02],[NPC L RearThigh],[NPC L Thigh [LThg]],[NPC L UpperArm [LUar]],[NPC L Forearm [LLar]]";
 
             CBPC_Checker = new() { "# Collision spheres", "# Affected Nodes", "# Collider Nodes" };
@@ -59,13 +62,9 @@ namespace SkyrimAnimationChecker.Common
             CBPCremoveUnnecessary = true;
 
             panelNumber = 1;
-            locationCBPC_Physics = workdir;
+            dirCBPC = workdir;
             fileCBPC_Physics = "CBPConfig_3b.txt";
-            //fileCBPC_Physics = System.IO.Path.Combine(workdir, "CBPConfig_3b.txt");
-            //CBPC_Phy_Mirror_LR = true;
-            //CBPC_Phy_Mirror_MinMax = true;
-            //CBPC_Phy_3BA_All = true;
-            //CBPC_Phy_3BA_Select = 1;
+            fileCBPC_Physicss = new();
         }
 
         public bool useDesktop { get => Get<bool>(); set => Set(value); }
@@ -80,41 +79,40 @@ namespace SkyrimAnimationChecker.Common
         public string fileNIF_sphere1 { get => Get<string>(); set => Set(value); }
         public string fileNIF_sphere0 { get => Get<string>(); set => Set(value); }
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool overwriteInterNIFs { get => Get<bool>(); set => Set(value); }
 
         public bool readFromNIFs { get => Get<bool>(); set => Set(value); }
         public string fileNIF_out1 { get => Get<string>(); set => Set(value); }
         public string fileNIF_out0 { get => Get<string>(); set => Set(value); }
         public string fileCBPC_Collision { get => Get<string>(); set => Set(value); }
-        public string fileCBPC { get => fileCBPC_Collision; set => fileCBPC_Collision = value; }
+        public ObservableCollection<string> fileCBPC_Collisions { get => Get<ObservableCollection<string>>(); set => Set(value); }
         public string groupfilter { get => Get<string>(); set => Set(value); }
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool writeAll { get => Get<bool>(); set => Set(value); }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool writeSome { get => Get<bool>(); set => Set(value); }
 
 
-        public System.Collections.ObjectModel.ObservableCollection<string> CBPC_Checker { get => Get<System.Collections.ObjectModel.ObservableCollection<string>>(); set => Set(value); }
+        public ObservableCollection<string> CBPC_Checker { get => Get<ObservableCollection<string>>(); set => Set(value); }
         public bool CBPCfullcopy { get => Get<bool>(); set => Set(value); }
         public bool CBPCbackup { get => Get<bool>(); set => Set(value); }
         public bool CBPCremoveUnnecessary { get => Get<bool>(); set => Set(value); }
 
-        //[System.Text.Json.Serialization.JsonIgnore]
+        //[JsonIgnore]
         //public bool CBPCVisualLeftonly { get => Get<bool>(); set => Set(value); }
 
 
 
         public int panelNumber { get => Get<int>(); set => Set(value); }
-        public string locationCBPC_Physics { get => Get<string>(); set => Set(value); }
+        public string dirCBPC { get => Get<string>(); set => Set(value); }
         public string fileCBPC_Physics { get => Get<string>(); set => Set(value); }
-        //public bool CBPC_Phy_Mirror_LR { get => Get<bool>(); set => Set(value); }
-        //public bool CBPC_Phy_Mirror_MinMax { get => Get<bool>(); set => Set(value); }
-        //public bool CBPC_Phy_3BA_All { get => Get<bool>(); set => Set(value); }
-        //public int CBPC_Phy_3BA_Select { get => Get<int>(); set => Set(value); }
+        [JsonIgnore]
+        public ObservableCollection<string> fileCBPC_Physicss { get => Get<ObservableCollection<string>>(); set => Set(value); }
+        
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool overwriteCBPC_Physics { get => Get<bool>(); set => Set(value); }
 
 

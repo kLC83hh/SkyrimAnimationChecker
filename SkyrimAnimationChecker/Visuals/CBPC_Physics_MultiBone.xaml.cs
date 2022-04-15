@@ -74,7 +74,7 @@ namespace SkyrimAnimationChecker
         public static readonly DependencyProperty PhysicsProperty
             = DependencyProperty.Register(
                   "Data", typeof(Icbpc_data_multibone), typeof(CBPC_Physics_MultiBone),
-                  new PropertyMetadata(null, new PropertyChangedCallback((d, e) =>
+                  new FrameworkPropertyMetadata(null, new PropertyChangedCallback((d, e) =>
                   {
                       if (d is not CBPC_Physics_MultiBone) return;
                       ((CBPC_Physics_MultiBone)d).Make();

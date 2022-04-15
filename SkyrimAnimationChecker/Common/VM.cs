@@ -22,7 +22,11 @@ namespace SkyrimAnimationChecker.Common
         {
             T? buffer = default;
             try { buffer = JsonSerializer.Deserialize<T>(j); }
-            catch (JsonException e) { if (e.InnerException is InvalidOperationException) throw EE.New(102, $"{typeof(T)}"); }
+            catch (JsonException e)
+            {
+                if (e.InnerException is InvalidOperationException) throw EE.New(102, $"{typeof(T)}");
+                else throw;
+            }
             return buffer;
         }
         private bool NewVMs(object[]? o = null)

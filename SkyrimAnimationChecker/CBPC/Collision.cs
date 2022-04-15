@@ -14,15 +14,15 @@ namespace SkyrimAnimationChecker.CBPC
 
 
         private string[] CollisionAll = Array.Empty<string>();
-
+        private string path => System.IO.Path.Combine(vm.dirCBPC, vm.fileCBPC_Collision);
         public string[] Read(bool backup = false)
         {
-            CollisionAll = ReadLines(vm.fileCBPC_Collision, backup);
+            CollisionAll = ReadLines(path, backup);
             return CollisionAll;
         }
         public void Save(collider_object[] o, (cc_options_object, cc_extraoptions_object)? ops, bool overwrite = true)
         {
-            if (CanWrite(vm.fileCBPC_Collision, overwrite)) Write(MakeOrganized(o, ops), vm.fileCBPC_Collision, overwrite, vm.CBPCbackup);
+            if (CanWrite(path, overwrite)) Write(MakeOrganized(o, ops), path, overwrite, vm.CBPCbackup);
         }
 
         public (cc_options_object, cc_extraoptions_object) Option()
@@ -125,7 +125,8 @@ namespace SkyrimAnimationChecker.CBPC
                         if (lines[i].StartsWith("[") && lines[i].EndsWith("]"))
                         {
                             string name = lines[i].Substring(1, lines[i].Length - 2);
-                            int n = MoveNextKey(lines, i);M.D($"{i} {n} {lines[n]}");
+                            int n = MoveNextKey(lines, i);
+                            //M.D($"{i} {n} {lines[n]}");
                             List<string> data = new();
                             for (int j = i + 1; j <= n; j++) data.Add(lines[j]);
                             colliders.Add(new collider_object(name, string.Join(Environment.NewLine, data)) { Group = data.Any(x => x.Contains('&')) });

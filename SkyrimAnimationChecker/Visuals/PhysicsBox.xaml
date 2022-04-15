@@ -7,7 +7,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="18" d:DesignWidth="100">
     <UserControl.Resources>
-        <Style TargetType="Grid" x:Key="Normal"/>
         <Style TargetType="TextBox"/>
     </UserControl.Resources>
     <Grid Style="{StaticResource Normal}">

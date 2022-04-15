@@ -9,47 +9,8 @@
         Title="SAC" Height="570" Width="800">
 
     <Grid x:Name="TopGrid" Margin="2">
-        <Grid.Resources>
-            <local:RadioButtonSelector x:Key="weightConverter"/>
-
-            <Style TargetType="Grid" x:Key="Normal"/>
-            <Style TargetType="Grid" x:Key="Line">
-                <Setter Property="local:GridUtils.ColumnDefinitions">
-                    <Setter.Value>
-                        <local:ColumnDefinitionCollection>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition />
-                        </local:ColumnDefinitionCollection>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            <Style TargetType="Label" x:Key="lableHeader">
-                <Setter Property="HorizontalAlignment" Value="Right"/>
-                <Setter Property="Padding" Value="2,0"/>
-            </Style>
-            <Style TargetType="Label" BasedOn="{StaticResource lableHeader}" x:Key="emlbHeader">
-                <Setter Property="Foreground" Value="OrangeRed"/>
-            </Style>
-            <Style TargetType="TextBlock" x:Key="lineHeader">
-                <Setter Property="HorizontalAlignment" Value="Right"/>
-                <Setter Property="Padding" Value="2,0"/>
-            </Style>
-            <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}" x:Key="emtbHeader">
-                <Setter Property="Foreground" Value="OrangeRed"/>
-            </Style>
-            <Style TargetType="CheckBox">
-                <Setter Property="Margin" Value="1"/>
-                <Setter Property="Padding" Value="0,-1"/>
-                <Setter Property="VerticalAlignment" Value="Center"/>
-            </Style>
-            <Style TargetType="RadioButton" x:Key="rbGroup">
-                <Setter Property="Padding" Value="0"/>
-                <Setter Property="Margin" Value="2,0"/>
-                <Setter Property="VerticalContentAlignment" Value="Center"/>
-            </Style>
-        </Grid.Resources>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="340"/>
             <ColumnDefinition Width="10"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
@@ -59,6 +20,8 @@
             <StackPanel.Resources>
                 <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
                 <Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>
+                <Style TargetType="ComboBox" BasedOn="{StaticResource cbdef}"/>
             </StackPanel.Resources>
             
             <!--Setting-->
@@ -70,11 +33,11 @@
                         <CheckBox Content="UseDesktop" IsChecked="{Binding useDesktop}" Padding="0,-1"/>
                     </WrapPanel>
                 </Grid>
-                <TextBlock Text="Just don't touch what you don't know. They are useless normally." TextWrapping="Wrap"/>
-                
+                <TextBlock Text="Just don't touch what you don't know. They are useless normally."
+                           TextWrapping="Wrap" HorizontalAlignment="Left" Padding="5,2"/>
             </StackPanel>
-            <Rectangle Margin="5" Height="2" Fill="DimGray"/>
-            
+            <Rectangle Height="2" Margin="5" Fill="DimGray"/>
+
             <!--DAR-->
             <StackPanel>
                 <Grid>
@@ -90,8 +53,9 @@
                 </Grid>
                 <TextBlock x:Name="T"/>
             </StackPanel>
-            <Rectangle Margin="5" Height="2" Fill="DimGray"/>
-            
+            <d:TextBox Text="TEST"/>
+            <Rectangle Height="2" Margin="5" Fill="DimGray"/>
+
             <!--C-P selector-->
             <WrapPanel Margin="10,2">
                 <WrapPanel.Resources>
@@ -103,9 +67,9 @@
                 <RadioButton Content="Collision" Padding="0" IsChecked="{Binding panelNumber, Converter={StaticResource weightConverter}, ConverterParameter=0}"/>
                 <RadioButton Content="Physics" Padding="0" IsChecked="{Binding panelNumber, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
             </WrapPanel>
-            <Rectangle Height="1" Margin="2"/>
+            <Rectangle Height="3"/>
             
-            <!--NIF-CBPC collision-->
+            <!--NIF collision-->
             <StackPanel>
                 <StackPanel.Resources>
                     <Style TargetType="Grid" x:Key="fornif1" BasedOn="{StaticResource Line}">
@@ -122,8 +86,6 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                    <Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>
-                    <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>
                 </StackPanel.Resources>
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
@@ -185,8 +147,40 @@
                     <CheckBox x:Name="overwriteCheckBox" Content="overwrite" IsChecked="{Binding overwriteInterNIFs}" Padding="0,-1"/>
                     <Button Click="MakeIntermediumNIFs_1_Button_Click" Content="1. Make Intermedium NIFs" Grid.Column="1"/>
                 </Grid>
+                
+                <Rectangle Height="3"/>
+            </StackPanel>
 
-                <Rectangle Margin="5"/>
+            <!--NIF-CBPC collision-->
+            <StackPanel>
+                <StackPanel.Resources>
+                    <Style TargetType="Grid" x:Key="fornif1" BasedOn="{StaticResource Line}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsChecked, ElementName=RB_UseNif0}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style TargetType="Grid" x:Key="fornif0" BasedOn="{StaticResource Line}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsChecked, ElementName=RB_UseNif1}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Resources>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <d:Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding panelNumber}" Value="0">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
                 <Grid>
                     <WrapPanel Grid.ColumnSpan="2">
                         <local:Indicator Fill="DimGray" Stroke="DimGray"/>
@@ -215,10 +209,12 @@
                         <TextBox Text="{Binding fileNIF_out0}" Grid.Column="1"/>
                     </Grid>
                 </StackPanel>
+                <local:FolderLoader Header="cbpconfig folder" HeaderColor="{StaticResource emph}" Location="{Binding dirCBPC}" Load="CBPCLocationLoader_Load"/>
                 <Grid>
-                    <TextBlock Text="cbpcollision" Style="{StaticResource emtbHeader}"/>
-                    <TextBox Text="{Binding fileCBPC}" Grid.Column="1"/>
+                    <TextBlock Text="collision file" Style="{StaticResource lineHeader}"/>
+                    <ComboBox x:Name="ColFileCB" IsEditable="True" Text="{Binding fileCBPC_Collision}" ItemsSource="{Binding fileCBPC_Collisions}" Grid.Column="1" SelectionChanged="CollisionFile_ComboBox_SelectionChanged"/>
                 </Grid>
+                <Rectangle Height="3"/>
                 <Grid>
                     <TextBlock Text="group filter"/>
                     <TextBox Text="{Binding groupfilter}" Grid.Column="1"/>
@@ -226,8 +222,10 @@
                 <Grid>
                     <Button Click="SphereSize_2_Button_Click" Content="2. Sphere Size" Grid.Column="1"/>
                 </Grid>
+                
+                <Rectangle Height="3"/>
             </StackPanel>
-            <local:CollisionOptions x:Name="ColOptions">
+            <local:CollisionOptions x:Name="ColOptions" Margin="0,0,0,3">
                 <local:CollisionOptions.Style>
                     <Style TargetType="local:CollisionOptions">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -243,10 +241,6 @@
 
             <!--CBPC physics-->
             <StackPanel>
-                <StackPanel.Resources>
-                    <Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>
-                    <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>
-                </StackPanel.Resources>
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -272,18 +266,12 @@
                         <CheckBox Content="Min/Max" Padding="0,-1" IsChecked="{Binding CBPC_Phy_Mirror_MinMax}"/>-->
                     </WrapPanel>
                 </Grid>
+                <local:FolderLoader Header="cbpconfig folder" HeaderColor="{StaticResource emph}" Location="{Binding dirCBPC}" Load="CBPCLocationLoader_Load"/>
+                <!--<Rectangle Height="5"/>-->
                 <Grid>
-                    <Label x:Name="PhyLocTB" Content="cbpconfig folder" Style="{StaticResource emlbHeader}"/>
-                    <TextBox Text="{Binding locationCBPC_Physics}" KeyDown="PhysicsLocation_TextBox_KeyDown" Grid.Column="1"/>
-                </Grid>
-                <Grid>
-                    <Button Content="Reload" Click="ReloadPhysics_Button_Click" Grid.Column="1"/>
-                </Grid>
-                <Rectangle Height="5"/>
-                <Grid>
-                    <TextBlock Text="physics file"/>
+                    <TextBlock Text="physics file" VerticalAlignment="Center"/>
                     <!--<TextBox Text="{Binding fileCBPC_Physics}" Grid.Column="1"/>-->
-                    <ComboBox x:Name="PhyFileCB" Grid.Column="1" SelectionChanged="PhysicsFile_ComboBox_SelectionChanged" MouseEnter="PhyFileCB_MouseEnter"/>
+                    <ComboBox x:Name="PhyFileCB" Text="{Binding fileCBPC_Physics}" ItemsSource="{Binding fileCBPC_Physicss}" Grid.Column="1" SelectionChanged="PhysicsFile_ComboBox_SelectionChanged" MouseEnter="CommonCombobox_MouseEnter"/>
                 </Grid>
             </StackPanel>
         </StackPanel>
@@ -296,6 +284,8 @@
         <StackPanel Grid.Column="2">
             <StackPanel.Resources>
                 <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
+                <!--<Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>-->
+                <!--<Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>-->
             </StackPanel.Resources>
             
             <!--NIF-CBPC result-->

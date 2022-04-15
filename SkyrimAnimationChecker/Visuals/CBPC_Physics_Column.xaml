@@ -7,14 +7,6 @@
              xmlns:vis="clr-namespace:SkyrimAnimationChecker.Visuals"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="60">
-    <UserControl.Resources>
-
-        <Style TargetType="Grid" x:Key="Normal"/>
-        <Style TargetType="TextBlock" x:Key="lineHeader" x:Name="lineHeader">
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="Padding" Value="2,0"/>
-        </Style>
-    </UserControl.Resources>
     <StackPanel>
         <Grid Style="{StaticResource Normal}">
             <Grid.ColumnDefinitions>

@@ -6,35 +6,6 @@
              xmlns:local="clr-namespace:SkyrimAnimationChecker"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="450">
-    <UserControl.Resources>
-        <local:RadioButtonSelector x:Key="weightConverter"/>
-
-        <Style TargetType="Grid" x:Key="Normal"/>
-        <Style TargetType="Grid" x:Key="Line">
-            <Setter Property="local:GridUtils.ColumnDefinitions">
-                <Setter.Value>
-                    <local:ColumnDefinitionCollection>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition />
-                    </local:ColumnDefinitionCollection>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="TextBlock" x:Key="lineHeader">
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="Padding" Value="2,0"/>
-        </Style>
-        <Style TargetType="CheckBox">
-            <Setter Property="Margin" Value="1"/>
-            <Setter Property="Padding" Value="0,-1"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style TargetType="RadioButton" x:Key="rbGroup">
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="2,0"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-    </UserControl.Resources>
 
     <Grid Style="{StaticResource Normal}">
 

@@ -77,7 +77,7 @@ namespace SkyrimAnimationChecker
         public static readonly DependencyProperty PhysicsProperty
             = DependencyProperty.Register(
                   "Data", typeof(Icbpc_data), typeof(CBPC_Physics),
-                  new PropertyMetadata(null, new PropertyChangedCallback((d, e) =>
+                  new FrameworkPropertyMetadata(null, new PropertyChangedCallback((d, e) =>
                   {
                       if (d is not CBPC_Physics) return;
                       ((CBPC_Physics)d).Make();

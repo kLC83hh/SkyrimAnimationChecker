@@ -6,15 +6,6 @@
              xmlns:local="clr-namespace:SkyrimAnimationChecker"
              mc:Ignorable="d" 
              d:DesignHeight="22" d:DesignWidth="350">
-    <UserControl.Resources>
-        <Style TargetType="Grid" x:Key="Normal"/>
-        <Style TargetType="CheckBox">
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Padding" Value="0,-1"/>
-            <!--<Setter Property="HorizontalAlignment" Value="Center"/>-->
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-    </UserControl.Resources>
     
     <Grid Style="{StaticResource Normal}">
         <Grid.ColumnDefinitions>

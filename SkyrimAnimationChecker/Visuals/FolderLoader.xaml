@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="SkyrimAnimationChecker.FolderLoader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SkyrimAnimationChecker"
+             mc:Ignorable="d" 
+             d:DesignHeight="20" d:DesignWidth="300">
+    
+    <Grid Style="{StaticResource Line}">
+        <d:Viewbox StretchDirection="DownOnly" HorizontalAlignment="Right">
+            <Label Content="TEST">
+                <Label.Style>
+                    <Style TargetType="Label" BasedOn="{StaticResource lableHeader}">
+                        <Setter Property="Foreground" Value="{Binding HeaderColor, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                    </Style>
+                </Label.Style>
+            </Label>
+        </d:Viewbox>
+        <Viewbox StretchDirection="DownOnly" HorizontalAlignment="Right">
+            <Label x:Name="nameLable" Content="{Binding Header, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                <Label.Style>
+                    <Style TargetType="Label" BasedOn="{StaticResource lableHeader}">
+                        <Setter Property="Foreground" Value="{Binding HeaderColor, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                    </Style>
+                </Label.Style>
+            </Label>
+        </Viewbox>
+        <Grid Grid.Column="1" Style="{StaticResource Normal}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="60"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Text="{Binding Location, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay, NotifyOnTargetUpdated=True}" KeyDown="PhysicsLocation_TextBox_KeyDown"/>
+            <Button Content="Reload" Click="ReloadPhysics_Button_Click" Grid.Column="1"/>
+        </Grid>
+    </Grid>
+</UserControl>

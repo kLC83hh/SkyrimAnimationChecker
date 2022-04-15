@@ -36,7 +36,7 @@ namespace SkyrimAnimationChecker
                   "ColliderObject",
                   typeof(collider_object),
                   typeof(CBPC_collider),
-                  new PropertyMetadata(null, new PropertyChangedCallback(OnColliderObjectChanged))
+                  new FrameworkPropertyMetadata(null, new PropertyChangedCallback(OnColliderObjectChanged))
               );
         private static void OnColliderObjectChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

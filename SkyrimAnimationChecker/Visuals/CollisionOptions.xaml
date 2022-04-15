@@ -6,27 +6,6 @@
              xmlns:local="clr-namespace:SkyrimAnimationChecker"
              mc:Ignorable="d" 
              d:DesignHeight="150" d:DesignWidth="300">
-    <UserControl.Resources>
-        <Style TargetType="Grid" x:Key="Normal"/>
-        <Style TargetType="Grid" x:Key="Line">
-            <Setter Property="local:GridUtils.ColumnDefinitions">
-                <Setter.Value>
-                    <local:ColumnDefinitionCollection>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition />
-                    </local:ColumnDefinitionCollection>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="Label" x:Key="lableHeader">
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="Padding" Value="2,0"/>
-        </Style>
-        <Style TargetType="TextBlock" x:Key="lineHeader">
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="Padding" Value="2,0"/>
-        </Style>
-    </UserControl.Resources>
 
     <StackPanel>
         <StackPanel.Resources>
@@ -35,7 +14,7 @@
             <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>
         </StackPanel.Resources>
 
-        <Rectangle Fill="DimGray" Height="1" Margin="2">
+        <Rectangle Height="1" Margin="5,2" Fill="DimGray">
             <Rectangle.Style>
                 <Style TargetType="Rectangle">
                     <Setter Property="Visibility" Value="Collapsed"/>

@@ -83,6 +83,7 @@ namespace SkyrimAnimationChecker
         private async void RunDAR() => T.Text = await Task.Run(new DAR.DAR(vmm).Run);
         private void DARDuplicateCheck_Button_Click(object sender, RoutedEventArgs e) => RunDAR();
         #endregion
+
         #region Collision
         private void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => RunMakeInterNIF();
         private async void RunMakeInterNIF()
@@ -106,7 +107,15 @@ namespace SkyrimAnimationChecker
             }
         }
 
-
+        private void CollisionFile_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //string? buffer = ColFileCB.Items.GetItemAt(ColFileCB.SelectedIndex).ToString();
+            //if (buffer != null)
+            //{
+            //vm.fileCBPC_Collision = buffer;
+            //RunNIF_CBPC();
+            //}
+        }
         private void SphereSize_2_Button_Click(object sender, RoutedEventArgs e) => RunNIF_CBPC();
         collider_object[]? DATA_Colliders;
         (cc_options_object op, cc_extraoptions_object eop)? Options;
@@ -216,42 +225,7 @@ namespace SkyrimAnimationChecker
         }
         #endregion
         #region Physics
-        private void ReloadPhysics_Button_Click(object sender, RoutedEventArgs e) => LoadPhysicsLocation();
-        private void PhysicsLocation_TextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter || e.Key == Key.Return)
-            {
-                LoadPhysicsLocation();
-            }
-        }
-        string[] filter = new string[] { "3b", "BBP", "butt", "belly", "leg", "Vagina" };
-        private async void LoadPhysicsLocation()
-        {
-            if (System.IO.Directory.Exists(vm.locationCBPC_Physics))
-            {
-                PhyFileCB.Items.Clear();
-                string[] files = System.IO.Directory.GetFiles(vm.locationCBPC_Physics, "CBPConfig*").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-                foreach (string file in files)
-                {
-                    foreach (string filterItem in filter)
-                    {
-                        if (file.Contains(filterItem))
-                        {
-                            string name = file;
-                            if (name.Contains('/')) name = file.Split('/').Last();
-                            if (name.Contains('\\')) name = file.Split('\\').Last();
-                            if (name.Contains("\\\\")) name = file.Split("\\\\").Last();
-                            PhyFileCB.Items.Add(name);
-                        }
-                    }
-                }
-                //if (PhyFileCB.Items.Contains(vm.fileCBPC_Physics)) PhyFileCB.SelectedIndex = PhyFileCB.Items.IndexOf(vm.fileCBPC_Physics);
-                //else PhyFileCB.SelectedIndex = 0;
-            }
-            else { await FlashUI(PhyLocTB); MessageBox.Show(EE.List[12001]); }
-        }
-
-        private void PhyFileCB_MouseEnter(object sender, MouseEventArgs e) => (sender as ComboBox)?.Focus();
+        private void CommonCombobox_MouseEnter(object sender, MouseEventArgs e) => (sender as ComboBox)?.Focus();
         private void PhysicsFile_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string? buffer = PhyFileCB.Items.GetItemAt(PhyFileCB.SelectedIndex).ToString();
@@ -338,7 +312,54 @@ namespace SkyrimAnimationChecker
 
 
         #endregion
+        #region CBPC common
+        private void CBPCLocationLoader_Load(FolderLoader sender) => LoadPhysicsLocation(sender);
+        string[] filter = new string[] { "3b", "BBP", "butt", "belly", "leg", "Vagina" };
+        private async void LoadPhysicsLocation(FolderLoader? sender = null)
+        {
+            if (System.IO.Directory.Exists(vm.dirCBPC))
+            {
+                Func<string, string> getfilename = (path) =>
+                {
+                    string name = path;
+                    if (name.Contains('/')) name = path.Split('/').Last();
+                    if (name.Contains('\\')) name = path.Split('\\').Last();
+                    if (name.Contains("\\\\")) name = path.Split("\\\\").Last();
+                    return name;
+                };
+                Func<string, string[]?, string[]> getfiles = (searchPattern, filter) => {
+                    string[] files = System.IO.Directory.GetFiles(vm.dirCBPC, searchPattern).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+                    List<string> output = new();
+                    foreach (string file in files)
+                    {
+                        if (filter == null) output.Add(getfilename(file));
+                        else
+                        {
+                            foreach (string filterItem in filter)
+                            {
+                                if (file.Contains(filterItem)) output.Add(getfilename(file));
+                            }
+                        }
+                    }
+                    return output.ToArray();
+                };
+                //ColFileCB.Items.Clear();
+                //getfiles("CBPCollisionConfig*", null).ForEach(x => ColFileCB.Items.Add(x));
+                vm.fileCBPC_Collisions.Clear();
+                getfiles("CBPCollisionConfig*", null).ForEach(x => vm.fileCBPC_Collisions.Add(x));
+                //PhyFileCB.Items.Clear();
+                //getfiles("CBPConfig*", filter).ForEach(x => PhyFileCB.Items.Add(x));
+                vm.fileCBPC_Physicss.Clear();
+                getfiles("CBPConfig*", filter).ForEach(x => vm.fileCBPC_Physicss.Add(x));
+            }
+            else
+            {
+                if (sender != null) await sender.Flash();
+                MessageBox.Show(EE.List[12001]);
+            }
+        }
 
+        #endregion
     }
 
 }

@@ -14,7 +14,7 @@ namespace SkyrimAnimationChecker.CBPC
 
 
         private string[] PhysicsAll = Array.Empty<string>();
-        private string path => System.IO.Path.Combine(vm.locationCBPC_Physics, vm.fileCBPC_Physics);
+        private string path => System.IO.Path.Combine(vm.dirCBPC, vm.fileCBPC_Physics);
         public string[] Read(bool backup = false, bool force = false)
         {
             if (PhysicsAll == null || PhysicsAll.Length == 0 || force)

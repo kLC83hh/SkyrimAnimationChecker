@@ -39,7 +39,7 @@ namespace SkyrimAnimationChecker
         public static readonly DependencyProperty OptionsProperty
             = DependencyProperty.Register(
                 "Options", typeof(cc_options_object), typeof(CollisionOptions),
-                new PropertyMetadata(null, new PropertyChangedCallback((d, e) =>
+                new FrameworkPropertyMetadata(null, new PropertyChangedCallback((d, e) =>
                 {
                     if (d is not CollisionOptions) return;
                 }))
@@ -52,7 +52,7 @@ namespace SkyrimAnimationChecker
         public static readonly DependencyProperty ExtraOptionsProperty
             = DependencyProperty.Register(
                 "ExtraOptions", typeof(cc_extraoptions_object), typeof(CollisionOptions),
-                new PropertyMetadata(null, new PropertyChangedCallback((d, e) =>
+                new FrameworkPropertyMetadata(null, new PropertyChangedCallback((d, e) =>
                 {
                     if (d is not CollisionOptions) return;
                     ((CollisionOptions)d).Make();
@@ -69,7 +69,8 @@ namespace SkyrimAnimationChecker
                 if (i % 2 == 0)
                 {
                     var g = new Grid();
-                    string key = ExtraOptions.Keys[i];M.D(ExtraOptions.Find(key));
+                    string key = ExtraOptions.Keys[i];
+                    //M.D(ExtraOptions.Find(key));
 
                     var vb = new Viewbox();
                     vb.SetValue(Grid.ColumnProperty, 0);

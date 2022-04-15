@@ -31,7 +31,7 @@ namespace SkyrimAnimationChecker
         public static readonly DependencyProperty StackHeightProperty
             = DependencyProperty.Register(
                   "StackHeight", typeof(double), typeof(CBPC_Physics_Column),
-                  new PropertyMetadata(18.0, new PropertyChangedCallback((d, e) =>
+                  new FrameworkPropertyMetadata(18.0, new PropertyChangedCallback((d, e) =>
                   {
                       if (d is not CBPC_Physics_Column) return;
                       //((CBPC_Physics_Column)d).Make();
@@ -45,7 +45,7 @@ namespace SkyrimAnimationChecker
         public static readonly DependencyProperty HeaderProperty
             = DependencyProperty.Register(
                   "Header", typeof(string), typeof(CBPC_Physics_Column),
-                  new PropertyMetadata(null, new PropertyChangedCallback((d, e) =>
+                  new FrameworkPropertyMetadata(null, new PropertyChangedCallback((d, e) =>
                   {
                       if (d is not CBPC_Physics_Column) return;
                       //((CBPC_Physics_Column)d).Make();
@@ -59,7 +59,7 @@ namespace SkyrimAnimationChecker
         public static readonly DependencyProperty DataProperty
             = DependencyProperty.Register(
                   "Data", typeof(object[]), typeof(CBPC_Physics_Column),
-                  new PropertyMetadata(null, new PropertyChangedCallback((d, e) =>
+                  new FrameworkPropertyMetadata(null, new PropertyChangedCallback((d, e) =>
                   {
                       if (d is not CBPC_Physics_Column) return;
                       ((CBPC_Physics_Column)d).Make();
@@ -73,7 +73,7 @@ namespace SkyrimAnimationChecker
         public static readonly DependencyProperty OptionProperty
             = DependencyProperty.Register(
                   "Option", typeof(object[]), typeof(CBPC_Physics_Column),
-                  new PropertyMetadata(null, new PropertyChangedCallback((d, e) =>
+                  new FrameworkPropertyMetadata(null, new PropertyChangedCallback((d, e) =>
                   {
                       if (d is not CBPC_Physics_Column) return;
                       ((CBPC_Physics_Column)d).Make();
