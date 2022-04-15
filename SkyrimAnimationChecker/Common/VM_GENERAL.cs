@@ -101,6 +101,9 @@ namespace SkyrimAnimationChecker.Common
         public bool CBPCbackup { get => Get<bool>(); set => Set(value); }
         public bool CBPCremoveUnnecessary { get => Get<bool>(); set => Set(value); }
 
+        //[System.Text.Json.Serialization.JsonIgnore]
+        //public bool CBPCVisualLeftonly { get => Get<bool>(); set => Set(value); }
+
 
 
         public int panelNumber { get => Get<int>(); set => Set(value); }

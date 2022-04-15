@@ -52,16 +52,18 @@ namespace SkyrimAnimationChecker
     /// </summary>
     public partial class CBPC_Physics : UserControl
     {
-        public CBPC_Physics(VM vmm, Icbpc_data o)
+        public CBPC_Physics(VM vmm, Icbpc_data o, bool? leftonly = null)
         {
             InitializeComponent();
             vm = vmm.Vphysics;
+            vm.PropertyChanged += (sender, e) => { if (e.PropertyName == "VMPhysics_ShowLeftOnly") LeftOnlyUpdated?.Invoke(vm.VMPhysics_ShowLeftOnly); };
             DataContext = vm;
             Data = o;
             if (CheckMirrorFilter(vm.VMPhysics_MirrorFilter?.Split(',')))
             {
                 if (o is Icbpc_data_mirrored m) vm.VMPhysics_MirrorFilter = string.Join(',', m.MirrorKeys);
             }
+            if (leftonly != null) vm.VMPhysics_ShowLeftOnly = (bool)leftonly;
             Make();
         }
         VM_VPhysics vm;
@@ -83,8 +85,8 @@ namespace SkyrimAnimationChecker
               );
         #endregion
         #region Events
-        //public delegate void DataUpdateEventHandler(physics_object o);
-        //public event DataUpdateEventHandler? DataUpdated;
+        public delegate void LeftOnlyUpdateEventHandler(bool value);
+        public event LeftOnlyUpdateEventHandler? LeftOnlyUpdated;
         #endregion
 
         #region Mirror

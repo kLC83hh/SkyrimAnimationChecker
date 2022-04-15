@@ -52,13 +52,15 @@ namespace SkyrimAnimationChecker
     /// </summary>
     public partial class CBPC_Physics_MultiBone : UserControl
     {
-        public CBPC_Physics_MultiBone(VM vmm, Icbpc_data_multibone o)
+        public CBPC_Physics_MultiBone(VM vmm, Icbpc_data_multibone o, bool? leftonly = null)
         {
             InitializeComponent();
             vm = vmm.Vmultibone;
+            vm.PropertyChanged += (sender, e) => { if (e.PropertyName == "VMbreast_ShowLeftOnly") LeftOnlyUpdated?.Invoke(vm.VMbreast_ShowLeftOnly); };
             DataContext = vm;
             Data = o;
             if (CheckMirrorFilter(vm.VMbreast_MirrorFilter?.Split(','))) vm.VMbreast_MirrorFilter = string.Join(',', o.MirrorKeys);
+            if (leftonly != null) vm.VMbreast_ShowLeftOnly = (bool)leftonly;
             Make();
         }
         VM_Vmultibone vm;
@@ -80,8 +82,8 @@ namespace SkyrimAnimationChecker
               );
         #endregion
         #region Events
-        //public delegate void DataUpdateEventHandler(physics_object o);
-        //public event DataUpdateEventHandler? DataUpdated;
+        public delegate void LeftOnlyUpdateEventHandler(bool value);
+        public event LeftOnlyUpdateEventHandler? LeftOnlyUpdated;
         #endregion
 
         #region Mirror
@@ -112,14 +114,16 @@ namespace SkyrimAnimationChecker
             c.SetValue(Grid.ColumnProperty, panel.ColumnDefinitions.Count - 1);
             panel.Children.Add(c);
         }
-        
 
+
+        private string lasttype = string.Empty;
         private void Make()
         {
             if (Data.DataType == "3ba") Make_3ba();
             else if (Data.DataType == "bbp") Make_bbp();
             else if (Data.DataType == "leg") Make_leg();
             else if (Data.DataType == "vagina") Make_vagina();
+            lasttype = Data.DataType;
         }
         private void Make_bbp()
         {
@@ -137,6 +141,7 @@ namespace SkyrimAnimationChecker
             if (!vm.VMbreast_ShowLeftOnly) AddColumn("R", d.Right.Values);
 
         }
+        private bool lastallbone = false;
         private void Make_3ba()
         {
             cbpc_breast[] bs = new cbpc_breast[3];
@@ -145,11 +150,12 @@ namespace SkyrimAnimationChecker
             panel.Children.Clear();
             panel.ColumnDefinitions.Clear();
             allboneCB.IsEnabled = true;
+            if (lasttype != "3ba") vm.VMbreast_BoneAll = true;
             lonlyCB.IsEnabled = true;
 
             if (vm.VMbreast_BoneAll)
             {
-                vm.VMbreast_ShowLeftOnly = true;
+                if (lastallbone != vm.VMbreast_BoneAll) vm.VMbreast_ShowLeftOnly = true;
                 AddColumn(string.Empty, bs[0].Left.Keys, bs[0].Left.Values);
                 Data.Keys.ForEach(key =>
                 {
@@ -164,6 +170,7 @@ namespace SkyrimAnimationChecker
             }
             else
             {
+                if (lastallbone != vm.VMbreast_BoneAll) vm.VMbreast_ShowLeftOnly = false;
                 AddColumn(string.Empty, bs[0].Left.Keys, bs[0].Left.Values);
                 switch (vm.VMbreast_BoneSelect)
                 {
@@ -181,6 +188,7 @@ namespace SkyrimAnimationChecker
                         break;
                 }
             }
+            lastallbone = vm.VMbreast_BoneAll;
         }
         private void Make_leg()
         {
