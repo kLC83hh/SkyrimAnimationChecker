@@ -129,6 +129,7 @@ namespace SkyrimAnimationChecker
             panel.ColumnDefinitions.Clear();
             allboneCB.IsEnabled = false;
             vm.VMbreast_BoneAll = false;
+            lonlyCB.IsEnabled = true;
 
             AddColumn(string.Empty, d.Left.Keys, d.Left.Values);
 
@@ -144,6 +145,7 @@ namespace SkyrimAnimationChecker
             panel.Children.Clear();
             panel.ColumnDefinitions.Clear();
             allboneCB.IsEnabled = true;
+            lonlyCB.IsEnabled = true;
 
             if (vm.VMbreast_BoneAll)
             {
@@ -187,26 +189,24 @@ namespace SkyrimAnimationChecker
             panel.ColumnDefinitions.Clear();
             allboneCB.IsEnabled = false;
             vm.VMbreast_BoneAll = false;
+            lonlyCB.IsEnabled = true;
 
             switch (vm.VMbreast_BoneSelect)
             {
                 case 1:
                     vm.VMbreast_Name = d.FrontThigh.Name;
-                    lonlyCB.IsEnabled = true;
                     AddColumn(string.Empty, d.FrontThigh.Left.Keys, d.FrontThigh.Left.Values);
                     AddColumn(d.FrontThigh.Left.Name, d.FrontThigh.Left.Values);
                     if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.FrontThigh.Right.Name, d.FrontThigh.Right.Values);
                     break;
                 case 2:
                     vm.VMbreast_Name = d.RearThigh.Name;
-                    lonlyCB.IsEnabled = true;
                     AddColumn(string.Empty, d.RearThigh.Left.Keys, d.RearThigh.Left.Values);
                     AddColumn(d.RearThigh.Left.Name, d.RearThigh.Left.Values);
                     if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.RearThigh.Right.Name, d.RearThigh.Right.Values);
                     break;
                 case 3:
                     vm.VMbreast_Name = d.RearCalf.Name;
-                    lonlyCB.IsEnabled = true;
                     AddColumn(string.Empty, d.RearCalf.Left.Keys, d.RearCalf.Left.Values);
                     AddColumn(d.RearCalf.Left.Name, d.RearCalf.Left.Values);
                     if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.RearCalf.Right.Name, d.RearCalf.Right.Values);
