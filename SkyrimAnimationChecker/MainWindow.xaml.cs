@@ -26,7 +26,11 @@ namespace SkyrimAnimationChecker
         {
             InitializeComponent();
             vmm = new VM();
-            if (!vmm.Load()) M.D("vmFile load failed");
+            try
+            {
+                if (!vmm.Load()) throw EE.New(101);
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
             this.vm = vmm.GENERAL;
             this.DataContext = vm;
             this.Closing += MainWindow_Closing;
@@ -111,8 +115,16 @@ namespace SkyrimAnimationChecker
             try
             {
                 Options = await Task.Run(() => new CBPC.Collision(vm).Option());
-                var result = await Task.Run(() => new NIF.Collision(vm).Get(out DATA_Colliders));
-                if (result.code > 0) MessageBox.Show(result.msg);
+                if (vm.readFromNIFs)
+                {
+                    var result = await Task.Run(() => new NIF.Collision(vm).Get(out DATA_Colliders));
+                    if (result.code > 0) MessageBox.Show(result.msg);
+                }
+                else
+                {
+                    var buffer = await Task.Run(() => new CBPC.Collision(vm).GetColliders());
+                    if (buffer.Length > 0) DATA_Colliders = buffer;
+                }
                 if (DATA_Colliders != null && DATA_Colliders.Length > 0)
                 {
                     Clist(DATA_Colliders);

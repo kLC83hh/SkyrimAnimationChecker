@@ -35,7 +35,23 @@
             <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>
         </StackPanel.Resources>
 
-        <Rectangle Height="5"/>
+        <Rectangle Fill="DimGray" Height="1" Margin="2">
+            <Rectangle.Style>
+                <Style TargetType="Rectangle">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <d:Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Options.Use, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ExtraOptions.Use, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Rectangle.Style>
+        </Rectangle>
+        
         <StackPanel>
             <StackPanel.Style>
                 <Style TargetType="StackPanel">
@@ -66,6 +82,7 @@
                 <TextBox Text="{Binding Options.Priority, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="3"/>
             </Grid>
         </StackPanel>
+        
         <StackPanel>
             <StackPanel.Style>
                 <Style TargetType="StackPanel">

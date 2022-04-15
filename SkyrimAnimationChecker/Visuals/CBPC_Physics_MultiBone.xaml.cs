@@ -17,11 +17,11 @@ using SkyrimAnimationChecker.CBPC;
 
 namespace SkyrimAnimationChecker.Common
 {
-    public class VM_Vbreast : Notify.NotifyPropertyChanged
+    public class VM_Vmultibone : Notify.NotifyPropertyChanged
     {
-        public VM_Vbreast() => Default_Vbreast();
-        protected void Default_Vbreast() { VMbreast_BoneAll = true; VMbreast_BoneSelect = 1; VMbreast_ShowLeftOnly = false; }
-        public void New_Vbreast() { VMbreast_BoneSelect = 1; }
+        public VM_Vmultibone() => Default_Vmultibone();
+        protected void Default_Vmultibone() { VMbreast_BoneAll = true; VMbreast_BoneSelect = 1; VMbreast_ShowLeftOnly = false; }
+        public void New_Vmultibone() { VMbreast_BoneSelect = 1; }
 
         [System.Text.Json.Serialization.JsonIgnore]
         public bool VMbreast_BoneAll { get => Get<bool>(); set => Set(value); }
@@ -55,13 +55,13 @@ namespace SkyrimAnimationChecker
         public CBPC_Physics_MultiBone(VM vmm, Icbpc_data_multibone o)
         {
             InitializeComponent();
-            vm = vmm.Vbreast;
+            vm = vmm.Vmultibone;
             DataContext = vm;
             Data = o;
             if (CheckMirrorFilter(vm.VMbreast_MirrorFilter?.Split(','))) vm.VMbreast_MirrorFilter = string.Join(',', o.MirrorKeys);
             Make();
         }
-        VM_Vbreast vm;
+        VM_Vmultibone vm;
 
         #region Properties
         public Icbpc_data_multibone Data

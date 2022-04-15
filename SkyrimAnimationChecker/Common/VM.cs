@@ -12,12 +12,19 @@ namespace SkyrimAnimationChecker.Common
     {
         public VM() => Load();
         public VM_GENERAL GENERAL { get; set; } = new();
-        public VM_Vbreast Vbreast { get; set; } = new();
+        public VM_Vmultibone Vmultibone { get; set; } = new();
         public VM_VPhysics Vphysics { get; set; } = new();
 
 
         [JsonIgnore]
         private object[] VMs => Values;
+        private T? NewVM<T>(JsonElement j)
+        {
+            T? buffer = default;
+            try { buffer = JsonSerializer.Deserialize<T>(j); }
+            catch (JsonException e) { if (e.InnerException is InvalidOperationException) throw EE.New(102, $"{typeof(T)}"); }
+            return buffer;
+        }
         private bool NewVMs(object[]? o = null)
         {
             if (o != null)
@@ -29,23 +36,17 @@ namespace SkyrimAnimationChecker.Common
                         switch (i)
                         {
                             case 0:
-                                GENERAL = JsonSerializer.Deserialize<VM_GENERAL>(v) ?? new();
+                                GENERAL = NewVM<VM_GENERAL>(v) ?? new();
                                 break;
                             case 1:
-                                Vbreast = JsonSerializer.Deserialize<VM_Vbreast>(v) ?? new();
+                                Vmultibone = NewVM<VM_Vmultibone>(v) ?? new();
                                 break;
                             case 2:
-                                Vphysics = JsonSerializer.Deserialize<VM_VPhysics>(v) ?? new();
+                                Vphysics = NewVM<VM_VPhysics>(v) ?? new();
                                 break;
                         }
                     }
                 }
-                //if (o[0] is JsonElement v)
-                //    GENERAL = JsonSerializer.Deserialize<VM_GENERAL>(v) ?? new();
-                //if (o[1] is JsonElement vb)
-                //    Vbreast = JsonSerializer.Deserialize<VM_Vbreast>(vb) ?? new();
-                //if (o[2] is JsonElement vp)
-                //    Vphysics = JsonSerializer.Deserialize<VM_VPhysics>(vp) ?? new();
                 return true;
             }
             return false;

@@ -40,19 +40,20 @@ namespace SkyrimAnimationChecker.Common
             if (useDesktop || string.IsNullOrWhiteSpace(dirMods)) workdir = desktop;
             dirMods = @"C:\Games\FaceRim_SE-TA\SkyrimSE\mods";
 
-            fileNIF_bodyslide1 = System.IO.Path.Combine(workdir, "femalebody_1.nif");
-            fileNIF_bodyslide0 = System.IO.Path.Combine(workdir, "femalebody_0.nif");
+            dirNIF_bodyslide = workdir;
+            fileNIF_bodyslide = "femalebody_0.nif, femalebody_1.nif";
             useCustomExample = false;
             weightNumber = 1;
             fileNIF_sphere1 = System.IO.Path.Combine(workdir, "example_0.nif");
             fileNIF_sphere0 = System.IO.Path.Combine(workdir, "example_1.nif");
 
+            readFromNIFs = false;
             fileNIF_out1 = System.IO.Path.Combine(workdir, "inter_1.nif");
             fileNIF_out0 = System.IO.Path.Combine(workdir, "inter_0.nif");
             fileCBPC_Collision = System.IO.Path.Combine(workdir, "CBPCollisionConfig_Female.txt");
             groupfilter = "[NPC L Pussy02],[NPC L RearThigh],[NPC L Thigh [LThg]],[NPC L UpperArm [LUar]],[NPC L Forearm [LLar]]";
 
-            CBPC_Checker = new System.Collections.ObjectModel.ObservableCollection<string> { "# Collision spheres", "# Affected Nodes", "# Collider Nodes" };
+            CBPC_Checker = new() { "# Collision spheres", "# Affected Nodes", "# Collider Nodes" };
             CBPCfullcopy = true;
             CBPCbackup = true;
             CBPCremoveUnnecessary = true;
@@ -71,8 +72,8 @@ namespace SkyrimAnimationChecker.Common
 
         public string dirMods { get => Get<string>(); set => Set(value); }
 
-        public string fileNIF_bodyslide1 { get => Get<string>(); set => Set(value); }
-        public string fileNIF_bodyslide0 { get => Get<string>(); set => Set(value); }
+        public string dirNIF_bodyslide { get => Get<string>(); set => Set(value); }
+        public string fileNIF_bodyslide { get => Get<string>(); set => Set(value); }
 
         public bool useCustomExample { get => Get<bool>(); set => Set(value); }
         public int weightNumber { get => Get<int>(); set { if (value > -1) Set(value); } }
@@ -82,6 +83,7 @@ namespace SkyrimAnimationChecker.Common
         [System.Text.Json.Serialization.JsonIgnore]
         public bool overwriteInterNIFs { get => Get<bool>(); set => Set(value); }
 
+        public bool readFromNIFs { get => Get<bool>(); set => Set(value); }
         public string fileNIF_out1 { get => Get<string>(); set => Set(value); }
         public string fileNIF_out0 { get => Get<string>(); set => Set(value); }
         public string fileCBPC_Collision { get => Get<string>(); set => Set(value); }

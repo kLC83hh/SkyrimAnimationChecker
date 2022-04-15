@@ -96,6 +96,47 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return new string[] { };
         }
+        public collider_object[] GetColliders()
+        {
+            if (CollisionAll.Length == 0) Read();
+            if (CollisionAll.Length == 0) throw EE.New(5005);
+            string[] lines = CollisionAll;
+            string[] checker = vm.CBPC_Checker.ToArray();
+
+            List<collider_object> colliders = new List<collider_object>();
+            if (lines.Contains(checker[0]) || lines.Contains(checker[1]) && lines.Contains(checker[2]))
+            {
+                Func<string[], int, int> MoveNextKey = (lines, i) =>
+                {
+                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"^[\d-]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    do
+                    {
+                        i++;
+                        if (i >= lines.Length) break;
+                    }
+                    while (regex.IsMatch(lines[i]));
+                    return --i;
+                };
+                bool initializer = false;
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (initializer)
+                    {
+                        if (lines[i].StartsWith("[") && lines[i].EndsWith("]"))
+                        {
+                            string name = lines[i].Substring(1, lines[i].Length - 2);
+                            int n = MoveNextKey(lines, i);M.D($"{i} {n} {lines[n]}");
+                            List<string> data = new();
+                            for (int j = i + 1; j <= n; j++) data.Add(lines[j]);
+                            colliders.Add(new collider_object(name, string.Join(Environment.NewLine, data)) { Group = data.Any(x => x.Contains('&')) });
+            }
+                    }
+                    else if (lines[i].StartsWith(checker[0]) || lines[i].StartsWith(checker[1]) || lines[i].StartsWith(checker[2])) initializer = true;
+                }
+            }
+
+            return colliders.ToArray();
+        }
 
         private List<string> MakeOptions((cc_options_object op, cc_extraoptions_object eop)? ops)
         {

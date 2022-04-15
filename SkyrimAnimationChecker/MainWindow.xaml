@@ -122,6 +122,8 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
+                    <Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>
                 </StackPanel.Resources>
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
@@ -152,13 +154,9 @@
                         <RadioButton Content="Both" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=2}"/>
                     </WrapPanel>
                 </Grid>
-                <Grid Style="{StaticResource fornif1}">
-                    <TextBlock Text="bodyslide nif_1" Style="{StaticResource emtbHeader}"/>
-                    <TextBox Text="{Binding fileNIF_bodyslide1}" Grid.Column="1"/>
-                </Grid>
-                <Grid Style="{StaticResource fornif0}">
-                    <TextBlock Text="bodyslide nif_0" Style="{StaticResource emtbHeader}"/>
-                    <TextBox Text="{Binding fileNIF_bodyslide0}" Grid.Column="1"/>
+                <Grid>
+                    <TextBlock Text="bodyslide folder" Style="{StaticResource emtbHeader}"/>
+                    <TextBox Text="{Binding dirNIF_bodyslide}" Grid.Column="1"/>
                 </Grid>
                 <StackPanel>
                     <StackPanel.Style>
@@ -170,6 +168,10 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
+                    <Grid>
+                        <TextBlock Text="bs file name"/>
+                        <TextBox Text="{Binding fileNIF_bodyslide}" Grid.Column="1"/>
+                    </Grid>
                     <Grid Style="{StaticResource fornif1}">
                         <TextBlock Text="sphere nif_1" Style="{StaticResource lineHeader}"/>
                         <TextBox Text="{Binding fileNIF_sphere1}" Grid.Column="1"/>
@@ -185,24 +187,40 @@
                 </Grid>
 
                 <Rectangle Margin="5"/>
-                <WrapPanel>
-                    <local:Indicator Fill="DimGray" Stroke="DimGray"/>
-                    <TextBlock Text="NIF-CBPC"/>
-                </WrapPanel>
-                <Grid Style="{StaticResource fornif1}">
-                    <TextBlock Text="nif_1" Style="{StaticResource lineHeader}"/>
-                    <TextBox Text="{Binding fileNIF_out1}" Grid.Column="1"/>
+                <Grid>
+                    <WrapPanel Grid.ColumnSpan="2">
+                        <local:Indicator Fill="DimGray" Stroke="DimGray"/>
+                        <TextBlock Text="NIF-CBPC"/>
+                    </WrapPanel>
+                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                        <CheckBox IsChecked="{Binding readFromNIFs}" Content="Read from NIFs" Padding="0,-1"/>
+                    </WrapPanel>
                 </Grid>
-                <Grid Style="{StaticResource fornif0}">
-                    <TextBlock Text="nif_0" Style="{StaticResource lineHeader}"/>
-                    <TextBox Text="{Binding fileNIF_out0}" Grid.Column="1"/>
-                </Grid>
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding readFromNIFs}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Grid Style="{StaticResource fornif1}">
+                        <TextBlock Text="nif_1"/>
+                        <TextBox Text="{Binding fileNIF_out1}" Grid.Column="1"/>
+                    </Grid>
+                    <Grid Style="{StaticResource fornif0}">
+                        <TextBlock Text="nif_0"/>
+                        <TextBox Text="{Binding fileNIF_out0}" Grid.Column="1"/>
+                    </Grid>
+                </StackPanel>
                 <Grid>
                     <TextBlock Text="cbpcollision" Style="{StaticResource emtbHeader}"/>
                     <TextBox Text="{Binding fileCBPC}" Grid.Column="1"/>
                 </Grid>
                 <Grid>
-                    <TextBlock Text="group filter" Style="{StaticResource lineHeader}"/>
+                    <TextBlock Text="group filter"/>
                     <TextBox Text="{Binding groupfilter}" Grid.Column="1"/>
                 </Grid>
                 <Grid>
@@ -225,6 +243,10 @@
 
             <!--CBPC physics-->
             <StackPanel>
+                <StackPanel.Resources>
+                    <Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>
+                </StackPanel.Resources>
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -259,7 +281,7 @@
                 </Grid>
                 <Rectangle Height="5"/>
                 <Grid>
-                    <TextBlock Text="physics file" Style="{StaticResource lineHeader}"/>
+                    <TextBlock Text="physics file"/>
                     <!--<TextBox Text="{Binding fileCBPC_Physics}" Grid.Column="1"/>-->
                     <ComboBox x:Name="PhyFileCB" Grid.Column="1" SelectionChanged="PhysicsFile_ComboBox_SelectionChanged" MouseEnter="PhyFileCB_MouseEnter"/>
                 </Grid>
