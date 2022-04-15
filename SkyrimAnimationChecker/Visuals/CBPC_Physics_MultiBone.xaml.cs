@@ -198,6 +198,7 @@ namespace SkyrimAnimationChecker
             allboneCB.IsEnabled = false;
             vm.VMbreast_BoneAll = false;
             lonlyCB.IsEnabled = true;
+            if (lasttype != "leg") vm.VMbreast_ShowLeftOnly = false;
 
             switch (vm.VMbreast_BoneSelect)
             {
@@ -229,6 +230,7 @@ namespace SkyrimAnimationChecker
             panel.ColumnDefinitions.Clear();
             allboneCB.IsEnabled = false;
             vm.VMbreast_BoneAll = false;
+            if (lasttype != "vagina") vm.VMbreast_ShowLeftOnly = false;
 
             switch (vm.VMbreast_BoneSelect)
             {
