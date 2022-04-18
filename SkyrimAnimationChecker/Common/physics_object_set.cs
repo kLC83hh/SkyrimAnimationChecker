@@ -246,6 +246,13 @@
             dampingYRot = new physics_object();
             dampingZRot = new physics_object();
 
+            XmaxoffsetRot = new physics_object();
+            XminoffsetRot = new physics_object();
+            YmaxoffsetRot = new physics_object();
+            YminoffsetRot = new physics_object();
+            ZmaxoffsetRot = new physics_object();
+            ZminoffsetRot = new physics_object();
+
             timetickRot = new physics_object();
             timeStepRot = new physics_object();
 
@@ -280,6 +287,13 @@
         public physics_object dampingXRot { get => Get<physics_object>(); set => Set(value); }
         public physics_object dampingYRot { get => Get<physics_object>(); set => Set(value); }
         public physics_object dampingZRot { get => Get<physics_object>(); set => Set(value); }
+
+        public physics_object XmaxoffsetRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object XminoffsetRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object YmaxoffsetRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object YminoffsetRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object ZmaxoffsetRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object ZminoffsetRot { get => Get<physics_object>(); set => Set(value); }
 
         public physics_object timetickRot { get => Get<physics_object>(); set => Set(value); }
         public physics_object timeStepRot { get => Get<physics_object>(); set => Set(value); }
