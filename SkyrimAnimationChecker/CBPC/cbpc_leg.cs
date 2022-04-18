@@ -9,7 +9,7 @@ namespace SkyrimAnimationChecker.CBPC
 {
     internal class cbpc_leg : PropertyHandler, Icbpc_data_multibone
     {
-        public cbpc_leg() : base(KeysIgnore: new string[] { "MirrorKeys", "Name", "NameShort", "DataType" })
+        public cbpc_leg() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType" })
         {
             FrontThigh = new("FrontThigh");
             RearThigh = new("RearThigh");
@@ -37,6 +37,22 @@ namespace SkyrimAnimationChecker.CBPC
                 FrontThigh.MirrorKeys = value;
                 RearThigh.MirrorKeys = value;
                 RearCalf.MirrorKeys = value;
+            }
+        }
+        public MirrorPair[] MirrorPairs
+        {
+            get
+            {
+                if (FrontThigh.MirrorPairs != null) return FrontThigh.MirrorPairs;
+                else if (RearThigh.MirrorPairs != null) return RearThigh.MirrorPairs;
+                else if (RearCalf.MirrorPairs != null) return RearCalf.MirrorPairs;
+                else throw new Exception("[Can not be happen] MirrorPairs not exists");
+            }
+            set
+            {
+                FrontThigh.MirrorPairs = value;
+                RearThigh.MirrorPairs = value;
+                RearCalf.MirrorPairs = value;
             }
         }
 

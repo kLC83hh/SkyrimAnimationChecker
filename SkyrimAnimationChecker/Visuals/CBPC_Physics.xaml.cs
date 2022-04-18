@@ -20,7 +20,8 @@ namespace SkyrimAnimationChecker.Common
     public class VM_VPhysics : Notify.NotifyPropertyChanged
     {
         public VM_VPhysics() => Default_VPhysics();
-        protected void Default_VPhysics() { VMPhysics_BoneAll = true; VMPhysics_BoneSelect = 1; VMPhysics_ShowLeftOnly = false; }
+        protected void Default_VPhysics() { VMPhysics_BoneAll = true; VMPhysics_BoneSelect = 1; VMPhysics_ShowLeftOnly = false; VMPhysics_MirrorFilter = string.Empty; VMPhysics_MirrorPair = String.Empty; }
+        public void Reset() => Default_VPhysics();
         public void New_VPhysics() { VMPhysics_BoneSelect = 1; }
 
         [System.Text.Json.Serialization.JsonIgnore]
@@ -33,6 +34,7 @@ namespace SkyrimAnimationChecker.Common
 
 
         public string VMPhysics_MirrorFilter { get => Get<string>(); set => Set(value); }
+        public string VMPhysics_MirrorPair { get => Get<string>(); set => Set(value); }
 
 
 
@@ -61,7 +63,12 @@ namespace SkyrimAnimationChecker
             Data = o;
             if (CheckMirrorFilter(vm.VMPhysics_MirrorFilter?.Split(',')))
             {
-                if (o is Icbpc_data_mirrored m) vm.VMPhysics_MirrorFilter = string.Join(',', m.MirrorKeys);
+                if (Data is Icbpc_data_mirrored m) vm.VMPhysics_MirrorFilter = string.Join(',', m.MirrorKeys);
+            }
+            if (CheckMirrorPair(vm.VMPhysics_MirrorPair, out MirrorPair[]? p))
+            {
+                if (Data is Icbpc_data_mirrored m)
+                    vm.VMPhysics_MirrorPair = string.Join('|', m.MirrorPairs.ForEach(x => x.ToString()));
             }
             if (leftonly != null) vm.VMPhysics_ShowLeftOnly = (bool)leftonly;
             Make();
@@ -101,6 +108,30 @@ namespace SkyrimAnimationChecker
             else return filter;
         }
         private bool CheckMirrorFilter(string[]? filter) => filter?.All(x => string.IsNullOrWhiteSpace(x)) ?? true;
+
+        private void MirrorPair_Textbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Data is Icbpc_data_mirrored m) m.MirrorPairs = GetMirrorPair(vm.VMPhysics_MirrorPair);
+        }
+        private MirrorPair[] GetMirrorPair(string? sPair)
+        {
+            if (Data is Icbpc_data_mirrored m)
+                return CheckMirrorPair(sPair, out MirrorPair[]? pairs) || pairs == null ? m.MirrorPairs : pairs;
+            else return Array.Empty<MirrorPair>();
+        }
+        private bool CheckMirrorPair(string? s, out MirrorPair[]? pairs)
+        {
+            if (s == null) { pairs = null; return true; }
+            string[] sPairs = s.Split('|');
+            List<MirrorPair> result = new();
+            foreach (string sPair in sPairs)
+            {
+                if (MirrorPair.TryParse(sPair, out MirrorPair? p) || p == null) { pairs = null; return true; }
+                result.Add(p);
+            }
+            pairs = result.ToArray();
+            return false;
+        }
         #endregion
 
         private void AddColumn(string key, object[] data, object[]? options = null)

@@ -78,7 +78,8 @@ namespace SkyrimAnimationChecker.CBPC
                 {
                     if (line.StartsWith('#') || string.IsNullOrWhiteSpace(line)) { continue; }
                     (string name, string property, double[] data) = Parseline(line);
-                    if (!named) CBPCDATA.Name = name;
+                    if (!named) CBPCDATA.Name = name;M.D(property);
+                    if (vm.cbpc15xbeta2) Beta_auto_key_update_cbpc15xbeta2(ref property);
                     CBPCDATA.Find(name)?.SetObject(property, new physics_object(name, property, data));
                 };
             }
@@ -108,7 +109,17 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return (name, property, buffer);
         }
-
+        private void Beta_auto_key_update_cbpc15xbeta2(ref string key)
+        {
+            Dictionary<string, string> changes = new();
+            changes.Add("linearXspreadforceY", "linearXspreadforceYRot");
+            changes.Add("linearXspreadforceZ", "linearXspreadforceZRot");
+            changes.Add("linearYspreadforceX", "linearYspreadforceXRot");
+            changes.Add("linearYspreadforceZ", "linearYspreadforceZRot");
+            changes.Add("linearZspreadforceX", "linearZspreadforceXRot");
+            changes.Add("linearZspreadforceY", "linearZspreadforceYRot");
+            if (changes.Keys.Contains(key)) key = changes[key];
+        }
 
 
         private (string[], string[]) GetFilter()
@@ -153,6 +164,7 @@ namespace SkyrimAnimationChecker.CBPC
                 if (b2 == null || b2.Length != 2) continue;
 
                 string name = b2[0], key = b2[1];
+                if (vm.cbpc15xbeta2) Beta_auto_key_update_cbpc15xbeta2(ref key);
                 double[]? values = o.Find(name)?.GetPhysics(key);
                 if (values == null) continue;
 

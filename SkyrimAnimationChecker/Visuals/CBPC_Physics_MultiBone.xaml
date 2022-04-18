@@ -38,10 +38,16 @@
             <Rectangle Fill="DimGray" Height="1" Margin="5"/>
             <Grid Style="{StaticResource Head1}">
                 <TextBlock Text="{Binding VMbreast_Name}"/>
-                <Grid Grid.Column="1" Style="{StaticResource Head2}">
-                    <TextBlock Text="Mirror filter"/>
-                    <TextBox Text="{Binding VMbreast_MirrorFilter}" KeyDown="MirrorFilter_TextBox_KeyDown" Grid.Column="1"/>
-                </Grid>
+                <StackPanel Grid.Column="1">
+                    <Grid Style="{StaticResource Head2}">
+                        <TextBlock Text="Mirror filter"/>
+                        <TextBox Text="{Binding VMmultibone_MirrorFilter}" KeyDown="MirrorFilter_TextBox_KeyDown" Grid.Column="1"/>
+                    </Grid>
+                    <Grid Style="{StaticResource Head2}">
+                        <TextBlock Text="Mirror pair"/>
+                        <TextBox Text="{Binding VMmultibone_MirrorPair}" KeyDown="MirrorPair_Textbox_KeyDown" Grid.Column="1"/>
+                    </Grid>
+                </StackPanel>
             </Grid>
             <Grid Style="{StaticResource Head1}">
                 <WrapPanel Grid.Column="1">

@@ -9,7 +9,7 @@ namespace SkyrimAnimationChecker.CBPC
 {
     public class cbpc_vagina : PropertyHandler, Icbpc_data_multibone
     {
-        public cbpc_vagina() : base(KeysIgnore: new string[] { "MirrorKeys", "Name", "NameShort", "DataType" })
+        public cbpc_vagina() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType" })
         {
             Vagina = new("Vagina");
             Clit = new("Clit");
@@ -33,6 +33,18 @@ namespace SkyrimAnimationChecker.CBPC
             set
             {
                 Labia.MirrorKeys = value;
+            }
+        }
+        public MirrorPair[] MirrorPairs
+        {
+            get
+            {
+                if (Labia.MirrorPairs != null) return Labia.MirrorPairs;
+                else throw new Exception("[Can not be happen] MirrorPairs not exists");
+            }
+            set
+            {
+                Labia.MirrorPairs = value;
             }
         }
 

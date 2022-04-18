@@ -9,7 +9,7 @@ namespace SkyrimAnimationChecker.CBPC
 {
     public class cbpc_breast_3ba : Common.PropertyHandler, Icbpc_breast_data
     {
-        public cbpc_breast_3ba() : base(KeysIgnore: new string[] { "MirrorKeys", "Name", "NameShort", "DataType" })
+        public cbpc_breast_3ba() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType" })
         {
             B1 = new(1);
             B2 = new(2);
@@ -37,6 +37,22 @@ namespace SkyrimAnimationChecker.CBPC
                 B1.MirrorKeys = value;
                 B2.MirrorKeys = value;
                 B3.MirrorKeys = value;
+            }
+        }
+        public MirrorPair[] MirrorPairs
+        {
+            get
+            {
+                if (B1.MirrorPairs != null) return B1.MirrorPairs;
+                else if (B2.MirrorPairs != null) return B2.MirrorPairs;
+                else if (B3.MirrorPairs != null) return B3.MirrorPairs;
+                else throw new Exception("[Can not be happen] MirrorPairs not exists");
+            }
+            set
+            {
+                B1.MirrorPairs = value;
+                B2.MirrorPairs = value;
+                B3.MirrorPairs = value;
             }
         }
 

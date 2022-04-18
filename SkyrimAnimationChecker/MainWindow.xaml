@@ -7,6 +7,10 @@
         xmlns:common="clr-namespace:SkyrimAnimationChecker.Common"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=common:VM}"
         Title="SAC" Height="570" Width="800">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:MainWindow.SaveCommand}" 
+                     Executed="CommandBinding_Executed"/>
+    </Window.CommandBindings>
 
     <Grid x:Name="TopGrid" Margin="2">
         <Grid.ColumnDefinitions>
@@ -258,6 +262,9 @@
                         <local:Indicator Trigger="{Binding CBPC_Physics_running}"/>
                         <TextBlock Text="CBPC"/>
                     </WrapPanel>
+                    <WrapPanel HorizontalAlignment="Right" Grid.Column="1">
+                        <CheckBox Content="1.5.xBeta2" IsChecked="{Binding cbpc15xbeta2}" Padding="0,-1"/>
+                    </WrapPanel>
                 </Grid>
                 <Grid Visibility="Collapsed">
                     <TextBlock Text="Mirror" Style="{StaticResource lineHeader}"/>
@@ -281,104 +288,113 @@
 
 
         <!--Right-->
-        <StackPanel Grid.Column="2">
-            <StackPanel.Resources>
-                <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
-                <!--<Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>-->
-                <!--<Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>-->
-            </StackPanel.Resources>
-            
-            <!--NIF-CBPC result-->
+        <Grid Grid.Column="2">
+            <WrapPanel>
+                <local:Indicator Fill="Transparent" Stroke="Transparent"/>
+                <!--<d:TextBlock Text="notify"/>-->
+                <TextBlock/>
+            </WrapPanel>
             <StackPanel>
-                <StackPanel.Style>
-                    <Style TargetType="StackPanel">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <d:Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding panelNumber}" Value="0">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </StackPanel.Style>
-                
-                <Grid>
-                    <WrapPanel Grid.ColumnSpan="2">
-                        <local:Indicator Trigger="{Binding CBPCrunning}"/>
-                        <TextBlock Text="Collision Result"/>
-                    </WrapPanel>
-                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
-                        <CheckBox IsChecked="{Binding CBPCfullcopy}" Content="Full Copy" Padding="0,-1"/>
-                        <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
-                    </WrapPanel>
-                </Grid>
-                <Grid>
-                    <TextBlock Text="write filter" Style="{StaticResource lineHeader}"/>
-                    <TextBox Grid.Column="1"/>
-                </Grid>
-                <Grid>
-                    <CheckBox Content="All" IsChecked="{Binding writeAll}" Click="CBPC_panel_All_CheckBox_Click" Padding="0,-1"/>
-                    <Button Grid.Column="1" Click="WriteCollisionConfig_3_Button_Click">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Content" Value="3. Write Collision Config"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding writeSome}" Value="False">
-                                        <Setter Property="Content" Value="3. Copy Collision Config"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </Grid>
-                <TextBlock x:Name="C"/>
-                <StackPanel x:Name="CBPC_panel"/>
-            </StackPanel>
+                <StackPanel.Resources>
+                    <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
+                    <!--<Style TargetType="Label" BasedOn="{StaticResource lableHeader}"/>-->
+                    <!--<Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}"/>-->
+                </StackPanel.Resources>
 
-            <!--CBPC physics-->
-            <StackPanel>
-                <StackPanel.Style>
-                    <Style TargetType="StackPanel">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <d:Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding panelNumber}" Value="1">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </StackPanel.Style>
+                <!--NIF-CBPC result-->
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <d:Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding panelNumber}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
 
-                <Grid>
-                    <WrapPanel Grid.ColumnSpan="2">
-                        <local:Indicator Fill="DimGray" Stroke="DimGray"/>
-                        <TextBlock Text="Physics Data"/>
-                    </WrapPanel>
-                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
-                        <CheckBox IsChecked="{Binding CBPCremoveUnnecessary}" Content="Trim Unnecessary" Padding="0,-1"/>
-                        <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
-                    </WrapPanel>
-                </Grid>
-                <Grid>
-                    <CheckBox x:Name="cbpcPhysicsOverwriteCB" Content="overwrite" IsChecked="{Binding overwriteCBPC_Physics}" Padding="0,-1"/>
-                    <Button Grid.Column="1" Click="WritePhysics_Button_Click">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Content" Value="Copy"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding overwriteCBPC_Physics}" Value="True">
-                                        <Setter Property="Content" Value="Write"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </Grid>
-                <StackPanel x:Name="cbpcPhyPanel">
-                    
+                    <Grid>
+                        <WrapPanel Grid.ColumnSpan="2">
+                            <local:Indicator Trigger="{Binding CBPCrunning}"/>
+                            <TextBlock Text="Collision Result"/>
+                            <TextBlock x:Name="NotifyC"/>
+                        </WrapPanel>
+                        <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                            <CheckBox IsChecked="{Binding CBPCfullcopy}" Content="Full Copy" Padding="0,-1"/>
+                            <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
+                        </WrapPanel>
+                    </Grid>
+                    <Grid>
+                        <TextBlock Text="write filter" Style="{StaticResource lineHeader}"/>
+                        <TextBox Grid.Column="1"/>
+                    </Grid>
+                    <Grid>
+                        <CheckBox Content="All" IsChecked="{Binding writeAll}" Click="CBPC_panel_All_CheckBox_Click" Padding="0,-1"/>
+                        <Button Grid.Column="1" Click="WriteCollisionConfig_3_Button_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Content" Value="3. Write Collision Config"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding writeSome}" Value="False">
+                                            <Setter Property="Content" Value="3. Copy Collision Config"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                    <TextBlock x:Name="C"/>
+                    <StackPanel x:Name="CBPC_panel"/>
+                </StackPanel>
+
+                <!--CBPC physics-->
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <d:Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding panelNumber}" Value="1">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <Grid>
+                        <WrapPanel Grid.ColumnSpan="2">
+                            <local:Indicator Fill="DimGray" Stroke="DimGray"/>
+                            <TextBlock Text="Physics Data"/>
+                            <TextBlock x:Name="NotifyP"/>
+                        </WrapPanel>
+                        <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                            <CheckBox IsChecked="{Binding CBPCremoveUnnecessary}" Content="Trim Unnecessary" Padding="0,-1"/>
+                            <CheckBox IsChecked="{Binding CBPCbackup}" Content="Make Backup" Padding="0,-1"/>
+                        </WrapPanel>
+                    </Grid>
+                    <Grid>
+                        <CheckBox x:Name="cbpcPhysicsOverwriteCB" Content="overwrite" IsChecked="{Binding overwriteCBPC_Physics}" Padding="0,-1"/>
+                        <Button Grid.Column="1" Click="WritePhysics_Button_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Content" Value="Copy"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding overwriteCBPC_Physics}" Value="True">
+                                            <Setter Property="Content" Value="Write"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                    <StackPanel x:Name="cbpcPhyPanel">
+
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </Grid>
         
     </Grid>
 </Window>

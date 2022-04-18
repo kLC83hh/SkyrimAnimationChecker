@@ -10,11 +10,11 @@ namespace SkyrimAnimationChecker.CBPC
     public class cbpc_data_mirrored : PropertyHandler, Icbpc_data_mirrored
     {
         public cbpc_data_mirrored()
-            : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "DataType", "DefaultName" }) => Init();
+            : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName" }) => Init();
         public cbpc_data_mirrored(string name, physics_object_set? left = null, physics_object_set? right = null)
-             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "DataType", "DefaultName" }) => Init(name, left, right);
+             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName" }) => Init(name, left, right);
         public cbpc_data_mirrored(int num, physics_object_set? left = null, physics_object_set? right = null)
-             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "DataType", "DefaultName" }) => Init(num, left, right);
+             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName" }) => Init(num, left, right);
         private void Init(object? param = null, physics_object_set? left = null, physics_object_set? right = null)
         {
             Name = DefaultName;
@@ -93,7 +93,7 @@ namespace SkyrimAnimationChecker.CBPC
 
 
 
-        protected void Mirror(physics_object o) => Find(MirrorName(o.Name))?.SetPhysics(o.Key, CanMirror(o.Key) ? MirrorValue(o.Values) : o.Values);
+        protected void Mirror(physics_object o) => Find(MirrorName(o.Name))?.SetPhysics(GetPair(o.Key), CanMirror(o.Key) ? MirrorValue(o.Values) : o.Values);
 
         protected string MirrorName(string name)
         {
@@ -119,7 +119,7 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return buffer;
         }
-        protected string[] _MirrorKeys = new string[] { "rotationalZ", "linearZrotationY", "linearXspreadforceZ", "linearYspreadforceX", "linearZspreadforceX" };
+        protected string[] _MirrorKeys = new string[] { "rotationalZ", "linearZrotationY", "linearXspreadforceZ", "linearXspreadforceZRot", "linearYspreadforceX", "linearYspreadforceXRot", "linearZspreadforceX", "linearZspreadforceXRot", "collisionXmaxoffset", "collisionXminoffset" };
         public string[] MirrorKeys { get => _MirrorKeys; set { _MirrorKeys = value; OnPropertyChanged(); } }
         protected bool CanMirror(string key)
         {
@@ -129,6 +129,65 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return false;
         }
+        protected MirrorPair[] _MirrorPairs = new MirrorPair[] { new MirrorPair("collisionXmaxoffset", "collisionXminoffset") };
+        public MirrorPair[] MirrorPairs { get => _MirrorPairs; set { _MirrorPairs = value; OnPropertyChanged(); } }
+        protected string GetPair(string key)
+        {
+            foreach (MirrorPair s in MirrorPairs)
+            {
+                if (s.In(key)) return s.Get(key);
+            }
+            return key;
+        }
 
+    }
+
+
+    public class MirrorPair : PropertyHandler, IPropertyHandler
+    {
+        public MirrorPair(string key0, string key1) : base()
+        {
+            Key0 = key0;
+            Key1 = key1;
+        }
+
+        public string Get(string key)
+        {
+            if (key == Key0) return Key1;
+            else if (key == Key1) return Key0;
+            else return key;
+        }
+        public bool In(string key)
+        {
+            if (key == Key0 || key == Key1) return true;
+            else return false;
+        }
+
+
+
+        protected string Key0 { get => Get<string>(); set => Set(value); }
+        protected string Key1 { get => Get<string>(); set => Set(value); }
+
+        /// <summary>
+        /// return <c>true</c> when failed to parse
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static bool TryParse(string s, out MirrorPair? p)
+        {
+            if (s.StartsWith('{') && s.EndsWith('}'))
+            {
+                string[] vs = s.Split(',');
+                if (vs.Length == 2)
+                {
+                    p = new MirrorPair(vs[0], vs[1]);
+                    return false;
+                }
+            }
+            p = null;
+            return true;
+        }
+        public override string ToString() => $"{{{Key0},{Key1}}}";
+        public static explicit operator string(MirrorPair obj) => obj.ToString();
     }
 }

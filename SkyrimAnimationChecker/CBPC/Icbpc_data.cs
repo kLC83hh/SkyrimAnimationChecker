@@ -24,6 +24,7 @@ namespace SkyrimAnimationChecker.CBPC
     public interface Icbpc_data_mirrored : Icbpc_data
     {
         public string[] MirrorKeys { get; set; }
+        public MirrorPair[] MirrorPairs { get; set; }
     }
     public interface Icbpc_data_multibone: Icbpc_data_mirrored
     {

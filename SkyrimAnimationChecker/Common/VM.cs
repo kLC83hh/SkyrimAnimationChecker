@@ -15,6 +15,13 @@ namespace SkyrimAnimationChecker.Common
         public VM_Vmultibone Vmultibone { get; set; } = new();
         public VM_VPhysics Vphysics { get; set; } = new();
 
+        public void Reset()
+        {
+            GENERAL.Reset();
+            Vmultibone.Reset();
+            Vphysics.Reset();
+        }
+
 
         [JsonIgnore]
         private object[] VMs => Values;

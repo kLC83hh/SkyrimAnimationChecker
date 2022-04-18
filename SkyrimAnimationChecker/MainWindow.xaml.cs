@@ -25,40 +25,103 @@ namespace SkyrimAnimationChecker
         public MainWindow()
         {
             InitializeComponent();
+            
+            // vm linking
             vmm = new VM();
-            try
-            {
-                if (!vmm.Load()) throw EE.New(101);
-            }
+            try { if (!vmm.Load()) throw EE.New(101); }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
             this.vm = vmm.GENERAL;
             this.DataContext = vm;
+
+            // events and shortcuts
             this.Closing += MainWindow_Closing;
             this.ContentRendered += MainWindow_ContentRendered;
+            SaveCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
+            
+            // title manipulation (version)
             foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (a.GetName().Name == "SkyrimAnimationChecker")
                 {
-                    this.Title += $" {a.GetName().Version}";
+                    string v = a.GetName().Version?.ToString() ?? string.Empty;
+                    while (v.EndsWith(".0")) { v = v.Remove(v.Length - 2); }
+                    this.Title += $" {v}";
                 }
             }
+
+            // general background tasks
+            _ = Notifying_RightPanel();
         }
 
+        #region ui/ux operation
         private VM vmm;
         private VM_GENERAL vm;
+        /* general events */
         private void VMreset_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Reset settings to default", "Warning", MessageBoxButton.OKCancel) == MessageBoxResult.OK) vm.Reset();
+            if (MessageBox.Show("Reset settings to default", "Warning", MessageBoxButton.OKCancel) == MessageBoxResult.OK) vmm.Reset();
         }
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             vmm.Save();
+            cts.Cancel();
         }
         private void MainWindow_ContentRendered(object? sender, EventArgs e)
         {
             LoadPhysicsLocation();
         }
 
+        /* shortcut commands */
+        public static RoutedCommand SaveCommand = new();
+        private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            switch (vm.panelNumber)
+            {
+                case 0:
+                    RunCBPC();
+                    break;
+                case 1:
+                    WritePhysics();
+                    break;
+            }
+        }
+
+        /* text notifying */
+        private System.Threading.CancellationTokenSource cts = new();
+        Queue<string> NotifyRightCQ = new(), NotifyRightPQ = new();
+        private async Task Notifying_RightPanel()
+        {
+            int showtime = 1050, timerC = 0, timerP = 0;
+            try
+            {
+                while (true)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+                    if (NotifyRightCQ.Count > 0 && timerC <= 0)
+                    {
+                        string buffer = NotifyRightCQ.Dequeue();
+                        if (!string.IsNullOrWhiteSpace(buffer)) Dispatcher?.Invoke(() => { NotifyC.Text = $" - {buffer}"; });
+                        timerC = showtime;
+                    }
+                    if (NotifyRightPQ.Count > 0 && timerP <= 0)
+                    {
+                        string buffer = NotifyRightPQ.Dequeue();
+                        if (!string.IsNullOrWhiteSpace(buffer)) Dispatcher?.Invoke(() => { NotifyP.Text = $" - {buffer}"; });
+                        timerP = showtime;
+                    }
+                    await Task.Delay(50);
+                    timerC -= 50;
+                    timerP -= 50;
+                    if (timerC <= 0)
+                        Dispatcher?.Invoke(() => { if (NotifyC.Text != string.Empty) NotifyC.Text = string.Empty; });
+                    if (timerP <= 0)
+                        Dispatcher?.Invoke(() => { if (NotifyP.Text != string.Empty) NotifyP.Text = string.Empty; });
+                }
+            }
+            catch (OperationCanceledException) { }
+        }
+
+        /* flashing ui */
         private List<int> flashing = new();
         private async Task FlashUI(Control c)
         {
@@ -77,6 +140,7 @@ namespace SkyrimAnimationChecker
             }
             flashing.RemoveAll(item => item == c.GetHashCode());
         }
+        #endregion
 
 
         #region DAR
@@ -179,9 +243,14 @@ namespace SkyrimAnimationChecker
         private async void RunCBPC()
         {
             if (DATA_Colliders == null) return;
-            if (vm.writeSome) await Task.Run(() => new CBPC.Collision(vmm).Save(DATA_Colliders, Options));
+            if (vm.writeSome)
+            {
+                NotifyRightCQ.Enqueue("Save");
+                await Task.Run(() => new CBPC.Collision(vmm).Save(DATA_Colliders, Options));
+            }
             else
             {
+                NotifyRightCQ.Enqueue("Copy");
                 if (vm.CBPCfullcopy) Clipboard.SetText(await Task.Run(() => new CBPC.Collision(vmm).MakeOrganized(DATA_Colliders, Options)));
                 else Clipboard.SetText(await Task.Run(() => new CBPC.Collision(vmm).MakeMessy(DATA_Colliders, Options)));
             }
@@ -228,6 +297,7 @@ namespace SkyrimAnimationChecker
         private void CommonCombobox_MouseEnter(object sender, MouseEventArgs e) => (sender as ComboBox)?.Focus();
         private void PhysicsFile_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (PhyFileCB.Items.Count == 0) return;
             string? buffer = PhyFileCB.Items.GetItemAt(PhyFileCB.SelectedIndex).ToString();
             if (buffer != null)
             {
@@ -304,8 +374,16 @@ namespace SkyrimAnimationChecker
             vm.CBPC_Physics_running = true;
             await Task.Run(() =>
             {
-                if (vm.overwriteCBPC_Physics) new CBPC.Physics(vm).Save(DATA_CBPC, vm.overwriteCBPC_Physics);
-                else Dispatcher?.Invoke(() => Clipboard.SetText(new CBPC.Physics(vm).MakeCBPConfig(DATA_CBPC)));
+                if (vm.overwriteCBPC_Physics)
+                {
+                    NotifyRightPQ.Enqueue("Save");
+                    new CBPC.Physics(vm).Save(DATA_CBPC, vm.overwriteCBPC_Physics);
+                }
+                else
+                {
+                    NotifyRightPQ.Enqueue("Copy");
+                    Dispatcher?.Invoke(() => Clipboard.SetText(new CBPC.Physics(vm).MakeCBPConfig(DATA_CBPC)));
+                }
             });
             vm.CBPC_Physics_running = false;
         }
@@ -360,6 +438,49 @@ namespace SkyrimAnimationChecker
         }
 
         #endregion
+
+
+
+    }
+
+    internal class BackgroundTask
+    {
+        public BackgroundTask() { }
+        public BackgroundTask(Action a) => A = a;
+        protected System.Threading.CancellationTokenSource cts = new();
+
+        public void Start(System.Windows.Threading.DispatcherOperation? d, int wait = 0)
+            => Start(async () => { if (d != null) await d; }, wait);
+        public void Start(Action? a = null, int wait = 0)
+        {
+            Working = true;
+            cts = new();
+            if (a != null) A = a;
+            _ = _Task(wait);
+        }
+        public void Stop() => cts.Cancel();
+
+        public bool Working { get; private set; } = false;
+        public int Delay { get; set; } = 25;
+        public Action? A { get; set; }
+
+        //private Task? Task { get; set; }
+        private async Task _Task(int wait = 0)
+        {
+            if (A == null) { Working = false; return; }
+            if (wait > 0) Delay = wait;
+            try
+            {
+                while (true)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+                    await Task.Run(A);
+                    cts.Token.ThrowIfCancellationRequested();
+                    if (Delay > 0) await Task.Delay(Delay);
+                }
+            }
+            catch (OperationCanceledException) { Working = false; }
+        }
     }
 
 }

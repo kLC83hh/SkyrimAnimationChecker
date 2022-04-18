@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
-using SkyrimAnimationChecker.Common;
-
-namespace SkyrimAnimationChecker.Common
+﻿namespace SkyrimAnimationChecker.Common
 {
     public partial class physics_object_set : PropertyHandler
     {
@@ -40,20 +32,27 @@ namespace SkyrimAnimationChecker.Common
         // Defaults
         public physics_object_set() : base(
             KeysIgnore: new string[] { "Name" },
-            KeysOrder: new string[] { "stiffness", "damping", "(max|min)offset", "timetick", "linear[XYZxyz]$", "rotational", "timeStep", "linear[XYZxyz]rotation", "spreadforce" },
-            KeysOrder2: new string[] { "collision" }
+            KeysOrder: new PropertyOrder[] {
+                new PropertyOrder(true, "collision" ),
+                new PropertyOrder(false, "stiffness", "damping", "(max|min)offset", "timetick", "linear[XYZxyz]$", "rotational", "timeStep", "linear[XYZxyz]rotation", "spreadforce" ),
+                new PropertyOrder(true, "start", "end" )
+            }
             ) => Defaults();
         public physics_object_set(string name) : base(
             KeysIgnore: new string[] { "Name" },
-            KeysOrder: new string[] { "stiffness", "damping", "(max|min)offset", "timetick", "linear[XYZxyz]$", "rotational", "timeStep", "linear[XYZxyz]rotation", "spreadforce" },
-            KeysOrder2: new string[] { "collision" }
+            KeysOrder: new PropertyOrder[] {
+                new PropertyOrder(true, "collision" ),
+                new PropertyOrder(false, "stiffness", "damping", "(max|min)offset", "timetick", "linear[XYZxyz]$", "rotational", "timeStep", "linear[XYZxyz]rotation", "spreadforce" ),
+                new PropertyOrder(true, "start", "end" )
+            }
             ) => Defaults(name);
         private void Defaults(string? name = null)
         {
             if (name != null) Name = name;
-            Default_Normal();
             Default_Collision();
+            Default_Normal();
             Default_3b();
+            Default_n3b_add();
             Default_3b_Gravities();
             Default_3b_armor();
 
@@ -62,9 +61,10 @@ namespace SkyrimAnimationChecker.Common
         public string Name { get => Get<string>(); set => Set(value); }
         public override string ToString() { return Name; }
     }
+    
+    // part
     public partial class physics_object_set : PropertyHandler
     {
-        // part
         private void Default_()
         {
             //stiffness = new physics_object();
@@ -74,35 +74,6 @@ namespace SkyrimAnimationChecker.Common
         #endregion
     }
 
-    // normal
-    public partial class physics_object_set : PropertyHandler
-    {
-        private void Default_Normal()
-        {
-            stiffness = new physics_object();
-            stiffness2 = new physics_object();
-            damping = new physics_object();
-
-            timetick = new physics_object();
-            timeStep = new physics_object();
-
-            maxoffset = new physics_object();
-
-            forceMultipler = new physics_object();
-        }
-        #region Declaration
-        public physics_object stiffness { get => Get<physics_object>(); set => Set(value); }
-        public physics_object stiffness2 { get => Get<physics_object>(); set => Set(value); }
-        public physics_object damping { get => Get<physics_object>(); set => Set(value); }
-
-        public physics_object timetick { get => Get<physics_object>(); set => Set(value); }
-        public physics_object timeStep { get => Get<physics_object>(); set => Set(value); }
-
-        public physics_object maxoffset { get => Get<physics_object>(); set => Set(value); }
-
-        public physics_object forceMultipler { get => Get<physics_object>(); set => Set(value); }
-        #endregion
-    }
     // collision
     public partial class physics_object_set : PropertyHandler
     {
@@ -134,6 +105,35 @@ namespace SkyrimAnimationChecker.Common
         public physics_object collisionMultipler { get => Get<physics_object>(); set => Set(value); }
         public physics_object collisionMultiplerRot { get => Get<physics_object>(); set => Set(value); }
         public physics_object collisionElastic { get => Get<physics_object>(); set => Set(value); }
+        #endregion
+    }
+    // normal
+    public partial class physics_object_set : PropertyHandler
+    {
+        private void Default_Normal()
+        {
+            stiffness = new physics_object();
+            stiffness2 = new physics_object();
+            damping = new physics_object();
+
+            timetick = new physics_object();
+            timeStep = new physics_object();
+
+            maxoffset = new physics_object();
+
+            forceMultipler = new physics_object();
+        }
+        #region Declaration
+        public physics_object stiffness { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffness2 { get => Get<physics_object>(); set => Set(value); }
+        public physics_object damping { get => Get<physics_object>(); set => Set(value); }
+
+        public physics_object timetick { get => Get<physics_object>(); set => Set(value); }
+        public physics_object timeStep { get => Get<physics_object>(); set => Set(value); }
+
+        public physics_object maxoffset { get => Get<physics_object>(); set => Set(value); }
+
+        public physics_object forceMultipler { get => Get<physics_object>(); set => Set(value); }
         #endregion
     }
     // 3b
@@ -216,9 +216,84 @@ namespace SkyrimAnimationChecker.Common
         public physics_object linearYspreadforceZ { get => Get<physics_object>(); set => Set(value); }
         public physics_object linearZspreadforceX { get => Get<physics_object>(); set => Set(value); }
         public physics_object linearZspreadforceY { get => Get<physics_object>(); set => Set(value); }
+
         #endregion
     }
-    // 3b_Gravity, 3b_MoreGravity
+    // normal-3b additional
+    public partial class physics_object_set : PropertyHandler
+    {
+        private void Default_n3b_add()
+        {
+
+            stiffnessX = new physics_object();
+            stiffnessY = new physics_object();
+            stiffnessZ = new physics_object();
+            stiffnessXRot = new physics_object();
+            stiffnessYRot = new physics_object();
+            stiffnessZRot = new physics_object();
+
+            stiffness2X = new physics_object();
+            stiffness2Y = new physics_object();
+            stiffness2Z = new physics_object();
+            stiffness2XRot = new physics_object();
+            stiffness2YRot = new physics_object();
+            stiffness2ZRot = new physics_object();
+
+            dampingX = new physics_object();
+            dampingY = new physics_object();
+            dampingZ = new physics_object();
+            dampingXRot = new physics_object();
+            dampingYRot = new physics_object();
+            dampingZRot = new physics_object();
+
+            timetickRot = new physics_object();
+            timeStepRot = new physics_object();
+
+            linearXspreadforceYRot = new physics_object();
+            linearXspreadforceZRot = new physics_object();
+            linearYspreadforceXRot = new physics_object();
+            linearYspreadforceZRot = new physics_object();
+            linearZspreadforceXRot = new physics_object();
+            linearZspreadforceYRot = new physics_object();
+
+        }
+
+        #region Declaration
+        // 1.5.x beta2+
+        public physics_object stiffnessX { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffnessY { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffnessZ { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffnessXRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffnessYRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffnessZRot { get => Get<physics_object>(); set => Set(value); }
+
+        public physics_object stiffness2X { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffness2Y { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffness2Z { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffness2XRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffness2YRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object stiffness2ZRot { get => Get<physics_object>(); set => Set(value); }
+
+        public physics_object dampingX { get => Get<physics_object>(); set => Set(value); }
+        public physics_object dampingY { get => Get<physics_object>(); set => Set(value); }
+        public physics_object dampingZ { get => Get<physics_object>(); set => Set(value); }
+        public physics_object dampingXRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object dampingYRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object dampingZRot { get => Get<physics_object>(); set => Set(value); }
+
+        public physics_object timetickRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object timeStepRot { get => Get<physics_object>(); set => Set(value); }
+
+        public physics_object linearXspreadforceYRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object linearXspreadforceZRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object linearYspreadforceXRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object linearYspreadforceZRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object linearZspreadforceXRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object linearZspreadforceYRot { get => Get<physics_object>(); set => Set(value); }
+
+        #endregion
+    }
+    // 3b_Gravities
     public partial class physics_object_set : PropertyHandler
     {
         private void Default_3b_Gravities()

@@ -39,6 +39,7 @@ namespace SkyrimAnimationChecker.Visuals
                   }))
               );
         #endregion
+
         #region Events
         //public delegate void PhysicsUpdateEventHandler(Common.physics_object o);
         //public event PhysicsUpdateEventHandler? PhysicsUpdated;
@@ -46,6 +47,9 @@ namespace SkyrimAnimationChecker.Visuals
 
 
         //private void Value_TB_KeyDown(object sender, KeyEventArgs e) => PhysicsUpdated?.Invoke(Physics);
+
+        private void ValueTB_GotFocus(object sender, RoutedEventArgs e) => (sender as TextBox)?.Dispatcher?.BeginInvoke(() => (sender as TextBox)?.SelectAll());
+        //private void ValueTB_MouseDown(object sender, MouseButtonEventArgs e) { e.Handled = true; (sender as TextBox)?.SelectAll(); }
 
 
 

@@ -20,7 +20,8 @@ namespace SkyrimAnimationChecker.Common
     public class VM_Vmultibone : Notify.NotifyPropertyChanged
     {
         public VM_Vmultibone() => Default_Vmultibone();
-        protected void Default_Vmultibone() { VMbreast_BoneAll = true; VMbreast_BoneSelect = 1; VMbreast_ShowLeftOnly = false; }
+        protected void Default_Vmultibone() { VMbreast_BoneAll = true; VMbreast_BoneSelect = 1; VMbreast_ShowLeftOnly = false; VMmultibone_MirrorFilter = string.Empty; VMmultibone_MirrorPair = string.Empty; }
+        public void Reset() => Default_Vmultibone();
         public void New_Vmultibone() { VMbreast_BoneSelect = 1; }
 
         [System.Text.Json.Serialization.JsonIgnore]
@@ -32,7 +33,8 @@ namespace SkyrimAnimationChecker.Common
 
 
 
-        public string VMbreast_MirrorFilter { get => Get<string>(); set => Set(value); }
+        public string VMmultibone_MirrorFilter { get => Get<string>(); set => Set(value); }
+        public string VMmultibone_MirrorPair { get => Get<string>(); set => Set(value); }
 
 
 
@@ -59,7 +61,8 @@ namespace SkyrimAnimationChecker
             vm.PropertyChanged += (sender, e) => { if (e.PropertyName == "VMbreast_ShowLeftOnly") LeftOnlyUpdated?.Invoke(vm.VMbreast_ShowLeftOnly); };
             DataContext = vm;
             Data = o;
-            if (CheckMirrorFilter(vm.VMbreast_MirrorFilter?.Split(','))) vm.VMbreast_MirrorFilter = string.Join(',', o.MirrorKeys);
+            if (CheckMirrorFilter(vm.VMmultibone_MirrorFilter?.Split(','))) vm.VMmultibone_MirrorFilter = string.Join(',', Data.MirrorKeys);
+            if (CheckMirrorPair(vm.VMmultibone_MirrorPair, out MirrorPair[]? p)) vm.VMmultibone_MirrorPair = string.Join('|', Data.MirrorPairs.ForEach(x => x.ToString()));
             if (leftonly != null) vm.VMbreast_ShowLeftOnly = (bool)leftonly;
             Make();
         }
@@ -95,10 +98,29 @@ namespace SkyrimAnimationChecker
         private void MirrorFilter_TextBox_KeyDown(object sender, KeyEventArgs e)
         {
             //if (e.Key == Key.Enter || e.Key == Key.Return)
-                Data.MirrorKeys = GetMirrorFilter(vm.VMbreast_MirrorFilter.Split(','));
+                Data.MirrorKeys = GetMirrorFilter(vm.VMmultibone_MirrorFilter.Split(','));
         }
         private string[] GetMirrorFilter(string[] filter) => CheckMirrorFilter(filter) ? Data.MirrorKeys : filter;
         private bool CheckMirrorFilter(string[]? filter) => filter?.All(x => string.IsNullOrWhiteSpace(x)) ?? true;
+
+        private void MirrorPair_Textbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            Data.MirrorPairs = GetMirrorPair(vm.VMmultibone_MirrorPair);
+        }
+        private MirrorPair[] GetMirrorPair(string? sPair) => CheckMirrorPair(sPair, out MirrorPair[]? pairs) || pairs == null ? Data.MirrorPairs : pairs;
+        private bool CheckMirrorPair(string? s, out MirrorPair[]? pairs)
+        {
+            if (s == null) { pairs = null; return true; }
+            string[] sPairs = s.Split('|');
+            List<MirrorPair> result = new();
+            foreach(string sPair in sPairs)
+            {
+                if (MirrorPair.TryParse(sPair, out MirrorPair? p) || p == null) { pairs = null; return true; }
+                result.Add(p);
+            }
+            pairs = result.ToArray();
+            return false;
+        }
         #endregion
 
         private void AddColumn(string key, object[] data, object[]? options = null)
@@ -135,7 +157,7 @@ namespace SkyrimAnimationChecker
             vm.VMbreast_BoneAll = false;
             lonlyCB.IsEnabled = true;
 
-            AddColumn(string.Empty, d.Left.Keys, d.Left.Values);
+            AddColumn(string.Empty, actualKeys(d.Left.Values), d.Left.Values);
 
             AddColumn("L", d.Left.Values);
             if (!vm.VMbreast_ShowLeftOnly) AddColumn("R", d.Right.Values);
@@ -156,7 +178,7 @@ namespace SkyrimAnimationChecker
             if (vm.VMbreast_BoneAll)
             {
                 if (lastallbone != vm.VMbreast_BoneAll) vm.VMbreast_ShowLeftOnly = true;
-                AddColumn(string.Empty, bs[0].Left.Keys, bs[0].Left.Values);
+                AddColumn(string.Empty, actualKeys(bs[0].Left.Values), bs[0].Left.Values);
                 Data.Keys.ForEach(key =>
                 {
                     var br = Data.PropertyHandleGetValue<cbpc_breast>(key);
@@ -171,7 +193,7 @@ namespace SkyrimAnimationChecker
             else
             {
                 if (lastallbone != vm.VMbreast_BoneAll) vm.VMbreast_ShowLeftOnly = false;
-                AddColumn(string.Empty, bs[0].Left.Keys, bs[0].Left.Values);
+                AddColumn(string.Empty, actualKeys(bs[0].Left.Values), bs[0].Left.Values);
                 switch (vm.VMbreast_BoneSelect)
                 {
                     case 1:
@@ -204,19 +226,19 @@ namespace SkyrimAnimationChecker
             {
                 case 1:
                     vm.VMbreast_Name = d.FrontThigh.Name;
-                    AddColumn(string.Empty, d.FrontThigh.Left.Keys, d.FrontThigh.Left.Values);
+                    AddColumn(string.Empty, actualKeys(d.FrontThigh.Left.Values), d.FrontThigh.Left.Values);
                     AddColumn(d.FrontThigh.Left.Name, d.FrontThigh.Left.Values);
                     if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.FrontThigh.Right.Name, d.FrontThigh.Right.Values);
                     break;
                 case 2:
                     vm.VMbreast_Name = d.RearThigh.Name;
-                    AddColumn(string.Empty, d.RearThigh.Left.Keys, d.RearThigh.Left.Values);
+                    AddColumn(string.Empty, actualKeys(d.RearThigh.Left.Values), d.RearThigh.Left.Values);
                     AddColumn(d.RearThigh.Left.Name, d.RearThigh.Left.Values);
                     if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.RearThigh.Right.Name, d.RearThigh.Right.Values);
                     break;
                 case 3:
                     vm.VMbreast_Name = d.RearCalf.Name;
-                    AddColumn(string.Empty, d.RearCalf.Left.Keys, d.RearCalf.Left.Values);
+                    AddColumn(string.Empty, actualKeys(d.RearCalf.Left.Values), d.RearCalf.Left.Values);
                     AddColumn(d.RearCalf.Left.Name, d.RearCalf.Left.Values);
                     if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.RearCalf.Right.Name, d.RearCalf.Right.Values);
                     break;
@@ -237,25 +259,26 @@ namespace SkyrimAnimationChecker
                 case 1:
                     vm.VMbreast_Name = d.Vagina.Name;
                     lonlyCB.IsEnabled = false;
-                    AddColumn(string.Empty, d.Vagina.Data.Keys, d.Vagina.Data.Values);
+                    AddColumn(string.Empty, actualKeys(d.Vagina.Data.Values), d.Vagina.Data.Values);
                     AddColumn(d.Vagina.Data.Name, d.Vagina.Data.Values);
                     break;
                 case 2:
                     vm.VMbreast_Name = d.Clit.Name;
                     lonlyCB.IsEnabled = false;
-                    AddColumn(string.Empty, d.Clit.Data.Keys, d.Clit.Data.Values);
+                    AddColumn(string.Empty, actualKeys(d.Clit.Data.Values), d.Clit.Data.Values);
                     AddColumn(d.Clit.Data.Name, d.Clit.Data.Values);
                     break;
                 case 3:
                     vm.VMbreast_Name = d.Labia.Name;
                     lonlyCB.IsEnabled = true;
-                    AddColumn(string.Empty, d.Labia.Left.Keys, d.Labia.Left.Values);
+                    AddColumn(string.Empty, actualKeys(d.Labia.Left.Values), d.Labia.Left.Values);
                     AddColumn(d.Labia.Left.Name, d.Labia.Left.Values);
                     if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.Labia.Right.Name, d.Labia.Right.Values);
                     break;
             }
 
         }
+        private string[] actualKeys(physics_object[] vals) => vals.ForEach(x => x.Key);
 
         private void _3BA_RadioButton_Click(object sender, RoutedEventArgs e) => Make();
 
