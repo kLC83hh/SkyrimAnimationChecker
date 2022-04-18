@@ -118,7 +118,7 @@ namespace SkyrimAnimationChecker.CBPC
             changes.Add("linearYspreadforceZ", "linearYspreadforceZRot");
             changes.Add("linearZspreadforceX", "linearZspreadforceXRot");
             changes.Add("linearZspreadforceY", "linearZspreadforceYRot");
-            if (changes.Keys.Contains(key)) key = changes[key];
+            //if (changes.Keys.Contains(key)) key = changes[key];
         }
 
 
