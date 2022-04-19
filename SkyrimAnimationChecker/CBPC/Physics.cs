@@ -34,11 +34,24 @@ namespace SkyrimAnimationChecker.CBPC
             return 0;
         }
 
+        public void ReplaceFile(string path) => Replace(string.Join(Environment.NewLine, ReadLines(path)));
+        public void Replace(string data)
+        {
+            PhysicsAll = data.Split(Environment.NewLine);
+            try
+            {
+                _ = GetPhysics();
+                if (CanWrite(this.path, true)) Write(data, this.path, true);
+                //Parse_Type(true);
+            }
+            catch { }
+        }
+
 
         public Icbpc_data GetPhysics() => Parse_Type();
-        private Icbpc_data Parse_Type()
+        private Icbpc_data Parse_Type(bool forceread = false)
         {
-            if (PhysicsAll.Length == 0) Read();
+            if (PhysicsAll.Length == 0 || forceread) Read();
             if (PhysicsAll.Length == 0) throw EE.New(2001);
             string[] lines = PhysicsAll;
 
@@ -78,7 +91,7 @@ namespace SkyrimAnimationChecker.CBPC
                 {
                     if (line.StartsWith('#') || string.IsNullOrWhiteSpace(line)) { continue; }
                     (string name, string property, double[] data) = Parseline(line);
-                    if (!named) CBPCDATA.Name = name;M.D(property);
+                    if (!named) CBPCDATA.Name = name;//M.D(property);
                     if (vm.cbpc15xbeta2) Beta_auto_key_update_cbpc15xbeta2(ref property);
                     CBPCDATA.Find(name)?.SetObject(property, new physics_object(name, property, data));
                 };

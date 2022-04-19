@@ -63,9 +63,10 @@ namespace SkyrimAnimationChecker.Common
             fileCBPC_Collisions = new() { "CBPCollisionConfig.txt", "CBPCollisionConfig_Female.txt" };
             groupfilter = "[NPC L Pussy02],[NPC L RearThigh],[NPC L Thigh [LThg]],[NPC L UpperArm [LUar]],[NPC L Forearm [LLar]]";
 
-            fileCBPC_Physics = "CBPConfig_3b.txt";
+            //fileCBPC_Physics = "CBPConfig_3b.txt";
             fileCBPC_Physicss = new();
             cbpc15xbeta2 = false;
+            cbpcUpdateFromFile_DefaultLocation = workdir;
 
             CBPC_Checker = new() { "# Collision spheres", "# Affected Nodes", "# Collider Nodes" };
             CBPCfullcopy = true;
@@ -105,6 +106,7 @@ namespace SkyrimAnimationChecker.Common
         public ObservableCollection<string> fileCBPC_Collisions { get => Get<ObservableCollection<string>>(); set => Set(value); }
         public string groupfilter { get => Get<string>(); set => Set(value); }
 
+        [JsonIgnore]
         public string fileCBPC_Physics { get => Get<string>(); set => Set(value); }
         [JsonIgnore]
         public ObservableCollection<string> fileCBPC_Physicss { get => Get<ObservableCollection<string>>(); set => Set(value); }
@@ -119,6 +121,7 @@ namespace SkyrimAnimationChecker.Common
         [JsonIgnore]
         public bool overwriteCBPC_Physics { get => Get<bool>(); set => Set(value); }
 
+        public string cbpcUpdateFromFile_DefaultLocation { get => Get<string>(); set => Set(value); }
 
         public ObservableCollection<string> CBPC_Checker { get => Get<ObservableCollection<string>>(); set => Set(value); }
         public bool CBPCfullcopy { get => Get<bool>(); set => Set(value); }

@@ -13,6 +13,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+namespace SkyrimAnimationChecker.Common
+{
+    public interface IVM_Visual
+    {
+        public string VM_V_collective { get; set; }
+    }
+}
 namespace SkyrimAnimationChecker
 {
     /// <summary>
@@ -20,9 +27,31 @@ namespace SkyrimAnimationChecker
     /// </summary>
     public partial class CBPC_Physics_Column : UserControl
     {
-        public CBPC_Physics_Column() => InitializeComponent();
+        public CBPC_Physics_Column(Common.IVM_Visual vm, string col = "") { InitializeComponent(); this.vm = vm; if (!string.IsNullOrWhiteSpace(col)) { Collective = col; } }
+        private Common.IVM_Visual vm;
 
         #region DependencyProperty
+        public string Collective
+        {
+            get => (string)GetValue(CollectiveProperty);
+            set => SetValue(CollectiveProperty, value);
+        }
+        public static readonly DependencyProperty CollectiveProperty
+            = DependencyProperty.Register(
+                  "Collective", typeof(string), typeof(CBPC_Physics_Column),
+                  new FrameworkPropertyMetadata(string.Empty, new PropertyChangedCallback((d, e) =>
+                  {
+                      if (d is not CBPC_Physics_Column) return;
+                      //M.D($"Collective Property Callback {e.NewValue}");
+                      //((CBPC_Physics_Column)d).vm.VM_V_collective = (string)e.NewValue;
+                      //if (!string.IsNullOrWhiteSpace((string)e.NewValue))
+                      //{
+                      //    //M.D("Collective Property Callback check passed");
+                      //    //((CBPC_Physics_Column)d).Collective = (string)e.NewValue;
+                      //    //M.D($"Collective Property Callback {((CBPC_Physics_Column)d).Collective}");
+                      //}
+                  })
+              ));
         public double StackHeight
         {
             get => (double)GetValue(StackHeightProperty);
@@ -80,7 +109,12 @@ namespace SkyrimAnimationChecker
                   }))
               );
         #endregion
+        #region events
+        //public delegate void DataUpdateEventHandler(Common.physics_object o);
+        //public event DataUpdateEventHandler? DataUpdated;
+        #endregion
 
+        // do loop to make column
         private void Make()
         {
             if (Data == null) return;
@@ -95,6 +129,8 @@ namespace SkyrimAnimationChecker
                 else panel.Children.Add(o);
             }
         }
+
+        // select what to make
         private bool TryMakeOne(out UIElement? o, object? op = null, params object[] d)
         {
             if (d.Length == 1 && d[0] is Common.physics_object dpo) return TryMakeOne(out o, dpo);
@@ -108,21 +144,34 @@ namespace SkyrimAnimationChecker
             o = null;
             return true;
         }
+
+        private string GetCollective(string key)
+        {
+            if (key.StartsWith("collision", StringComparison.CurrentCultureIgnoreCase)) return "collision";
+            else if (key.EndsWith("Rot", StringComparison.CurrentCultureIgnoreCase)) return "rotation";
+            else return "basic";
+        }
+        // make PhysicsBox
         private bool TryMakeOne(out UIElement? o, Common.physics_object d)
         {
             if (!d.Use) { o = null; return true; }
             o = new Visuals.PhysicsBox() { Physics = d };
-            //if ((o as Visuals.PhysicsBox) != null) (o as Visuals.PhysicsBox).PhysicsUpdated += (o) => DataUpdated?.Invoke(o);
+            string colpara = $"all,{GetCollective(d.Key)}";
+            BindingOperations.SetBinding(o, Control.VisibilityProperty, new Binding("Collective") { Source = this, Converter = new CollectiveConverter(), ConverterParameter = colpara });
             BindingOperations.SetBinding(o, Control.HeightProperty, new Binding() { Source = StackHeight });
             return false;
         }
+        // make header string
         private bool TryMakeOne(out UIElement? o, string d, Common.physics_object? op)
         {
             if (op != null && !op.Use) { o = null; return true; }
             o = new TextBlock() { Text = d };
+            string colpara = $"all,{GetCollective(d)}";
+            BindingOperations.SetBinding(o, Control.VisibilityProperty, new Binding("Collective") { Source = this, Converter = new CollectiveConverter(), ConverterParameter = colpara });
             BindingOperations.SetBinding(o, Control.HeightProperty, new Binding() { Source = StackHeight });
             return false;
         }
+        // old make value boxes
         private bool TryMakeOne(out UIElement? o, double[] d)
         {
             var g = new Grid();
@@ -144,9 +193,6 @@ namespace SkyrimAnimationChecker
             return false;
         }
 
-
-        //public delegate void DataUpdateEventHandler(Common.physics_object o);
-        //public event DataUpdateEventHandler? DataUpdated;
 
 
 

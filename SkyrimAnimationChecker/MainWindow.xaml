@@ -274,11 +274,21 @@
                     </WrapPanel>
                 </Grid>
                 <local:FolderLoader Header="cbpconfig folder" HeaderColor="{StaticResource emph}" Location="{Binding dirCBPC}" Load="CBPCLocationLoader_Load"/>
-                <!--<Rectangle Height="5"/>-->
                 <Grid>
                     <TextBlock Text="physics file" VerticalAlignment="Center"/>
                     <!--<TextBox Text="{Binding fileCBPC_Physics}" Grid.Column="1"/>-->
                     <ComboBox x:Name="PhyFileCB" Text="{Binding fileCBPC_Physics}" ItemsSource="{Binding fileCBPC_Physicss}" Grid.Column="1" SelectionChanged="PhysicsFile_ComboBox_SelectionChanged" MouseEnter="CommonCombobox_MouseEnter"/>
+                </Grid>
+                <Rectangle Height="5"/>
+                <Grid>
+                    <Grid Grid.Column="1" Style="{StaticResource Normal}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Button Content="Update from text" Click="CBPCPhysics_UpdateFromText_Button_Click"/>
+                        <Button Content="Update from file" Grid.Column="1" Click="CBPCPhysics_UpdateFromFile_Button_Click"/>
+                    </Grid>
                 </Grid>
             </StackPanel>
         </StackPanel>

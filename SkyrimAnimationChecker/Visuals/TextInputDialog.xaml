@@ -1,0 +1,27 @@
+﻿<Window x:Class="SkyrimAnimationChecker.TextInputDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SkyrimAnimationChecker.Visuals"
+        mc:Ignorable="d"
+        Title="TextInputDialog" Height="200" Width="300" MinHeight="100" MinWidth="200">
+    <Grid Margin="2">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Input text"/>
+        <TextBox x:Name="InputBox" Grid.Row="1" Margin="0,2" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True"
+                 Text="{Binding Text, RelativeSource={RelativeSource AncestorType=Window}}"/>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="2" Content="OK" Click="OK_Button_Click"/>
+        </Grid>
+    </Grid>
+</Window>

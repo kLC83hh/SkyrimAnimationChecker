@@ -5,15 +5,15 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:SkyrimAnimationChecker"
       xmlns:common="clr-namespace:SkyrimAnimationChecker.Common"
-      mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=common:VM}"
+      xmlns:System="clr-namespace:System;assembly=System.Runtime"
+      mc:Ignorable="d" d:DataContext="{d:DesignInstance Type={x:Type common:VM}}"
       d:DesignHeight="450" d:DesignWidth="450">
 
     <Grid Style="{StaticResource Normal}">
-
         <StackPanel>
             <StackPanel.Resources>
-                <Style TargetType="Grid" BasedOn="{StaticResource Line}"/>
-                <Style TargetType="Grid" BasedOn="{StaticResource Normal}" x:Key="Head1">
+                <Style TargetType="{x:Type Grid}" BasedOn="{StaticResource Line}"/>
+                <Style TargetType="{x:Type Grid}" BasedOn="{StaticResource Normal}" x:Key="Head1">
                     <Setter Property="local:GridUtils.ColumnDefinitions">
                         <Setter.Value>
                             <local:ColumnDefinitionCollection>
@@ -23,7 +23,7 @@
                         </Setter.Value>
                     </Setter>
                 </Style>
-                <Style TargetType="Grid" BasedOn="{StaticResource Normal}" x:Key="Head2">
+                <Style TargetType="{x:Type Grid}" BasedOn="{StaticResource Normal}" x:Key="Head2">
                     <Setter Property="local:GridUtils.ColumnDefinitions">
                         <Setter.Value>
                             <local:ColumnDefinitionCollection>
@@ -43,19 +43,28 @@
                         <TextBlock Text="Mirror filter"/>
                         <TextBox Text="{Binding VMmultibone_MirrorFilter}" KeyDown="MirrorFilter_TextBox_KeyDown" Grid.Column="1"/>
                     </Grid>
-                    <Grid Style="{StaticResource Head2}">
-                        <TextBlock Text="Mirror pair"/>
-                        <TextBox Text="{Binding VMmultibone_MirrorPair}" KeyDown="MirrorPair_Textbox_KeyDown" Grid.Column="1"/>
-                    </Grid>
                 </StackPanel>
             </Grid>
             <Grid Style="{StaticResource Head1}">
-                <WrapPanel Grid.Column="1">
+                <TextBlock Text="collective"/>
+                <Grid Grid.Column="1" Style="{StaticResource Head2}">
+                    <TextBlock Text="Mirror pair"/>
+                    <TextBox Text="{Binding VMmultibone_MirrorPair}" KeyDown="MirrorPair_Textbox_KeyDown" Grid.Column="1"/>
+                </Grid>
+            </Grid>
+            <Grid Style="{StaticResource Head1}">
+                <ComboBox x:Name="CollectiveCB" Height="19" Text="all" SelectionChanged="Collective_ComboBox_SelectionChanged" MouseEnter="CollectiveCB_MouseEnter">
+                    <System:String>all</System:String>
+                    <System:String>basic</System:String>
+                    <System:String>rotation</System:String>
+                    <System:String>collision</System:String>
+                </ComboBox>
+                <WrapPanel Grid.Column="1" VerticalAlignment="Center">
                     <Grid Style="{StaticResource Head2}">
                         <TextBlock Text="3BA" Style="{StaticResource lineHeader}"/>
                         <WrapPanel Grid.Column="1">
                             <WrapPanel.Resources>
-                                <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
+                                <Style TargetType="{x:Type RadioButton}" BasedOn="{StaticResource rbGroup}">
                                     <Setter Property="GroupName" Value="3ba"/>
                                     <Setter Property="IsEnabled" Value="False"/>
                                     <Style.Triggers>
@@ -66,18 +75,17 @@
                                 </Style>
                             </WrapPanel.Resources>
                             <CheckBox x:Name="allboneCB" Content="ALL" Padding="0,-1" IsChecked="{Binding VMbreast_BoneAll}" Click="_3BA_RadioButton_Click"/>
-                            <RadioButton Content="B1" Padding="0" IsChecked="{Binding VMbreast_BoneSelect, Converter={StaticResource weightConverter}, ConverterParameter=1}" Click="_3BA_RadioButton_Click"/>
-                            <RadioButton Content="B2" Padding="0" IsChecked="{Binding VMbreast_BoneSelect, Converter={StaticResource weightConverter}, ConverterParameter=2}" Click="_3BA_RadioButton_Click"/>
-                            <RadioButton Content="B3" Padding="0" IsChecked="{Binding VMbreast_BoneSelect, Converter={StaticResource weightConverter}, ConverterParameter=3}" Click="_3BA_RadioButton_Click"/>
+                            <RadioButton Content="B1" Padding="0" IsChecked="{Binding VMbreast_BoneSelect, ConverterParameter=1, Converter={StaticResource weightConverter}}" Click="_3BA_RadioButton_Click"/>
+                            <RadioButton Content="B2" Padding="0" IsChecked="{Binding VMbreast_BoneSelect, ConverterParameter=2, Converter={StaticResource weightConverter}}" Click="_3BA_RadioButton_Click"/>
+                            <RadioButton Content="B3" Padding="0" IsChecked="{Binding VMbreast_BoneSelect, ConverterParameter=3, Converter={StaticResource weightConverter}}" Click="_3BA_RadioButton_Click"/>
                             <CheckBox x:Name="lonlyCB" Content="L-Only" Padding="0,-1" IsChecked="{Binding VMbreast_ShowLeftOnly}" Click="_3BA_RadioButton_Click"/>
                         </WrapPanel>
                     </Grid>
                 </WrapPanel>
             </Grid>
-            
+
             <Grid x:Name="panel" Style="{StaticResource Normal}"/>
 
         </StackPanel>
-
     </Grid>
 </UserControl>

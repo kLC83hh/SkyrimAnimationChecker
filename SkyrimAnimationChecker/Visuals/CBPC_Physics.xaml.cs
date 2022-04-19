@@ -17,7 +17,7 @@ using SkyrimAnimationChecker.CBPC;
 
 namespace SkyrimAnimationChecker.Common
 {
-    public class VM_VPhysics : Notify.NotifyPropertyChanged
+    public class VM_VPhysics : Notify.NotifyPropertyChanged, IVM_Visual
     {
         public VM_VPhysics() => Default_VPhysics();
         protected void Default_VPhysics() { VMPhysics_BoneAll = true; VMPhysics_BoneSelect = 1; VMPhysics_ShowLeftOnly = false; VMPhysics_MirrorFilter = string.Empty; VMPhysics_MirrorPair = String.Empty; }
@@ -45,6 +45,9 @@ namespace SkyrimAnimationChecker.Common
         [System.Text.Json.Serialization.JsonIgnore]
         public int VMPhysics_Number { get => Get<int>(); set => Set(value); }
 
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string VM_V_collective { get => Get<string>(); set => Set(value); }
     }
 }
 namespace SkyrimAnimationChecker
@@ -140,7 +143,7 @@ namespace SkyrimAnimationChecker
             if (data is string[]) { cd.MinWidth = 120; cd.MaxWidth = 200; cd.Width = new GridLength(1.5, GridUnitType.Star); }
             panel.ColumnDefinitions.Add(cd);
 
-            CBPC_Physics_Column c = new();
+            CBPC_Physics_Column c = new(vm, (string)CollectiveCB.SelectedItem);
             c.Header = key;
             c.Data = data;
             if (options?.Length > 0) c.Option = options;
@@ -181,5 +184,20 @@ namespace SkyrimAnimationChecker
         }
 
         private void When_Click_toMake(object sender, RoutedEventArgs e) => Make();
+
+
+        private void Collective_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach (var child in panel.Children)
+            {
+                if (child is CBPC_Physics_Column c)
+                {
+                    c.Collective = (string)((sender as ComboBox)?.SelectedItem ?? "all");
+                }
+            }
+        }
+        private void CollectiveCB_MouseEnter(object sender, MouseEventArgs e) => (sender as ComboBox)?.Focus();
+
+
     }
 }

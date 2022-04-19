@@ -9,6 +9,10 @@
     <Brush x:Key="grey">DimGray</Brush>
 
     <!--styles-->
+    <Style TargetType="local:Indicator">
+        <Setter Property="Fill" Value="Red"/>
+    </Style>
+    
     <Style TargetType="Rectangle" x:Key="separator">
         <Setter Property="Margin" Value="5"/>
         <Setter Property="Height" Value="1"/>

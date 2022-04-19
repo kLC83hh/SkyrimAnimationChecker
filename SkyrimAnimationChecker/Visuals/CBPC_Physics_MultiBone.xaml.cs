@@ -17,7 +17,7 @@ using SkyrimAnimationChecker.CBPC;
 
 namespace SkyrimAnimationChecker.Common
 {
-    public class VM_Vmultibone : Notify.NotifyPropertyChanged
+    public class VM_Vmultibone : Notify.NotifyPropertyChanged, IVM_Visual
     {
         public VM_Vmultibone() => Default_Vmultibone();
         protected void Default_Vmultibone() { VMbreast_BoneAll = true; VMbreast_BoneSelect = 1; VMbreast_ShowLeftOnly = false; VMmultibone_MirrorFilter = string.Empty; VMmultibone_MirrorPair = string.Empty; }
@@ -45,6 +45,9 @@ namespace SkyrimAnimationChecker.Common
         [System.Text.Json.Serialization.JsonIgnore]
         public int VMbreast_Number { get => Get<int>(); set => Set(value); }
 
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string VM_V_collective { get => Get<string>(); set => Set(value); }
     }
 }
 namespace SkyrimAnimationChecker
@@ -129,7 +132,7 @@ namespace SkyrimAnimationChecker
             if (data is string[]) { cd.MinWidth = 120; cd.MaxWidth = 200; cd.Width = new GridLength(1.5, GridUnitType.Star); }
             panel.ColumnDefinitions.Add(cd);
 
-            CBPC_Physics_Column c = new();
+            CBPC_Physics_Column c = new(vm, (string)CollectiveCB.SelectedItem);
             c.Header = key;
             c.Data = data;
             if (options?.Length > 0) c.Option = options;
@@ -141,6 +144,7 @@ namespace SkyrimAnimationChecker
         private string lasttype = string.Empty;
         private void Make()
         {
+            if (CollectiveCB.SelectedIndex == -1) CollectiveCB.SelectedIndex = 0;
             if (Data.DataType == "3ba") Make_3ba();
             else if (Data.DataType == "bbp") Make_bbp();
             else if (Data.DataType == "leg") Make_leg();
@@ -281,6 +285,19 @@ namespace SkyrimAnimationChecker
         private string[] actualKeys(physics_object[] vals) => vals.ForEach(x => x.Key);
 
         private void _3BA_RadioButton_Click(object sender, RoutedEventArgs e) => Make();
+
+        private void Collective_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach (var child in panel.Children)
+            {
+                if (child is CBPC_Physics_Column c)
+                {
+                    c.Collective = (string)((sender as ComboBox)?.SelectedItem ?? "all");
+                }
+            }
+        }
+        private void CollectiveCB_MouseEnter(object sender, MouseEventArgs e) => (sender as ComboBox)?.Focus();
+
 
     }
 }

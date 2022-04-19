@@ -393,6 +393,7 @@ namespace SkyrimAnimationChecker
         #region CBPC common
         private void CBPCLocationLoader_Load(FolderLoader sender) => LoadPhysicsLocation(sender);
         string[] filter = new string[] { "3b", "BBP", "butt", "belly", "leg", "Vagina" };
+
         private async void LoadPhysicsLocation(FolderLoader? sender = null)
         {
             if (System.IO.Directory.Exists(vm.dirCBPC))
@@ -439,6 +440,30 @@ namespace SkyrimAnimationChecker
 
         #endregion
 
+
+        private void CBPCPhysics_UpdateFromText_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var textdialog = new TextInputDialog();
+            bool? result = textdialog.ShowDialog();
+            if (result == true)
+            {
+                new CBPC.Physics(vm).Replace(textdialog.Text);
+                ReadPhysics();
+            }
+        }
+        private void CBPCPhysics_UpdateFromFile_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var filedialog = new Microsoft.Win32.OpenFileDialog();
+            filedialog.DefaultExt = ".txt";
+            filedialog.Filter = "Text Documents|*.txt";
+            if (System.IO.Directory.Exists(vm.cbpcUpdateFromFile_DefaultLocation)) filedialog.InitialDirectory = vm.cbpcUpdateFromFile_DefaultLocation;
+            bool? result = filedialog.ShowDialog();
+            if (result == true)
+            {
+                new CBPC.Physics(vm).ReplaceFile(filedialog.FileName);
+                ReadPhysics();
+            }
+        }
 
 
     }

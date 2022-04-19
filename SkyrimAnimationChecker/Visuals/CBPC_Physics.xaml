@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SkyrimAnimationChecker"
+             xmlns:System="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="450">
 
@@ -37,18 +38,25 @@
             <Rectangle Fill="DimGray" Height="1" Margin="5"/>
             <Grid Style="{StaticResource Head1}">
                 <TextBlock Text="{Binding VMPhysics_Name}"/>
-                <StackPanel Grid.Column="1">
-                    <Grid Style="{StaticResource Head2}">
-                        <TextBlock Text="Mirror filter"/>
-                        <TextBox Text="{Binding VMPhysics_MirrorFilter}" KeyDown="MirrorFilter_TextBox_KeyDown" Grid.Column="1"/>
-                    </Grid>
-                    <Grid Style="{StaticResource Head2}">
-                        <TextBlock Text="Mirror pair"/>
-                        <TextBox Text="{Binding VMPhysics_MirrorPair}" KeyDown="MirrorPair_Textbox_KeyDown" Grid.Column="1"/>
-                    </Grid>
-                </StackPanel>
+                <Grid Grid.Column="1" Style="{StaticResource Head2}">
+                    <TextBlock Text="Mirror filter"/>
+                    <TextBox Text="{Binding VMPhysics_MirrorFilter}" KeyDown="MirrorFilter_TextBox_KeyDown" Grid.Column="1"/>
+                </Grid>
             </Grid>
             <Grid Style="{StaticResource Head1}">
+                <TextBlock Text="collective"/>
+                <Grid Grid.Column="1" Style="{StaticResource Head2}">
+                    <TextBlock Text="Mirror pair"/>
+                    <TextBox Text="{Binding VMPhysics_MirrorPair}" KeyDown="MirrorPair_Textbox_KeyDown" Grid.Column="1"/>
+                </Grid>
+            </Grid>
+            <Grid Style="{StaticResource Head1}">
+                <ComboBox x:Name="CollectiveCB" Height="19" Text="all" SelectionChanged="Collective_ComboBox_SelectionChanged" MouseEnter="CollectiveCB_MouseEnter">
+                    <System:String>all</System:String>
+                    <System:String>basic</System:String>
+                    <System:String>rotation</System:String>
+                    <System:String>collision</System:String>
+                </ComboBox>
                 <WrapPanel Grid.Column="1">
                     <Grid Style="{StaticResource Head2}">
                         <!--<TextBlock Text="3BA" Style="{StaticResource lineHeader}"/>-->

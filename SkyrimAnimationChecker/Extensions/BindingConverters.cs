@@ -68,4 +68,28 @@ namespace SkyrimAnimationChecker
             else throw new ArgumentException("Value type is not bool.");
         }
     }
+
+
+    public class CollectiveConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                //M.D("HERE");
+                //M.D(value);
+                if (string.IsNullOrWhiteSpace((string)value)) return Visibility.Visible;
+                foreach(string s in ((string)parameter).Split(','))
+                {
+                    if ((string)value == s) return Visibility.Visible;
+                }
+            }
+            catch { throw new ArgumentException(); }
+            return Visibility.Collapsed;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
