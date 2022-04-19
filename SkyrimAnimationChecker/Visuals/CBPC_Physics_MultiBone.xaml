@@ -55,7 +55,7 @@
             <Grid Style="{StaticResource Head1}">
                 <ComboBox x:Name="CollectiveCB" Height="19" Text="all" SelectionChanged="Collective_ComboBox_SelectionChanged" MouseEnter="CollectiveCB_MouseEnter">
                     <System:String>all</System:String>
-                    <System:String>basic</System:String>
+                    <System:String>straight</System:String>
                     <System:String>rotation</System:String>
                     <System:String>collision</System:String>
                 </ComboBox>

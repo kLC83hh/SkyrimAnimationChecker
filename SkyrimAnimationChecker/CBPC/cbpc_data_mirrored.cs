@@ -119,7 +119,7 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return buffer;
         }
-        protected string[] _MirrorKeys = new string[] { "rotationalZ", "linearZrotationY", "linearXspreadforceZ", "linearXspreadforceZRot", "linearYspreadforceX", "linearYspreadforceXRot", "linearZspreadforceX", "linearZspreadforceXRot", "collisionXmaxoffset", "collisionXminoffset" };
+        protected string[] _MirrorKeys = new string[] { "rotationalZ", "linearZrotationY", "linearXspreadforceZ", "linearYspreadforceX", "linearZspreadforceX", "linearXspreadforceYRot", "linearXspreadforceZRot", "collisionXmaxoffset", "collisionXminoffset" };
         public string[] MirrorKeys { get => _MirrorKeys; set { _MirrorKeys = value; OnPropertyChanged(); } }
         protected bool CanMirror(string key)
         {
@@ -129,7 +129,7 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return false;
         }
-        protected MirrorPair[] _MirrorPairs = new MirrorPair[] { new MirrorPair("collisionXmaxoffset", "collisionXminoffset") };
+        protected MirrorPair[] _MirrorPairs = new MirrorPair[] { new MirrorPair("Xmaxoffset", "Xminoffset"), new MirrorPair("collisionXmaxoffset", "collisionXminoffset") };
         public MirrorPair[] MirrorPairs { get => _MirrorPairs; set { _MirrorPairs = value; OnPropertyChanged(); } }
         protected string GetPair(string key)
         {

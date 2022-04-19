@@ -148,8 +148,8 @@ namespace SkyrimAnimationChecker
         private string GetCollective(string key)
         {
             if (key.StartsWith("collision", StringComparison.CurrentCultureIgnoreCase)) return "collision";
-            else if (key.EndsWith("Rot", StringComparison.CurrentCultureIgnoreCase)) return "rotation";
-            else return "basic";
+            else if (key.EndsWith("Rot", StringComparison.CurrentCultureIgnoreCase) || key.StartsWith("rotational", StringComparison.CurrentCultureIgnoreCase)) return "rotation";
+            else return "straight";
         }
         // make PhysicsBox
         private bool TryMakeOne(out UIElement? o, Common.physics_object d)
