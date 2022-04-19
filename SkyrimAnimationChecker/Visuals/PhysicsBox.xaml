@@ -14,7 +14,7 @@
             <ColumnDefinition MinWidth="30" MaxWidth="70"/>
             <ColumnDefinition MinWidth="30" MaxWidth="70"/>
         </Grid.ColumnDefinitions>
-        <TextBox Name="V1" Text="{Binding Value1}" GotFocus="ValueTB_GotFocus"/>
-        <TextBox Name="V0" Text="{Binding Value0}" GotFocus="ValueTB_GotFocus" Grid.Column="1"/>
+        <TextBox Name="V1" Text="{Binding Value1, UpdateSourceTrigger=PropertyChanged}" GotFocus="ValueTB_GotFocus"/>
+        <TextBox Name="V0" Text="{Binding Value0, UpdateSourceTrigger=PropertyChanged}" GotFocus="ValueTB_GotFocus" Grid.Column="1"/>
     </Grid>
 </UserControl>
