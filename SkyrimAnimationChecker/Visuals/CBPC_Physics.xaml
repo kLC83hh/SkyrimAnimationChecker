@@ -47,7 +47,7 @@
                 <TextBlock Text="collective"/>
                 <Grid Grid.Column="1" Style="{StaticResource Head2}">
                     <TextBlock Text="Mirror pair"/>
-                    <TextBox Text="{Binding VMPhysics_MirrorPair}" KeyDown="MirrorPair_Textbox_KeyDown" Grid.Column="1"/>
+                    <TextBox Text="{Binding VMPhysics_MirrorPair, UpdateSourceTrigger=PropertyChanged}" KeyDown="MirrorPair_Textbox_KeyDown" Grid.Column="1"/>
                 </Grid>
             </Grid>
             <Grid Style="{StaticResource Head1}">
