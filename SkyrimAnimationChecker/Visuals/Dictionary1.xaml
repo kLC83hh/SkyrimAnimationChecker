@@ -64,6 +64,6 @@
     </Style>
 
     <Style TargetType="ComboBox" x:Key="cbdef">
-        <Setter Property="Padding" Value="2,0"/>
+        <Setter Property="Padding" Value="2,1"/>
     </Style>
 </ResourceDictionary>
