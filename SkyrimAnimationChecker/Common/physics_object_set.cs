@@ -34,7 +34,7 @@
             KeysIgnore: new string[] { "Name" },
             KeysOrder: new PropertyOrder[] {
                 new PropertyOrder(true, "collision" ),
-                new PropertyOrder(false, "stiffness^", "stiffness[XYZxyz]", "stiffness2^", "stiffness2[XYZxyz]", "damping^", "damping[XYZxyz]", "(max|min)offset", "timetick", "linear[XYZxyz]$", "rotational", "timeStep", "linear[XYZxyz]rotation", "spreadforce" ),
+                new PropertyOrder(false, "stiffness^", "stiffness[XYZxyz]", "stiffness2^", "stiffness2[XYZxyz]", "damping^", "damping[XYZxyz]", "(max|min)offset", "timetick", "timeStep", "linear[XYZxyz]$", "rotational", "linear[XYZxyz]rotation", "spreadforce", "Clothed", "LightArmored", "HeavyArmored" ),
                 new PropertyOrder(true, "start", "end" )
             }
             ) => Defaults();
@@ -42,7 +42,7 @@
             KeysIgnore: new string[] { "Name" },
             KeysOrder: new PropertyOrder[] {
                 new PropertyOrder(true, "collision" ),
-                new PropertyOrder(false, "stiffness^", "stiffness[XYZxyz]", "stiffness2^", "stiffness2[XYZxyz]", "damping^", "damping[XYZxyz]", "(max|min)offset", "timetick", "linear[XYZxyz]$", "rotational", "timeStep", "linear[XYZxyz]rotation", "spreadforce" ),
+                new PropertyOrder(false, "stiffness^", "stiffness[XYZxyz]", "stiffness2^", "stiffness2[XYZxyz]", "damping^", "damping[XYZxyz]", "(max|min)offset", "timetick", "timeStep", "linear[XYZxyz]$", "rotational", "linear[XYZxyz]rotation", "spreadforce", "Clothed", "LightArmored", "HeavyArmored" ),
                 new PropertyOrder(true, "start", "end" )
             }
             ) => Defaults(name);

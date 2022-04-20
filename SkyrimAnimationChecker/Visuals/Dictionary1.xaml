@@ -5,7 +5,7 @@
     <local:RadioButtonSelector x:Key="weightConverter"/>
     
     <!--color scheme-->
-    <Brush x:Key="emph">OrangeRed</Brush>
+    <Brush x:Key="emph">Red</Brush>
     <Brush x:Key="grey">DimGray</Brush>
 
     <!--styles-->

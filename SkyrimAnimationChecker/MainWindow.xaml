@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SkyrimAnimationChecker"
         xmlns:common="clr-namespace:SkyrimAnimationChecker.Common"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=common:VM}"
-        Title="SAC" Height="570" Width="800">
+        Title="SAC" Height="570" Width="830">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:MainWindow.SaveCommand}" 
                      Executed="CommandBinding_Executed"/>
