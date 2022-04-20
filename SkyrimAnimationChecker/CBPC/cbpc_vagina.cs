@@ -9,7 +9,7 @@ namespace SkyrimAnimationChecker.CBPC
 {
     public class cbpc_vagina : PropertyHandler, Icbpc_data_multibone
     {
-        public cbpc_vagina() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType" })
+        public cbpc_vagina() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType", "UsingKeys" })
         {
             Vagina = new("Vagina");
             Clit = new("Clit");
@@ -102,5 +102,39 @@ namespace SkyrimAnimationChecker.CBPC
             throw new ArgumentNullException(nameof(num));
         }
 
+
+        private string[] _UsingKeys = Array.Empty<string>();
+        public string[] UsingKeys
+        {
+            get
+            {
+                if (_UsingKeys.Length > 0) return _UsingKeys;
+                else { GetUsingKeys(); return _UsingKeys; }
+            }
+        }
+        public void GetUsingKeys()
+        {
+            List<string> keys = new();
+
+            foreach (var item in Vagina.Data.Values)
+            {
+                if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+            }
+            foreach (var item in Clit.Data.Values)
+            {
+                if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+            }
+            foreach (var item in Labia.Left.Values)
+            {
+                if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+            }
+            foreach (var item in Labia.Right.Values)
+            {
+                if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+            }
+            _UsingKeys = (from propName in keys
+                          orderby KeysOrderComparer(propName, Vagina.Data.KeysOrder), propName
+                          select propName).ToArray();
+        }
     }
 }

@@ -8,7 +8,10 @@ namespace SkyrimAnimationChecker.Common
 {
     public class physics_object : Notify.NotifyPropertyChanged
     {
-        public physics_object() { }
+        public physics_object(string key)
+        {
+            if (string.IsNullOrEmpty(Key)) Key = key;
+        }
         public physics_object(string name, string key, params double[] value)
         {
             Use = true;

@@ -10,11 +10,11 @@ namespace SkyrimAnimationChecker.CBPC
     public class cbpc_data_mirrored : PropertyHandler, Icbpc_data_mirrored
     {
         public cbpc_data_mirrored()
-            : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName" }) => Init();
+            : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys" }) => Init();
         public cbpc_data_mirrored(string name, physics_object_set? left = null, physics_object_set? right = null)
-             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName" }) => Init(name, left, right);
+             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys" }) => Init(name, left, right);
         public cbpc_data_mirrored(int num, physics_object_set? left = null, physics_object_set? right = null)
-             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName" }) => Init(num, left, right);
+             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys" }) => Init(num, left, right);
         private void Init(object? param = null, physics_object_set? left = null, physics_object_set? right = null)
         {
             Name = DefaultName;
@@ -89,6 +89,32 @@ namespace SkyrimAnimationChecker.CBPC
                 case "RLabia": return Right;
             }
             return null;
+        }
+
+
+        private string[] _UsingKeys = Array.Empty<string>();
+        public string[] UsingKeys
+        {
+            get
+            {
+                if (_UsingKeys.Length > 0) return _UsingKeys;
+                else { GetUsingKeys(); return _UsingKeys; }
+            }
+        }
+        public void GetUsingKeys()
+        {
+            List<string> keys = new();
+            foreach (var item in Left.Values)
+            {
+                if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+            }
+            foreach (var item in Right.Values)
+            {
+                if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+            }
+            _UsingKeys = (from propName in keys
+                          orderby KeysOrderComparer(propName, Left.KeysOrder), propName
+                          select propName).ToArray();
         }
 
 

@@ -118,50 +118,93 @@ namespace SkyrimAnimationChecker
         private void Make()
         {
             if (Data == null) return;
-            if (Option != null && Data.Length != Option.Length) return;
+            //if (Option != null && Data.Length != Option.Length) return;
+            //M.D($"{Data.Length} {Option?.Length}");
             
             if (Data is string[]) { H0.Visibility = Visibility.Hidden; H1.Visibility = Visibility.Hidden; HL.Visibility = Visibility.Hidden; HR.Visibility = Visibility.Hidden; }
             panel.Children.Clear();
-            
-            for (int i = 0; i < Data.Length; i++)
+
+            if (Data is string[] s)
             {
-                if (TryMakeOne(out UIElement? o, Option?[i], Data[i])) continue;
-                else panel.Children.Add(o);
+                for (int i = 0; i < s.Length; i++)
+                {
+                    if (TryMakeOne(out UIElement? o, s[i])) continue;
+                    else panel.Children.Add(o);
+                }
             }
+            else if (Data is Common.physics_object[] p)
+            {
+                if (Option is string[] k)
+                {
+                    for (int i = 0; i < k.Length; i++)
+                    {
+                        if (TryMakeOne(out UIElement? o, p.First(x => x.Key == k[i]), k[i])) continue;
+                        else panel.Children.Add(o);
+                    }
+                }
+            }
+            //for (int i = 0; i < Data.Length; i++)
+            //{
+            //    if (TryMakeOne(out UIElement? o, Option?[i], Data[i])) continue;
+            //    else panel.Children.Add(o);
+            //}
         }
 
         // select what to make
-        private bool TryMakeOne(out UIElement? o, object? op = null, params object[] d)
-        {
-            if (d.Length == 1 && d[0] is Common.physics_object dpo) return TryMakeOne(out o, dpo);
-            else if (d.Length == 1 && d[0] is string ds)
-            {
-                if (op == null) return TryMakeOne(out o, ds);
-                else return TryMakeOne(out o, ds, (Common.physics_object)op);
-            }
-            else if (d.Length == 1 && d[0] is double[] dd) return TryMakeOne(out o, dd);
+        //private bool TryMakeOne(out UIElement? o, object? op = null, params object[] d)
+        //{
+        //    if (d.Length == 1 && d[0] is Common.physics_object dpo)
+        //    {
+        //        //M.D($"{dpo.Key} {op}");
+        //        if (op == null) return TryMakeOne(out o, dpo);
+        //        else return TryMakeOne(out o, dpo, (string)op);
+        //    }
+        //    else if (d.Length == 1 && d[0] is string ds)
+        //    {
+        //        if (op == null) return TryMakeOne(out o, ds);
+        //        else return TryMakeOne(out o, ds, (Common.physics_object)op);
+        //    }
+        //    else if (d.Length == 1 && d[0] is double[] dd) return TryMakeOne(out o, dd);
 
-            o = null;
-            return true;
-        }
+        //    o = null;
+        //    return true;
+        //}
 
-        private string GetCollective(string key)
-        {
-            if (key.StartsWith("collision", StringComparison.CurrentCultureIgnoreCase)) return "collision";
-            else if (key.EndsWith("Rot", StringComparison.CurrentCultureIgnoreCase) || key.StartsWith("rotational", StringComparison.CurrentCultureIgnoreCase)) return "rotation";
-            else return "straight";
-        }
         // make PhysicsBox
         private bool TryMakeOne(out UIElement? o, Common.physics_object d)
         {
             if (!d.Use) { o = null; return true; }
+            
             o = new Visuals.PhysicsBox() { Physics = d };
+
             string colpara = $"all,{GetCollective(d.Key)}";
+            BindingOperations.SetBinding(o, Control.VisibilityProperty, new Binding("Collective") { Source = this, Converter = new CollectiveConverter(), ConverterParameter = colpara });
+            BindingOperations.SetBinding(o, Control.HeightProperty, new Binding() { Source = StackHeight });
+
+            return false;
+        }
+        private bool TryMakeOne(out UIElement? o, Common.physics_object d, string? op)
+        {
+            if (d.Key != op) { o = null; return true; }
+
+            if (!d.Use) o = new Rectangle();
+            else o = new Visuals.PhysicsBox() { Physics = d };
+
+            string colpara = $"all,{GetCollective(d.Key)}";
+            BindingOperations.SetBinding(o, Control.VisibilityProperty, new Binding("Collective") { Source = this, Converter = new CollectiveConverter(), ConverterParameter = colpara });
+            BindingOperations.SetBinding(o, Control.HeightProperty, new Binding() { Source = StackHeight });
+
+            return false;
+        }
+        // make header string
+        private bool TryMakeOne(out UIElement? o, string d)
+        {
+            o = new TextBlock() { Text = d };
+            string colpara = $"all,{GetCollective(d)}";
             BindingOperations.SetBinding(o, Control.VisibilityProperty, new Binding("Collective") { Source = this, Converter = new CollectiveConverter(), ConverterParameter = colpara });
             BindingOperations.SetBinding(o, Control.HeightProperty, new Binding() { Source = StackHeight });
             return false;
         }
-        // make header string
         private bool TryMakeOne(out UIElement? o, string d, Common.physics_object? op)
         {
             if (op != null && !op.Use) { o = null; return true; }
@@ -191,6 +234,13 @@ namespace SkyrimAnimationChecker
             o = g;
             BindingOperations.SetBinding(o, Control.HeightProperty, new Binding() { Source = StackHeight });
             return false;
+        }
+
+        private string GetCollective(string key)
+        {
+            if (key.StartsWith("collision", StringComparison.CurrentCultureIgnoreCase)) return "collision";
+            else if (key.EndsWith("Rot", StringComparison.CurrentCultureIgnoreCase) || key.StartsWith("rotational", StringComparison.CurrentCultureIgnoreCase)) return "rotation";
+            else return "straight";
         }
 
 

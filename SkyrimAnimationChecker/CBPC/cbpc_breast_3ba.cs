@@ -9,7 +9,7 @@ namespace SkyrimAnimationChecker.CBPC
 {
     public class cbpc_breast_3ba : Common.PropertyHandler, Icbpc_breast_data
     {
-        public cbpc_breast_3ba() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType" })
+        public cbpc_breast_3ba() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType", "UsingKeys" })
         {
             B1 = new(1);
             B2 = new(2);
@@ -111,6 +111,49 @@ namespace SkyrimAnimationChecker.CBPC
             throw new ArgumentNullException(nameof(num));
         }
 
+
+        private string[] _UsingKeys = Array.Empty<string>();
+        public string[] UsingKeys
+        {
+            get
+            {
+                if (_UsingKeys.Length > 0) return _UsingKeys;
+                else { GetUsingKeys(); return _UsingKeys; }
+            }
+        }
+        public void GetUsingKeys()
+        {
+            List<string> keys = new();
+            foreach(cbpc_breast b in Values)
+            {
+                foreach (var item in b.Left.Values)
+                {
+                    if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+                }
+                foreach (var item in b.Right.Values)
+                {
+                    if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+                }
+            }
+            _UsingKeys = (from propName in keys
+                         orderby KeysOrderComparer(propName, B1.Left.KeysOrder), propName
+                         select propName).ToArray();
+        }
+        //public (Common.physics_object[] Left, Common.physics_object[] Right) GetUsingValues(string name)
+        //{
+        //    if (!Keys.Contains(name)) return (Array.Empty<Common.physics_object>(), Array.Empty<Common.physics_object>());
+        //    var buffer = PropertyHandleGetValue<cbpc_breast>(name);
+        //    List<Common.physics_object> left = new(), right = new();
+        //    foreach (var item in buffer.Left.Values)
+        //    {
+        //        if (UsingKeys.Contains(item.Key)) left.Add(item);
+        //    }
+        //    foreach (var item in buffer.Right.Values)
+        //    {
+        //        if (UsingKeys.Contains(item.Key)) right.Add(item);
+        //    }
+        //    return (left.ToArray(), right.ToArray());
+        //}
     }
 
 }

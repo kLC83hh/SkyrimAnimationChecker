@@ -9,7 +9,7 @@ namespace SkyrimAnimationChecker.CBPC
 {
     internal class cbpc_leg : PropertyHandler, Icbpc_data_multibone
     {
-        public cbpc_leg() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType" })
+        public cbpc_leg() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType", "UsingKeys" })
         {
             FrontThigh = new("FrontThigh");
             RearThigh = new("RearThigh");
@@ -111,5 +111,33 @@ namespace SkyrimAnimationChecker.CBPC
             throw new ArgumentNullException(nameof(num));
         }
 
+
+        private string[] _UsingKeys = Array.Empty<string>();
+        public string[] UsingKeys
+        {
+            get
+            {
+                if (_UsingKeys.Length > 0) return _UsingKeys;
+                else { GetUsingKeys(); return _UsingKeys; }
+            }
+        }
+        public void GetUsingKeys()
+        {
+            List<string> keys = new();
+            foreach (cbpc_data_mirrored b in Values)
+            {
+                foreach (var item in b.Left.Values)
+                {
+                    if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+                }
+                foreach (var item in b.Right.Values)
+                {
+                    if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+                }
+            }
+            _UsingKeys = (from propName in keys
+                          orderby KeysOrderComparer(propName, FrontThigh.Left.KeysOrder), propName
+                          select propName).ToArray();
+        }
     }
 }

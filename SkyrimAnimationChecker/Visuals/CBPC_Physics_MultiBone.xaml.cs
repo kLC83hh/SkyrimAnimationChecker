@@ -57,7 +57,7 @@ namespace SkyrimAnimationChecker
     /// </summary>
     public partial class CBPC_Physics_MultiBone : UserControl
     {
-        public CBPC_Physics_MultiBone(VM vmm, Icbpc_data_multibone o, bool? leftonly = null)
+        public CBPC_Physics_MultiBone(VM vmm, Icbpc_data_multibone o, bool? leftonly = null, int? collective = 0)
         {
             InitializeComponent();
             vm = vmm.Vmultibone;
@@ -67,6 +67,7 @@ namespace SkyrimAnimationChecker
             if (CheckMirrorFilter(vm.VMmultibone_MirrorFilter?.Split(','))) vm.VMmultibone_MirrorFilter = string.Join(',', Data.MirrorKeys);
             if (CheckMirrorPair(vm.VMmultibone_MirrorPair, out MirrorPair[]? p)) vm.VMmultibone_MirrorPair = string.Join('|', Data.MirrorPairs.ForEach(x => x.ToString()));
             if (leftonly != null) vm.VMbreast_ShowLeftOnly = (bool)leftonly;
+            if (CollectiveCB.SelectedIndex == -1) CollectiveCB.SelectedIndex = collective ?? 0;
             Make();
         }
         VM_Vmultibone vm;
@@ -90,6 +91,8 @@ namespace SkyrimAnimationChecker
         #region Events
         public delegate void LeftOnlyUpdateEventHandler(bool value);
         public event LeftOnlyUpdateEventHandler? LeftOnlyUpdated;
+        public delegate void CollectiveUpdateEventHandler(int value);
+        public event CollectiveUpdateEventHandler? CollectiveUpdated;
         #endregion
 
         #region Mirror
@@ -144,8 +147,7 @@ namespace SkyrimAnimationChecker
         private string lasttype = string.Empty;
         private void Make()
         {
-            if (CollectiveCB.SelectedIndex == -1) CollectiveCB.SelectedIndex = 0;
-            if (Data.DataType == "3ba") Make_3ba();
+            if (Data.DataType == "3ba") Make_3ba_new();
             else if (Data.DataType == "bbp") Make_bbp();
             else if (Data.DataType == "leg") Make_leg();
             else if (Data.DataType == "vagina") Make_vagina();
@@ -168,6 +170,42 @@ namespace SkyrimAnimationChecker
 
         }
         private bool lastallbone = false;
+        private void Make_3ba_new()
+        {
+            cbpc_breast[] bs = new cbpc_breast[3];
+            for (int i = 0; i < bs.Length; i++) { bs[i] = (cbpc_breast)Data.GetData(i + 1); }
+            vm.VMbreast_Name = bs[0].NameShort;
+            panel.Children.Clear();
+            panel.ColumnDefinitions.Clear();
+            allboneCB.IsEnabled = true;
+            if (lasttype != "3ba") vm.VMbreast_BoneAll = true;
+            lonlyCB.IsEnabled = true;
+
+            if (vm.VMbreast_BoneAll)
+            {
+                if (lastallbone != vm.VMbreast_BoneAll) vm.VMbreast_ShowLeftOnly = true;
+                AddColumn(string.Empty, Data.UsingKeys);
+                Data.Keys.ForEach(key =>
+                {
+                    var br = Data.PropertyHandleGetValue<cbpc_breast>(key);
+                    AddColumn($"{br.Number}{br.Left}", br.Left.Values, Data.UsingKeys);
+                });
+                if (!vm.VMbreast_ShowLeftOnly) Data.Keys.ForEach(key =>
+                {
+                    var br = Data.PropertyHandleGetValue<cbpc_breast>(key);
+                    AddColumn($"{br.Number}{br.Right}", br.Right.Values, Data.UsingKeys);
+                });
+            }
+            else
+            {
+                if (lastallbone != vm.VMbreast_BoneAll) vm.VMbreast_ShowLeftOnly = false;
+                AddColumn(string.Empty, Data.UsingKeys);
+
+                AddColumn($"{vm.VMbreast_BoneSelect}L", bs[vm.VMbreast_BoneSelect].Left.Values, Data.UsingKeys);
+                if (!vm.VMbreast_ShowLeftOnly) AddColumn($"{vm.VMbreast_BoneSelect}R", bs[vm.VMbreast_BoneSelect].Right.Values, Data.UsingKeys);
+            }
+            lastallbone = vm.VMbreast_BoneAll;
+        }
         private void Make_3ba()
         {
             cbpc_breast[] bs = new cbpc_breast[3];
@@ -182,7 +220,7 @@ namespace SkyrimAnimationChecker
             if (vm.VMbreast_BoneAll)
             {
                 if (lastallbone != vm.VMbreast_BoneAll) vm.VMbreast_ShowLeftOnly = true;
-                AddColumn(string.Empty, actualKeys(bs[0].Left.Values), bs[0].Left.Values);
+                AddColumn(string.Empty, Data.UsingKeys, bs[0].Left.Values);
                 Data.Keys.ForEach(key =>
                 {
                     var br = Data.PropertyHandleGetValue<cbpc_breast>(key);
@@ -226,25 +264,26 @@ namespace SkyrimAnimationChecker
             lonlyCB.IsEnabled = true;
             if (lasttype != "leg") vm.VMbreast_ShowLeftOnly = false;
 
+            AddColumn(string.Empty, d.UsingKeys);
             switch (vm.VMbreast_BoneSelect)
             {
                 case 1:
                     vm.VMbreast_Name = d.FrontThigh.Name;
-                    AddColumn(string.Empty, actualKeys(d.FrontThigh.Left.Values), d.FrontThigh.Left.Values);
-                    AddColumn(d.FrontThigh.Left.Name, d.FrontThigh.Left.Values);
-                    if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.FrontThigh.Right.Name, d.FrontThigh.Right.Values);
+                    //AddColumn(string.Empty, actualKeys(d.FrontThigh.Left.Values), d.FrontThigh.Left.Values);
+                    AddColumn(d.FrontThigh.Left.Name, d.FrontThigh.Left.Values, d.UsingKeys);
+                    if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.FrontThigh.Right.Name, d.FrontThigh.Right.Values, d.UsingKeys);
                     break;
                 case 2:
                     vm.VMbreast_Name = d.RearThigh.Name;
-                    AddColumn(string.Empty, actualKeys(d.RearThigh.Left.Values), d.RearThigh.Left.Values);
-                    AddColumn(d.RearThigh.Left.Name, d.RearThigh.Left.Values);
-                    if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.RearThigh.Right.Name, d.RearThigh.Right.Values);
+                    //AddColumn(string.Empty, actualKeys(d.RearThigh.Left.Values), d.RearThigh.Left.Values);
+                    AddColumn(d.RearThigh.Left.Name, d.RearThigh.Left.Values, d.UsingKeys);
+                    if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.RearThigh.Right.Name, d.RearThigh.Right.Values, d.UsingKeys);
                     break;
                 case 3:
                     vm.VMbreast_Name = d.RearCalf.Name;
-                    AddColumn(string.Empty, actualKeys(d.RearCalf.Left.Values), d.RearCalf.Left.Values);
-                    AddColumn(d.RearCalf.Left.Name, d.RearCalf.Left.Values);
-                    if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.RearCalf.Right.Name, d.RearCalf.Right.Values);
+                    //AddColumn(string.Empty, actualKeys(d.RearCalf.Left.Values), d.RearCalf.Left.Values);
+                    AddColumn(d.RearCalf.Left.Name, d.RearCalf.Left.Values, d.UsingKeys);
+                    if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.RearCalf.Right.Name, d.RearCalf.Right.Values, d.UsingKeys);
                     break;
             }
 
@@ -258,26 +297,27 @@ namespace SkyrimAnimationChecker
             vm.VMbreast_BoneAll = false;
             if (lasttype != "vagina") vm.VMbreast_ShowLeftOnly = false;
 
+            AddColumn(string.Empty, d.UsingKeys);
             switch (vm.VMbreast_BoneSelect)
             {
                 case 1:
                     vm.VMbreast_Name = d.Vagina.Name;
                     lonlyCB.IsEnabled = false;
-                    AddColumn(string.Empty, actualKeys(d.Vagina.Data.Values), d.Vagina.Data.Values);
-                    AddColumn(d.Vagina.Data.Name, d.Vagina.Data.Values);
+                    //AddColumn(string.Empty, actualKeys(d.Vagina.Data.Values), d.Vagina.Data.Values);
+                    AddColumn(d.Vagina.Data.Name, d.Vagina.Data.Values, d.UsingKeys);
                     break;
                 case 2:
                     vm.VMbreast_Name = d.Clit.Name;
                     lonlyCB.IsEnabled = false;
-                    AddColumn(string.Empty, actualKeys(d.Clit.Data.Values), d.Clit.Data.Values);
-                    AddColumn(d.Clit.Data.Name, d.Clit.Data.Values);
+                    //AddColumn(string.Empty, actualKeys(d.Clit.Data.Values), d.Clit.Data.Values);
+                    AddColumn(d.Clit.Data.Name, d.Clit.Data.Values, d.UsingKeys);
                     break;
                 case 3:
                     vm.VMbreast_Name = d.Labia.Name;
                     lonlyCB.IsEnabled = true;
-                    AddColumn(string.Empty, actualKeys(d.Labia.Left.Values), d.Labia.Left.Values);
-                    AddColumn(d.Labia.Left.Name, d.Labia.Left.Values);
-                    if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.Labia.Right.Name, d.Labia.Right.Values);
+                    //AddColumn(string.Empty, actualKeys(d.Labia.Left.Values), d.Labia.Left.Values);
+                    AddColumn(d.Labia.Left.Name, d.Labia.Left.Values, d.UsingKeys);
+                    if (!vm.VMbreast_ShowLeftOnly) AddColumn(d.Labia.Right.Name, d.Labia.Right.Values, d.UsingKeys);
                     break;
             }
 
@@ -288,6 +328,7 @@ namespace SkyrimAnimationChecker
 
         private void Collective_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            CollectiveUpdated?.Invoke((sender as ComboBox)?.SelectedIndex ?? 0);
             foreach (var child in panel.Children)
             {
                 if (child is CBPC_Physics_Column c)

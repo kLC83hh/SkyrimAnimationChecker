@@ -308,6 +308,7 @@ namespace SkyrimAnimationChecker
         CBPC.Icbpc_data? DATA_CBPC;
         private volatile bool PhysicsReading = false;
         private bool leftonly = false;
+        private int collective = 0;
         private async void ReadPhysics()
         {
             if (PhysicsReading) return;
@@ -336,8 +337,9 @@ namespace SkyrimAnimationChecker
                             else
                             {
                                 cbpcPhyPanel.Children.Clear();
-                                var page = new CBPC_Physics_MultiBone(vmm, (CBPC.Icbpc_data_multibone)DATA_CBPC);
+                                var page = new CBPC_Physics_MultiBone(vmm, (CBPC.Icbpc_data_multibone)DATA_CBPC, collective: collective);
                                 page.LeftOnlyUpdated += (val) => leftonly = val;
+                                page.CollectiveUpdated += (val) => collective = val;
                                 cbpcPhyPanel.Children.Add(page);
                             }
                         });
@@ -354,8 +356,9 @@ namespace SkyrimAnimationChecker
                             else
                             {
                                 cbpcPhyPanel.Children.Clear();
-                                var page = new CBPC_Physics(vmm, DATA_CBPC);
+                                var page = new CBPC_Physics(vmm, DATA_CBPC, collective: collective);
                                 page.LeftOnlyUpdated += (val) => leftonly = val;
+                                page.CollectiveUpdated += (val) => collective = val;
                                 cbpcPhyPanel.Children.Add(page);
                             }
                         });

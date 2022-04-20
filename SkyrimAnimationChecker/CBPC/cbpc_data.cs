@@ -10,11 +10,11 @@ namespace SkyrimAnimationChecker.CBPC
     public class cbpc_data : PropertyHandler, Icbpc_data
     {
         public cbpc_data()
-               : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "DataType", "DefaultName" }) => Init();
+               : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "DataType", "DefaultName", "UsingKeys" }) => Init();
         public cbpc_data(string name, physics_object_set? data = null)
-             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "DataType", "DefaultName" }) => Init(name, data);
+             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "DataType", "DefaultName", "UsingKeys" }) => Init(name, data);
         public cbpc_data(int num, physics_object_set? data = null)
-             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "DataType", "DefaultName" }) => Init(num, data);
+             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "DataType", "DefaultName", "UsingKeys" }) => Init(num, data);
         private void Init(object? param = null, physics_object_set? data = null)
         {
             Name = DefaultName;
@@ -57,5 +57,28 @@ namespace SkyrimAnimationChecker.CBPC
 
 
         public virtual physics_object_set? Find(string name) => Data;
+
+
+        private string[] _UsingKeys = Array.Empty<string>();
+        public string[] UsingKeys
+        {
+            get
+            {
+                if (_UsingKeys.Length > 0) return _UsingKeys;
+                else { GetUsingKeys(); return _UsingKeys; }
+            }
+        }
+        public void GetUsingKeys()
+        {
+            List<string> keys = new();
+            foreach (var item in Data.Values)
+            {
+                if (item.Use && !keys.Contains(item.Key)) keys.Add(item.Key);
+            }
+            _UsingKeys = (from propName in keys
+                          orderby KeysOrderComparer(propName, Data.KeysOrder), propName
+                          select propName).ToArray();
+        }
+
     }
 }

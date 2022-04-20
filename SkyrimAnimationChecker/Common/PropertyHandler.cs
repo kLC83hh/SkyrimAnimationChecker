@@ -10,7 +10,7 @@ namespace SkyrimAnimationChecker.Common
         #region Keys
         [JsonIgnore]
         public string[] Keys { get; }
-        public abstract int KeysOrderComparer(string key);
+        public abstract int KeysOrderComparer(string key, PropertyOrder[]? order = null);
         #endregion
 
         #region Values
@@ -71,7 +71,7 @@ namespace SkyrimAnimationChecker.Common
             }
             return true;
         }
-        private int Ordering(string key, object[] order, int mult = 1, bool precede = false)
+        protected int Ordering(string key, object[] order, int mult = 1, bool precede = false)
         {
             for (int i = 1; i < order.Length + 1; i++)
             {
@@ -90,21 +90,22 @@ namespace SkyrimAnimationChecker.Common
         //    }
         //    return f;
         //}
-        private int product(IEnumerable<object> list, Func<object, int> expr) => list.Aggregate(1, (accu, next) => accu * expr(next));
-        private int product_length(IEnumerable<object> list) => product(list, next => ((object[])next).Length);
-        private int product_length(IEnumerable<PropertyOrder> list) => product(list, next => ((PropertyOrder)next).Length);
-        public virtual int KeysOrderComparer(string key)
+        protected int product(IEnumerable<object> list, Func<object, int> expr) => list.Aggregate(1, (accu, next) => accu * expr(next));
+        protected int product_length(IEnumerable<object> list) => product(list, next => ((object[])next).Length);
+        protected int product_length(IEnumerable<PropertyOrder> list) => product(list, next => ((PropertyOrder)next).Length);
+        public virtual int KeysOrderComparer(string key, PropertyOrder[]? order = null)
         {
             int i = 0;
-            if (KeysOrder.Length > 0)
+            if (order == null) order = KeysOrder;
+            if (order.Length > 0)
             {
-                for (int j = 0; j < KeysOrder.Length; j++)
+                for (int j = 0; j < order.Length; j++)
                 {
-                    int position = KeysOrder.Length - 1 - j;
-                    if (!RawOrderData && KeysOrder[position].RegexAvailable)
-                        i += Ordering(key, KeysOrder[position].Regex, product_length(KeysOrder.Skip(position + 1)), KeysOrder[position].Precede);
+                    int position = order.Length - 1 - j;
+                    if (!RawOrderData && order[position].RegexAvailable)
+                        i += Ordering(key, order[position].Regex, product_length(order.Skip(position + 1)), order[position].Precede);
                     else
-                        i += Ordering(key, KeysOrder[position].Raw, product_length(KeysOrder.Skip(position + 1)), KeysOrder[position].Precede);
+                        i += Ordering(key, order[position].Raw, product_length(order.Skip(position + 1)), order[position].Precede);
                 }
             }
 

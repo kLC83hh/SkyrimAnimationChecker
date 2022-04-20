@@ -34,7 +34,7 @@
             KeysIgnore: new string[] { "Name" },
             KeysOrder: new PropertyOrder[] {
                 new PropertyOrder(true, "collision" ),
-                new PropertyOrder(false, "stiffness^", "stiffness[XYZxyz]", "stiffness2^", "stiffness2[XYZxyz]", "damping^", "damping[XYZxyz]", "(max|min)offset", "timetick", "timeStep", "linear[XYZxyz]$", "rotational", "linear[XYZxyz]rotation", "spreadforce", "Clothed", "LightArmored", "HeavyArmored" ),
+                new PropertyOrder(false, "stiffness$", "stiffness[XYZxyz]", "stiffness2$", "stiffness2[XYZxyz]", "damping$", "damping[XYZxyz]", "(max|min)offset", "timetick", "timeStep", "linear[XYZxyz]$", "rotational", "linear[XYZxyz]rotation", "spreadforce", "Clothed", "LightArmored", "HeavyArmored" ),
                 new PropertyOrder(true, "start", "end" )
             }
             ) => Defaults();
@@ -42,7 +42,7 @@
             KeysIgnore: new string[] { "Name" },
             KeysOrder: new PropertyOrder[] {
                 new PropertyOrder(true, "collision" ),
-                new PropertyOrder(false, "stiffness^", "stiffness[XYZxyz]", "stiffness2^", "stiffness2[XYZxyz]", "damping^", "damping[XYZxyz]", "(max|min)offset", "timetick", "timeStep", "linear[XYZxyz]$", "rotational", "linear[XYZxyz]rotation", "spreadforce", "Clothed", "LightArmored", "HeavyArmored" ),
+                new PropertyOrder(false, "stiffness$", "stiffness[XYZxyz]", "stiffness2$", "stiffness2[XYZxyz]", "damping$", "damping[XYZxyz]", "(max|min)offset", "timetick", "timeStep", "linear[XYZxyz]$", "rotational", "linear[XYZxyz]rotation", "spreadforce", "Clothed", "LightArmored", "HeavyArmored" ),
                 new PropertyOrder(true, "start", "end" )
             }
             ) => Defaults(name);
@@ -79,18 +79,18 @@
     {
         private void Default_Collision()
         {
-            collisionXmaxoffset = new physics_object();
-            collisionXminoffset = new physics_object();
-            collisionYmaxoffset = new physics_object();
-            collisionYminoffset = new physics_object();
-            collisionZmaxoffset = new physics_object();
-            collisionZminoffset = new physics_object();
+            collisionXmaxoffset = new physics_object("collisionXmaxoffset");
+            collisionXminoffset = new physics_object("collisionXminoffset");
+            collisionYmaxoffset = new physics_object("collisionYmaxoffset");
+            collisionYminoffset = new physics_object("collisionYminoffset");
+            collisionZmaxoffset = new physics_object("collisionZmaxoffset");
+            collisionZminoffset = new physics_object("collisionZminoffset");
 
-            collisionFriction = new physics_object();
-            collisionPenetration = new physics_object();
-            collisionMultipler = new physics_object();
-            collisionMultiplerRot = new physics_object();
-            collisionElastic = new physics_object();
+            collisionFriction = new physics_object("collisionFriction");
+            collisionPenetration = new physics_object("collisionPenetration");
+            collisionMultipler = new physics_object("collisionMultipler");
+            collisionMultiplerRot = new physics_object("collisionMultiplerRot");
+            collisionElastic = new physics_object("collisionElastic");
         }
         #region Declaration
         public physics_object collisionXmaxoffset { get => Get<physics_object>(); set => Set(value); }
@@ -112,16 +112,16 @@
     {
         private void Default_Normal()
         {
-            stiffness = new physics_object();
-            stiffness2 = new physics_object();
-            damping = new physics_object();
+            stiffness = new physics_object("stiffness");
+            stiffness2 = new physics_object("stiffness2");
+            damping = new physics_object("damping");
 
-            timetick = new physics_object();
-            timeStep = new physics_object();
+            timetick = new physics_object("timetick");
+            timeStep = new physics_object("timeStep");
 
-            maxoffset = new physics_object();
+            maxoffset = new physics_object("maxoffset");
 
-            forceMultipler = new physics_object();
+            forceMultipler = new physics_object("forceMultipler");
         }
         #region Declaration
         public physics_object stiffness { get => Get<physics_object>(); set => Set(value); }
@@ -142,41 +142,41 @@
         private void Default_3b()
         {
 
-            Xmaxoffset = new physics_object();
-            Xminoffset = new physics_object();
-            Ymaxoffset = new physics_object();
-            Yminoffset = new physics_object();
-            Zmaxoffset = new physics_object();
-            Zminoffset = new physics_object();
+            Xmaxoffset = new physics_object("Xmaxoffset");
+            Xminoffset = new physics_object("Xminoffset");
+            Ymaxoffset = new physics_object("Ymaxoffset");
+            Yminoffset = new physics_object("Yminoffset");
+            Zmaxoffset = new physics_object("Zmaxoffset");
+            Zminoffset = new physics_object("Zminoffset");
 
-            linearX = new physics_object();
-            linearY = new physics_object();
-            linearZ = new physics_object();
+            linearX = new physics_object("linearX");
+            linearY = new physics_object("linearY");
+            linearZ = new physics_object("linearZ");
 
-            rotationalX = new physics_object();
-            rotationalY = new physics_object();
-            rotationalZ = new physics_object();
+            rotationalX = new physics_object("rotationalX");
+            rotationalY = new physics_object("rotationalY");
+            rotationalZ = new physics_object("rotationalZ");
 
-            Xdefaultoffset = new physics_object();
-            Ydefaultoffset = new physics_object();
-            Zdefaultoffset = new physics_object();
+            Xdefaultoffset = new physics_object("Xdefaultoffset");
+            Ydefaultoffset = new physics_object("Ydefaultoffset");
+            Zdefaultoffset = new physics_object("Zdefaultoffset");
 
-            linearXrotationX = new physics_object();
-            linearXrotationY = new physics_object();
-            linearXrotationZ = new physics_object();
-            linearYrotationX = new physics_object();
-            linearYrotationY = new physics_object();
-            linearYrotationZ = new physics_object();
-            linearZrotationX = new physics_object();
-            linearZrotationY = new physics_object();
-            linearZrotationZ = new physics_object();
+            linearXrotationX = new physics_object("linearXrotationX");
+            linearXrotationY = new physics_object("linearXrotationY");
+            linearXrotationZ = new physics_object("linearXrotationZ");
+            linearYrotationX = new physics_object("linearYrotationX");
+            linearYrotationY = new physics_object("linearYrotationY");
+            linearYrotationZ = new physics_object("linearYrotationZ");
+            linearZrotationX = new physics_object("linearZrotationX");
+            linearZrotationY = new physics_object("linearZrotationY");
+            linearZrotationZ = new physics_object("linearZrotationZ");
 
-            linearXspreadforceY = new physics_object();
-            linearXspreadforceZ = new physics_object();
-            linearYspreadforceX = new physics_object();
-            linearYspreadforceZ = new physics_object();
-            linearZspreadforceX = new physics_object();
-            linearZspreadforceY = new physics_object();
+            linearXspreadforceY = new physics_object("linearXspreadforceY");
+            linearXspreadforceZ = new physics_object("linearXspreadforceZ");
+            linearYspreadforceX = new physics_object("linearYspreadforceX");
+            linearYspreadforceZ = new physics_object("linearYspreadforceZ");
+            linearZspreadforceX = new physics_object("linearZspreadforceX");
+            linearZspreadforceY = new physics_object("linearZspreadforceY");
 
         }
 
@@ -225,43 +225,43 @@
         private void Default_n3b_add()
         {
 
-            stiffnessX = new physics_object();
-            stiffnessY = new physics_object();
-            stiffnessZ = new physics_object();
-            stiffnessXRot = new physics_object();
-            stiffnessYRot = new physics_object();
-            stiffnessZRot = new physics_object();
+            stiffnessX = new physics_object("stiffnessX");
+            stiffnessY = new physics_object("stiffnessY");
+            stiffnessZ = new physics_object("stiffnessZ");
+            stiffnessXRot = new physics_object("stiffnessXRot");
+            stiffnessYRot = new physics_object("stiffnessYRot");
+            stiffnessZRot = new physics_object("stiffnessZRot");
 
-            stiffness2X = new physics_object();
-            stiffness2Y = new physics_object();
-            stiffness2Z = new physics_object();
-            stiffness2XRot = new physics_object();
-            stiffness2YRot = new physics_object();
-            stiffness2ZRot = new physics_object();
+            stiffness2X = new physics_object("stiffness2X");
+            stiffness2Y = new physics_object("stiffness2Y");
+            stiffness2Z = new physics_object("stiffness2Z");
+            stiffness2XRot = new physics_object("stiffness2XRot");
+            stiffness2YRot = new physics_object("stiffness2YRot");
+            stiffness2ZRot = new physics_object("stiffness2ZRot");
 
-            dampingX = new physics_object();
-            dampingY = new physics_object();
-            dampingZ = new physics_object();
-            dampingXRot = new physics_object();
-            dampingYRot = new physics_object();
-            dampingZRot = new physics_object();
+            dampingX = new physics_object("dampingX");
+            dampingY = new physics_object("dampingY");
+            dampingZ = new physics_object("dampingZ");
+            dampingXRot = new physics_object("dampingXRot");
+            dampingYRot = new physics_object("dampingYRot");
+            dampingZRot = new physics_object("dampingZRot");
 
-            XmaxoffsetRot = new physics_object();
-            XminoffsetRot = new physics_object();
-            YmaxoffsetRot = new physics_object();
-            YminoffsetRot = new physics_object();
-            ZmaxoffsetRot = new physics_object();
-            ZminoffsetRot = new physics_object();
+            XmaxoffsetRot = new physics_object("XmaxoffsetRot");
+            XminoffsetRot = new physics_object("XminoffsetRot");
+            YmaxoffsetRot = new physics_object("YmaxoffsetRot");
+            YminoffsetRot = new physics_object("YminoffsetRot");
+            ZmaxoffsetRot = new physics_object("ZmaxoffsetRot");
+            ZminoffsetRot = new physics_object("ZminoffsetRot");
 
-            timetickRot = new physics_object();
-            timeStepRot = new physics_object();
+            timetickRot = new physics_object("timetickRot");
+            timeStepRot = new physics_object("timeStepRot");
 
-            linearXspreadforceYRot = new physics_object();
-            linearXspreadforceZRot = new physics_object();
-            linearYspreadforceXRot = new physics_object();
-            linearYspreadforceZRot = new physics_object();
-            linearZspreadforceXRot = new physics_object();
-            linearZspreadforceYRot = new physics_object();
+            linearXspreadforceYRot = new physics_object("linearXspreadforceYRot");
+            linearXspreadforceZRot = new physics_object("linearXspreadforceZRot");
+            linearYspreadforceXRot = new physics_object("linearYspreadforceXRot");
+            linearYspreadforceZRot = new physics_object("linearYspreadforceZRot");
+            linearZspreadforceXRot = new physics_object("linearZspreadforceXRot");
+            linearZspreadforceYRot = new physics_object("linearZspreadforceYRot");
 
         }
 
@@ -313,12 +313,12 @@
         private void Default_3b_Gravities()
         {
 
-            gravityBias = new physics_object();
-            gravityCorrection = new physics_object();
+            gravityBias = new physics_object("gravityBias");
+            gravityCorrection = new physics_object("gravityCorrection");
 
-            gravityInvertedCorrection = new physics_object();
-            gravityInvertedCorrectionStart = new physics_object();
-            gravityInvertedCorrectionEnd = new physics_object();
+            gravityInvertedCorrection = new physics_object("gravityInvertedCorrection");
+            gravityInvertedCorrectionStart = new physics_object("gravityInvertedCorrectionStart");
+            gravityInvertedCorrectionEnd = new physics_object("gravityInvertedCorrectionEnd");
 
         }
         #region Declaration
@@ -335,12 +335,12 @@
     {
         private void Default_3b_armor()
         {
-            breastClothedPushup = new physics_object();
-            breastLightArmoredPushup = new physics_object();
-            breastHeavyArmoredPushup = new physics_object();
-            breastClothedAmplitude = new physics_object();
-            breastLightArmoredAmplitude = new physics_object();
-            breastHeavyArmoredAmplitude = new physics_object();
+            breastClothedPushup = new physics_object("breastClothedPushup");
+            breastLightArmoredPushup = new physics_object("breastLightArmoredPushup");
+            breastHeavyArmoredPushup = new physics_object("breastHeavyArmoredPushup");
+            breastClothedAmplitude = new physics_object("breastClothedAmplitude");
+            breastLightArmoredAmplitude = new physics_object("breastLightArmoredAmplitude");
+            breastHeavyArmoredAmplitude = new physics_object("breastHeavyArmoredAmplitude");
         }
         #region Declaration
         public physics_object breastClothedPushup { get => Get<physics_object>(); set => Set(value); }

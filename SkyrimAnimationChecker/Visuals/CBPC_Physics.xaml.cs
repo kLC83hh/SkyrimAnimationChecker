@@ -57,7 +57,7 @@ namespace SkyrimAnimationChecker
     /// </summary>
     public partial class CBPC_Physics : UserControl
     {
-        public CBPC_Physics(VM vmm, Icbpc_data o, bool? leftonly = null)
+        public CBPC_Physics(VM vmm, Icbpc_data o, bool? leftonly = null, int? collective = 0)
         {
             InitializeComponent();
             vm = vmm.Vphysics;
@@ -74,6 +74,7 @@ namespace SkyrimAnimationChecker
                     vm.VMPhysics_MirrorPair = string.Join('|', m.MirrorPairs.ForEach(x => x.ToString()));
             }
             if (leftonly != null) vm.VMPhysics_ShowLeftOnly = (bool)leftonly;
+            if (CollectiveCB.SelectedIndex == -1) CollectiveCB.SelectedIndex = collective ?? 0;
             Make();
         }
         VM_VPhysics vm;
@@ -97,6 +98,8 @@ namespace SkyrimAnimationChecker
         #region Events
         public delegate void LeftOnlyUpdateEventHandler(bool value);
         public event LeftOnlyUpdateEventHandler? LeftOnlyUpdated;
+        public delegate void CollectiveUpdateEventHandler(int value);
+        public event CollectiveUpdateEventHandler? CollectiveUpdated;
         #endregion
 
         #region Mirror
@@ -166,9 +169,10 @@ namespace SkyrimAnimationChecker
             panel.Children.Clear();
             panel.ColumnDefinitions.Clear();
 
-            AddColumn(string.Empty, d.Data.Keys, d.Data.Values);
+            AddColumn(string.Empty, d.UsingKeys);
+            //AddColumn(string.Empty, d.Data.Keys, d.Data.Values);
 
-            AddColumn("", d.Data.Values);
+            AddColumn("", d.Data.Values, d.UsingKeys);
         }
         private void Make_Mirrored()
         {
@@ -177,10 +181,11 @@ namespace SkyrimAnimationChecker
             panel.Children.Clear();
             panel.ColumnDefinitions.Clear();
 
-            AddColumn(string.Empty, d.Left.Keys, d.Left.Values);
+            AddColumn(string.Empty, d.UsingKeys);
+            //AddColumn(string.Empty, d.Left.Keys, d.Left.Values);
 
-            AddColumn("L", d.Left.Values);
-            if (!vm.VMPhysics_ShowLeftOnly) AddColumn("R", d.Right.Values);
+            AddColumn("L", d.Left.Values, d.UsingKeys);
+            if (!vm.VMPhysics_ShowLeftOnly) AddColumn("R", d.Right.Values, d.UsingKeys);
         }
 
         private void When_Click_toMake(object sender, RoutedEventArgs e) => Make();
@@ -188,6 +193,7 @@ namespace SkyrimAnimationChecker
 
         private void Collective_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            CollectiveUpdated?.Invoke((sender as ComboBox)?.SelectedIndex ?? 0);
             foreach (var child in panel.Children)
             {
                 if (child is CBPC_Physics_Column c)

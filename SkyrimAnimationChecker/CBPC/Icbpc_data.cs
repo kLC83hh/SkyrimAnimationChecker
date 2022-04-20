@@ -29,9 +29,11 @@ namespace SkyrimAnimationChecker.CBPC
     public interface Icbpc_data_multibone: Icbpc_data_mirrored
     {
         public abstract Icbpc_data GetData(int? num = null);
+        public string[] UsingKeys { get; }
     }
     public interface Icbpc_breast_data : Icbpc_data_multibone
     {
         //public abstract Icbpc_data_mirrored GetData(int? num = null);
+        //public (Common.physics_object[] Left, Common.physics_object[] Right) GetUsingValues(string name);
     }
 }
