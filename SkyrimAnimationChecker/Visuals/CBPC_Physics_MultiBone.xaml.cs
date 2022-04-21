@@ -20,7 +20,15 @@ namespace SkyrimAnimationChecker.Common
     public class VM_Vmultibone : Notify.NotifyPropertyChanged, IVM_Visual
     {
         public VM_Vmultibone() => Default_Vmultibone();
-        protected void Default_Vmultibone() { VMbreast_BoneAll = true; VMbreast_BoneSelect = 1; VMbreast_ShowLeftOnly = false; VMmultibone_MirrorFilter = string.Empty; VMmultibone_MirrorPair = string.Empty; VMmultibone_BindLR = true; }
+        protected void Default_Vmultibone()
+        {
+            VMbreast_BoneAll = true;
+            VMbreast_BoneSelect = 1;
+            VMbreast_ShowLeftOnly = false;
+            VMmultibone_MirrorFilter = "default";
+            VMmultibone_MirrorPair = "default";
+            VMmultibone_BindLR = true;
+        }
         public void Reset() => Default_Vmultibone();
         public void New_Vmultibone() { VMbreast_BoneSelect = 1; }
 
@@ -65,8 +73,8 @@ namespace SkyrimAnimationChecker
             vm.PropertyChanged += (sender, e) => { if (e.PropertyName == "VMbreast_ShowLeftOnly") LeftOnlyUpdated?.Invoke(vm.VMbreast_ShowLeftOnly); };
             DataContext = vm;
             Data = o;
-            if (CheckMirrorFilter(vm.VMmultibone_MirrorFilter?.Split(','))) vm.VMmultibone_MirrorFilter = string.Join(',', Data.MirrorKeys);
-            if (CheckMirrorPair(vm.VMmultibone_MirrorPair, out MirrorPair[]? p)) vm.VMmultibone_MirrorPair = string.Join('|', Data.MirrorPairs.ForEach(x => x.ToString()));
+            SetMirrorFilter();
+            SetMirrorPair();
             if (leftonly != null) vm.VMbreast_ShowLeftOnly = (bool)leftonly;
             if (CollectiveCB.SelectedIndex == -1) CollectiveCB.SelectedIndex = collective ?? 0;
             if (bindlr != null) vm.VMmultibone_BindLR = (bool)bindlr;
@@ -101,24 +109,23 @@ namespace SkyrimAnimationChecker
         #endregion
 
         #region Mirror
-        //private string[] MirrorFilter
-        //{
-        //    get => GetMirrorFilter(vm.VMbreast_MirrorFilter.Split(','));
-        //    set { Data.Mirrorable = value; vm.VMbreast_MirrorFilter = string.Join(',', value); }
-        //}
-        private void MirrorFilter_TextBox_KeyDown(object sender, KeyEventArgs e)
+        private void MirrorFilter_TextBox_TextChanged(object sender, TextChangedEventArgs e) => SetMirrorFilter();
+        private void SetMirrorFilter()
         {
-            //if (e.Key == Key.Enter || e.Key == Key.Return)
-                Data.MirrorKeys = GetMirrorFilter(vm.VMmultibone_MirrorFilter.Split(','));
+            if (CheckMirrorFilter(vm.VMmultibone_MirrorFilter.Split(','))) vm.VMmultibone_MirrorFilter = string.Join(',', Data.DefaultMirrorKeys);
+            Data.MirrorKeys = GetMirrorFilter(vm.VMmultibone_MirrorFilter.Split(','));
         }
-        private string[] GetMirrorFilter(string[] filter) => CheckMirrorFilter(filter) ? Data.MirrorKeys : filter;
-        private bool CheckMirrorFilter(string[]? filter) => filter?.All(x => string.IsNullOrWhiteSpace(x)) ?? true;
+        private string[] GetMirrorFilter(string[] filter) => CheckMirrorFilter(filter) || filter == null ? Data.DefaultMirrorKeys : filter;
+        private bool CheckMirrorFilter(string[]? filter) => filter?.Length < 1 || filter?.Length == 1 && filter[0] == "default";
 
-        private void MirrorPair_Textbox_KeyDown(object sender, KeyEventArgs e)
+
+        private void MirrorPair_TextBox_TextChanged(object sender, TextChangedEventArgs e) => SetMirrorPair();
+        private void SetMirrorPair()
         {
+            if (CheckMirrorPair(vm.VMmultibone_MirrorPair, out MirrorPair[]? p)) vm.VMmultibone_MirrorPair = string.Join('|', Data.DefaultMirrorPairs.ForEach(x => x.ToString()));
             Data.MirrorPairs = GetMirrorPair(vm.VMmultibone_MirrorPair);
         }
-        private MirrorPair[] GetMirrorPair(string? sPair) => CheckMirrorPair(sPair, out MirrorPair[]? pairs) || pairs == null ? Data.MirrorPairs : pairs;
+        private MirrorPair[] GetMirrorPair(string? sPair) => CheckMirrorPair(sPair, out MirrorPair[]? pairs) || pairs == null ? Data.DefaultMirrorPairs : pairs;
         private bool CheckMirrorPair(string? s, out MirrorPair[]? pairs)
         {
             if (s == null) { pairs = null; return true; }
@@ -387,6 +394,8 @@ namespace SkyrimAnimationChecker
             }
         }
         private void BindLR_CheckBox_Changed(object sender, RoutedEventArgs e) { SetIsMirrored(); BindLRUpdated?.Invoke(vm.VMmultibone_BindLR); }
+
+
 
 
     }

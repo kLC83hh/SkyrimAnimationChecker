@@ -23,6 +23,8 @@ namespace SkyrimAnimationChecker.CBPC
     }
     public interface Icbpc_data_mirrored : Icbpc_data
     {
+        public virtual string[] DefaultMirrorKeys => new string[] { "rotationalZ", "linearYrotationZ", "linearZrotationY", "linearXspreadforceZ", "linearYspreadforceX", "linearZspreadforceX", "linearXspreadforceYRot", "linearXspreadforceZRot", "Xmaxoffset", "Xminoffset", "YmaxoffsetRot", "YminoffsetRot", "ZmaxoffsetRot", "ZminoffsetRot", "collisionXmaxoffset", "collisionXminoffset" };
+        public virtual MirrorPair[] DefaultMirrorPairs => new MirrorPair[] { new MirrorPair("Xmaxoffset", "Xminoffset"), new MirrorPair("YmaxoffsetRot", "YminoffsetRot"), new MirrorPair("ZmaxoffsetRot", "ZminoffsetRot"), new MirrorPair("collisionXmaxoffset", "collisionXminoffset") };
         public string[] MirrorKeys { get; set; }
         public MirrorPair[] MirrorPairs { get; set; }
     }

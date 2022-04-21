@@ -41,7 +41,7 @@
                 <StackPanel Grid.Column="1">
                     <Grid Style="{StaticResource Head2}">
                         <TextBlock Text="Mirror filter"/>
-                        <TextBox Text="{Binding VMmultibone_MirrorFilter}" KeyDown="MirrorFilter_TextBox_KeyDown" Grid.Column="1"/>
+                        <TextBox Text="{Binding VMmultibone_MirrorFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="MirrorFilter_TextBox_TextChanged" Grid.Column="1"/>
                     </Grid>
                 </StackPanel>
             </Grid>
@@ -49,7 +49,7 @@
                 <TextBlock Text="collective"/>
                 <Grid Grid.Column="1" Style="{StaticResource Head2}">
                     <TextBlock Text="Mirror pair"/>
-                    <TextBox Text="{Binding VMmultibone_MirrorPair, UpdateSourceTrigger=PropertyChanged}" KeyDown="MirrorPair_Textbox_KeyDown" Grid.Column="1"/>
+                    <TextBox Text="{Binding VMmultibone_MirrorPair, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="MirrorPair_TextBox_TextChanged" Grid.Column="1"/>
                 </Grid>
             </Grid>
             <Grid Style="{StaticResource Head1}">

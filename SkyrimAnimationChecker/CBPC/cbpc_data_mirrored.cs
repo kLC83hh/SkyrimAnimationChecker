@@ -10,11 +10,11 @@ namespace SkyrimAnimationChecker.CBPC
     public class cbpc_data_mirrored : PropertyHandler, Icbpc_data_mirrored
     {
         public cbpc_data_mirrored()
-            : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys", "IsMirrored" }) => Init();
+            : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys", "IsMirrored", "DefaultMirrorKeys", "DefaultMirrorPairs" }) => Init();
         public cbpc_data_mirrored(string name, physics_object_set? left = null, physics_object_set? right = null)
-             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys", "IsMirrored" }) => Init(name, left, right);
+             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys", "IsMirrored", "DefaultMirrorKeys", "DefaultMirrorPairs" }) => Init(name, left, right);
         public cbpc_data_mirrored(int num, physics_object_set? left = null, physics_object_set? right = null)
-             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys", "IsMirrored" }) => Init(num, left, right);
+             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys", "IsMirrored", "DefaultMirrorKeys", "DefaultMirrorPairs" }) => Init(num, left, right);
         private void Init(object? param = null, physics_object_set? left = null, physics_object_set? right = null)
         {
             Name = DefaultName;
@@ -146,8 +146,13 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return buffer;
         }
-        protected string[] _MirrorKeys = new string[] { "rotationalZ", "linearZrotationY", "linearXspreadforceZ", "linearYspreadforceX", "linearZspreadforceX", "linearXspreadforceYRot", "linearXspreadforceZRot", "Xmaxoffset", "Xminoffset", "YmaxoffsetRot", "YminoffsetRot", "ZmaxoffsetRot", "ZminoffsetRot", "collisionXmaxoffset", "collisionXminoffset" };
-        public string[] MirrorKeys { get => _MirrorKeys; set { _MirrorKeys = value; OnPropertyChanged(); } }
+        public string[] DefaultMirrorKeys => new string[] { "rotationalZ", "linearYrotationZ", "linearZrotationY", "linearXspreadforceZ", "linearYspreadforceX", "linearZspreadforceX", "linearXspreadforceYRot", "linearXspreadforceZRot", "Xmaxoffset", "Xminoffset", "YmaxoffsetRot", "YminoffsetRot", "ZmaxoffsetRot", "ZminoffsetRot", "collisionXmaxoffset", "collisionXminoffset" };
+        protected string[]? _MirrorKeys;
+        public string[] MirrorKeys
+        {
+            get { if (_MirrorKeys == null) { _MirrorKeys = DefaultMirrorKeys; } return _MirrorKeys; }
+            set { _MirrorKeys = value; OnPropertyChanged(); }
+        }
         protected bool CanMirror(string key)
         {
             foreach (string s in MirrorKeys)
@@ -156,8 +161,13 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return false;
         }
-        protected MirrorPair[] _MirrorPairs = new MirrorPair[] { new MirrorPair("Xmaxoffset", "Xminoffset"), new MirrorPair("YmaxoffsetRot", "YminoffsetRot"), new MirrorPair("ZmaxoffsetRot", "ZminoffsetRot"), new MirrorPair("collisionXmaxoffset", "collisionXminoffset") };
-        public MirrorPair[] MirrorPairs { get => _MirrorPairs; set { _MirrorPairs = value; OnPropertyChanged(); } }
+        public MirrorPair[] DefaultMirrorPairs => new MirrorPair[] { new MirrorPair("Xmaxoffset", "Xminoffset"), new MirrorPair("YmaxoffsetRot", "YminoffsetRot"), new MirrorPair("ZmaxoffsetRot", "ZminoffsetRot"), new MirrorPair("collisionXmaxoffset", "collisionXminoffset") };
+        protected MirrorPair[]? _MirrorPairs;
+        public MirrorPair[] MirrorPairs
+        {
+            get { if (_MirrorPairs == null) { _MirrorPairs = DefaultMirrorPairs; } return _MirrorPairs; }
+            set { _MirrorPairs = value; OnPropertyChanged(); }
+        }
         protected string GetPair(string key)
         {
             foreach (MirrorPair s in MirrorPairs)

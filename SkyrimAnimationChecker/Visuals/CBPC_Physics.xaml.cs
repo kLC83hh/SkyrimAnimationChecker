@@ -20,7 +20,15 @@ namespace SkyrimAnimationChecker.Common
     public class VM_VPhysics : Notify.NotifyPropertyChanged, IVM_Visual
     {
         public VM_VPhysics() => Default_VPhysics();
-        protected void Default_VPhysics() { VMPhysics_BoneAll = true; VMPhysics_BoneSelect = 1; VMPhysics_ShowLeftOnly = false; VMPhysics_MirrorFilter = string.Empty; VMPhysics_MirrorPair = string.Empty; VMphysics_BindLR = true; }
+        protected void Default_VPhysics()
+        {
+            VMPhysics_BoneAll = true;
+            VMPhysics_BoneSelect = 1;
+            VMPhysics_ShowLeftOnly = false;
+            VMPhysics_MirrorFilter = "default";
+            VMPhysics_MirrorPair = "default";
+            VMphysics_BindLR = true;
+        }
         public void Reset() => Default_VPhysics();
         public void New_VPhysics() { VMPhysics_BoneSelect = 1; }
 
@@ -108,26 +116,36 @@ namespace SkyrimAnimationChecker
         #endregion
 
         #region Mirror
-        private void MirrorFilter_TextBox_KeyDown(object sender, KeyEventArgs e)
+        private void MirrorFilter_TextBox_TextChanged(object sender, TextChangedEventArgs e) => SetMirrorFilter();
+        private void SetMirrorFilter()
         {
-            //if (e.Key == Key.Enter || e.Key == Key.Return)
-            if (Data is Icbpc_data_mirrored m) m.MirrorKeys = GetMirrorFilter(vm.VMPhysics_MirrorFilter.Split(','));
+            if (Data is Icbpc_data_mirrored m)
+            {
+                if (CheckMirrorFilter(vm.VMPhysics_MirrorFilter.Split(','))) vm.VMPhysics_MirrorFilter = string.Join(',', m.DefaultMirrorKeys);
+                m.MirrorKeys = GetMirrorFilter(vm.VMPhysics_MirrorFilter.Split(','));
+            }
         }
         private string[] GetMirrorFilter(string[] filter)
         {
-            if (Data is Icbpc_data_mirrored m) return CheckMirrorFilter(filter) ? m.MirrorKeys : filter;
+            if (Data is Icbpc_data_mirrored m) return CheckMirrorFilter(filter) ? m.DefaultMirrorKeys : filter;
             else return filter;
         }
-        private bool CheckMirrorFilter(string[]? filter) => filter?.All(x => string.IsNullOrWhiteSpace(x)) ?? true;
+        private bool CheckMirrorFilter(string[]? filter) => filter?.Length < 1 || filter?.Length == 1 && filter[0] == "default";
 
-        private void MirrorPair_Textbox_KeyDown(object sender, KeyEventArgs e)
+
+        private void MirrorPair_TextBox_TextChanged(object sender, TextChangedEventArgs e) => SetMirrorPair();
+        private void SetMirrorPair()
         {
-            if (Data is Icbpc_data_mirrored m) m.MirrorPairs = GetMirrorPair(vm.VMPhysics_MirrorPair);
+            if (Data is Icbpc_data_mirrored m)
+            {
+                if (CheckMirrorPair(vm.VMPhysics_MirrorPair, out MirrorPair[]? p)) vm.VMPhysics_MirrorPair = string.Join('|', m.DefaultMirrorPairs.ForEach(x => x.ToString()));
+                m.MirrorPairs = GetMirrorPair(vm.VMPhysics_MirrorPair);
+            }
         }
         private MirrorPair[] GetMirrorPair(string? sPair)
         {
             if (Data is Icbpc_data_mirrored m)
-                return CheckMirrorPair(sPair, out MirrorPair[]? pairs) || pairs == null ? m.MirrorPairs : pairs;
+                return CheckMirrorPair(sPair, out MirrorPair[]? pairs) || pairs == null ? m.DefaultMirrorPairs : pairs;
             else return Array.Empty<MirrorPair>();
         }
         private bool CheckMirrorPair(string? s, out MirrorPair[]? pairs)
