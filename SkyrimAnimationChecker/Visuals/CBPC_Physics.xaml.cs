@@ -20,7 +20,7 @@ namespace SkyrimAnimationChecker.Common
     public class VM_VPhysics : Notify.NotifyPropertyChanged, IVM_Visual
     {
         public VM_VPhysics() => Default_VPhysics();
-        protected void Default_VPhysics() { VMPhysics_BoneAll = true; VMPhysics_BoneSelect = 1; VMPhysics_ShowLeftOnly = false; VMPhysics_MirrorFilter = string.Empty; VMPhysics_MirrorPair = String.Empty; }
+        protected void Default_VPhysics() { VMPhysics_BoneAll = true; VMPhysics_BoneSelect = 1; VMPhysics_ShowLeftOnly = false; VMPhysics_MirrorFilter = string.Empty; VMPhysics_MirrorPair = string.Empty; VMphysics_BindLR = true; }
         public void Reset() => Default_VPhysics();
         public void New_VPhysics() { VMPhysics_BoneSelect = 1; }
 
@@ -30,6 +30,7 @@ namespace SkyrimAnimationChecker.Common
         public int VMPhysics_BoneSelect { get => Get<int>(); set { if (value > -1) Set(value); } }
         [System.Text.Json.Serialization.JsonIgnore]
         public bool VMPhysics_ShowLeftOnly { get => Get<bool>(); set => Set(value); }
+        public bool VMphysics_BindLR { get => Get<bool>(); set => Set(value); }
 
 
 
@@ -57,7 +58,7 @@ namespace SkyrimAnimationChecker
     /// </summary>
     public partial class CBPC_Physics : UserControl
     {
-        public CBPC_Physics(VM vmm, Icbpc_data o, bool? leftonly = null, int? collective = 0)
+        public CBPC_Physics(VM vmm, Icbpc_data o, bool? leftonly = null, bool? bindlr = null, int? collective = 0)
         {
             InitializeComponent();
             vm = vmm.Vphysics;
@@ -75,6 +76,8 @@ namespace SkyrimAnimationChecker
             }
             if (leftonly != null) vm.VMPhysics_ShowLeftOnly = (bool)leftonly;
             if (CollectiveCB.SelectedIndex == -1) CollectiveCB.SelectedIndex = collective ?? 0;
+            if (bindlr != null) vm.VMphysics_BindLR = (bool)bindlr;
+            if (!vm.VMphysics_BindLR) SetIsMirrored();
             Make();
         }
         VM_VPhysics vm;
@@ -98,6 +101,8 @@ namespace SkyrimAnimationChecker
         #region Events
         public delegate void LeftOnlyUpdateEventHandler(bool value);
         public event LeftOnlyUpdateEventHandler? LeftOnlyUpdated;
+        public delegate void BindLRUpdateEventHandler(bool value);
+        public event BindLRUpdateEventHandler? BindLRUpdated;
         public delegate void CollectiveUpdateEventHandler(int value);
         public event CollectiveUpdateEventHandler? CollectiveUpdated;
         #endregion
@@ -150,8 +155,43 @@ namespace SkyrimAnimationChecker
             c.Header = key;
             c.Data = data;
             if (options?.Length > 0) c.Option = options;
+            if (data is string[]) c.Copy += (way) => CopyValues(way);
             c.SetValue(Grid.ColumnProperty, panel.ColumnDefinitions.Count - 1);
             panel.Children.Add(c);
+        }
+        private void CopyValues(string way)
+        {
+            if (MessageBox.Show($"This operation can not be reverted{Environment.NewLine}Proceed?", "Warning", MessageBoxButton.OKCancel) != MessageBoxResult.OK) return;
+            if (way == "0->1")
+            {
+                Data.Values.ForEach(o =>
+                {
+                    if (o is cbpc_data_mirrored m)
+                    {
+                        m.Left.Values.ForEach(x => x.Value1 = x.Value0);
+                        m.Right.Values.ForEach(x => x.Value1 = x.Value0);
+                    }
+                    else if (o is cbpc_data d)
+                    {
+                        d.Data.Values.ForEach(x => x.Value1 = x.Value0);
+                    }
+                });
+            }
+            else if (way == "1->0")
+            {
+                Data.Values.ForEach(o =>
+                {
+                    if (o is cbpc_data_mirrored m)
+                    {
+                        m.Left.Values.ForEach(x => x.Value0 = x.Value1);
+                        m.Right.Values.ForEach(x => x.Value0 = x.Value1);
+                    }
+                    else if (o is cbpc_data d)
+                    {
+                        d.Data.Values.ForEach(x => x.Value0 = x.Value1);
+                    }
+                });
+            }
         }
 
         private void Make()
@@ -203,6 +243,10 @@ namespace SkyrimAnimationChecker
             }
         }
         private void CollectiveCB_MouseEnter(object sender, MouseEventArgs e) => (sender as ComboBox)?.Focus();
+
+
+        private void SetIsMirrored() { if (Data is cbpc_data_mirrored m) m.IsMirrored = vm.VMphysics_BindLR; }
+        private void BindLR_CheckBox_Changed(object sender, RoutedEventArgs e) { SetIsMirrored(); BindLRUpdated?.Invoke(vm.VMphysics_BindLR); }
 
 
     }

@@ -33,6 +33,9 @@ namespace SkyrimAnimationChecker
             this.vm = vmm.GENERAL;
             this.DataContext = vm;
 
+            this.SetBinding(Window.HeightProperty, new Binding("Height") { Source = DataContext, Mode = BindingMode.TwoWay });
+            this.SetBinding(Window.WidthProperty, new Binding("Width") { Source = DataContext, Mode = BindingMode.TwoWay });
+
             // events and shortcuts
             this.Closing += MainWindow_Closing;
             this.ContentRendered += MainWindow_ContentRendered;
@@ -243,6 +246,7 @@ namespace SkyrimAnimationChecker
         private async void RunCBPC()
         {
             if (DATA_Colliders == null) return;
+            CBPC_panel.Focus();
             if (vm.writeSome)
             {
                 NotifyRightCQ.Enqueue("Save");
@@ -307,7 +311,7 @@ namespace SkyrimAnimationChecker
         }
         CBPC.Icbpc_data? DATA_CBPC;
         private volatile bool PhysicsReading = false;
-        private bool leftonly = false;
+        private bool? leftonly = false, bindlr = null;
         private int collective = 0;
         private async void ReadPhysics()
         {
@@ -337,8 +341,9 @@ namespace SkyrimAnimationChecker
                             else
                             {
                                 cbpcPhyPanel.Children.Clear();
-                                var page = new CBPC_Physics_MultiBone(vmm, (CBPC.Icbpc_data_multibone)DATA_CBPC, collective: collective);
+                                var page = new CBPC_Physics_MultiBone(vmm, (CBPC.Icbpc_data_multibone)DATA_CBPC, bindlr: bindlr, collective: collective);
                                 page.LeftOnlyUpdated += (val) => leftonly = val;
+                                page.BindLRUpdated += (val) => bindlr = val;
                                 page.CollectiveUpdated += (val) => collective = val;
                                 cbpcPhyPanel.Children.Add(page);
                             }
@@ -356,8 +361,9 @@ namespace SkyrimAnimationChecker
                             else
                             {
                                 cbpcPhyPanel.Children.Clear();
-                                var page = new CBPC_Physics(vmm, DATA_CBPC, collective: collective);
+                                var page = new CBPC_Physics(vmm, DATA_CBPC, bindlr: bindlr, collective: collective);
                                 page.LeftOnlyUpdated += (val) => leftonly = val;
+                                page.BindLRUpdated += (val) => bindlr = val;
                                 page.CollectiveUpdated += (val) => collective = val;
                                 cbpcPhyPanel.Children.Add(page);
                             }
@@ -375,6 +381,7 @@ namespace SkyrimAnimationChecker
         {
             if (DATA_CBPC == null) return;
             vm.CBPC_Physics_running = true;
+            cbpcPhyPanel.Focus();
             await Task.Run(() =>
             {
                 if (vm.overwriteCBPC_Physics)

@@ -3,10 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SkyrimAnimationChecker.Visuals"
+             xmlns:local="clr-namespace:SkyrimAnimationChecker"
              mc:Ignorable="d" 
              d:DesignHeight="18" d:DesignWidth="100">
     <UserControl.Resources>
+        <local:StringDoubleConverter x:Key="Conv"/>
+        
         <Style TargetType="TextBox"/>
     </UserControl.Resources>
     <Grid Style="{StaticResource Normal}">
@@ -14,7 +16,7 @@
             <ColumnDefinition MinWidth="30" MaxWidth="70"/>
             <ColumnDefinition MinWidth="30" MaxWidth="70"/>
         </Grid.ColumnDefinitions>
-        <TextBox Name="V1" Text="{Binding Value1, UpdateSourceTrigger=PropertyChanged}" GotFocus="ValueTB_GotFocus"/>
-        <TextBox Name="V0" Text="{Binding Value0, UpdateSourceTrigger=PropertyChanged}" GotFocus="ValueTB_GotFocus" Grid.Column="1"/>
+        <TextBox Name="V0" Text="{Binding Value0, UpdateSourceTrigger=Default}" GotFocus="ValueTB_GotFocus"/>
+        <TextBox Name="V1" Text="{Binding Value1, UpdateSourceTrigger=Default}" GotFocus="ValueTB_GotFocus" Grid.Column="1"/>
     </Grid>
 </UserControl>

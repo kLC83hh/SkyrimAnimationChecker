@@ -36,6 +36,8 @@ namespace SkyrimAnimationChecker.Common
     {
         partial void DefaultCommon()
         {
+            Height = 570;
+            Width = 830;
             useDesktop = true;
             string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
             string workdir = AppDomain.CurrentDomain.BaseDirectory;
@@ -75,6 +77,8 @@ namespace SkyrimAnimationChecker.Common
 
         }
 
+        public double Height { get => Get<double>(); set => Set(value); }
+        public double Width { get => Get<double>(); set => Set(value); }
         public bool useDesktop { get => Get<bool>(); set => Set(value); }
 
         // DAR

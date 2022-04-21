@@ -79,6 +79,7 @@
                             <RadioButton Content="B2" Padding="0" IsChecked="{Binding VMbreast_BoneSelect, ConverterParameter=2, Converter={StaticResource weightConverter}}" Click="_3BA_RadioButton_Click"/>
                             <RadioButton Content="B3" Padding="0" IsChecked="{Binding VMbreast_BoneSelect, ConverterParameter=3, Converter={StaticResource weightConverter}}" Click="_3BA_RadioButton_Click"/>
                             <CheckBox x:Name="lonlyCB" Content="L-Only" Padding="0,-1" IsChecked="{Binding VMbreast_ShowLeftOnly}" Click="_3BA_RadioButton_Click"/>
+                            <CheckBox Content="Bind L-R" Padding="0,-1" IsChecked="{Binding VMmultibone_BindLR}" Checked="BindLR_CheckBox_Changed" Unchecked="BindLR_CheckBox_Changed"/>
                         </WrapPanel>
                     </Grid>
                 </WrapPanel>

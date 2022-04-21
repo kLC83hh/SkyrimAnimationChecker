@@ -70,6 +70,33 @@ namespace SkyrimAnimationChecker
     }
 
 
+    public class StringDoubleConverter : IValueConverter
+    {
+        private double OldValue = 0;
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is double)
+            {
+                OldValue = (double)value;
+                return value.ToString() ?? string.Empty;
+            }
+            throw new ArgumentException("value is not double");
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                double val = System.Convert.ToDouble(value);
+                OldValue = val;
+                return val;
+            }
+            catch (FormatException) { }
+            catch (InvalidCastException) { }
+            return OldValue;
+        }
+    }
+
     public class CollectiveConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

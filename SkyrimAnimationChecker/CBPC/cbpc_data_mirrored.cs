@@ -10,11 +10,11 @@ namespace SkyrimAnimationChecker.CBPC
     public class cbpc_data_mirrored : PropertyHandler, Icbpc_data_mirrored
     {
         public cbpc_data_mirrored()
-            : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys" }) => Init();
+            : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys", "IsMirrored" }) => Init();
         public cbpc_data_mirrored(string name, physics_object_set? left = null, physics_object_set? right = null)
-             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys" }) => Init(name, left, right);
+             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys", "IsMirrored" }) => Init(name, left, right);
         public cbpc_data_mirrored(int num, physics_object_set? left = null, physics_object_set? right = null)
-             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys" }) => Init(num, left, right);
+             : base(KeysIgnore: new string[] { "Name", "NameShort", "Number", "MirrorKeys", "MirrorPairs", "DataType", "DefaultName", "UsingKeys", "IsMirrored" }) => Init(num, left, right);
         private void Init(object? param = null, physics_object_set? left = null, physics_object_set? right = null)
         {
             Name = DefaultName;
@@ -25,8 +25,9 @@ namespace SkyrimAnimationChecker.CBPC
             }
             Left = left ?? new("L");
             Right = right ?? new("R");
-            Left.ValueUpdated += (o) => Mirror(o);
-            Right.ValueUpdated += (o) => Mirror(o);
+            IsMirrored = true;
+            Left.ValueUpdated += (o) => { if (IsMirrored) Mirror(o); };
+            Right.ValueUpdated += (o) => { if (IsMirrored) Mirror(o); };
         }
 
         public virtual string DataType => "mirrored";
@@ -118,7 +119,7 @@ namespace SkyrimAnimationChecker.CBPC
         }
 
 
-
+        public bool IsMirrored { get => Get<bool>(); set => Set(value); }
         protected void Mirror(physics_object o) => Find(MirrorName(o.Name))?.SetPhysics(GetPair(o.Key), CanMirror(o.Key) ? MirrorValue(o.Values) : o.Values);
 
         protected string MirrorName(string name)

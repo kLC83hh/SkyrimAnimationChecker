@@ -77,6 +77,7 @@
                             <RadioButton Content="B2" Padding="0" IsChecked="{Binding VMPhysics_BoneSelect, Converter={StaticResource weightConverter}, ConverterParameter=2}" Click="When_Click_toMake"/>
                             <RadioButton Content="B3" Padding="0" IsChecked="{Binding VMPhysics_BoneSelect, Converter={StaticResource weightConverter}, ConverterParameter=3}" Click="When_Click_toMake"/>-->
                             <CheckBox Content="L-Only" Padding="0,-1" IsChecked="{Binding VMPhysics_ShowLeftOnly}" Click="When_Click_toMake"/>
+                            <CheckBox Content="Bind L-R" Padding="0,-1" IsChecked="{Binding VMphysics_BindLR}" Checked="BindLR_CheckBox_Changed" Unchecked="BindLR_CheckBox_Changed"/>
                         </WrapPanel>
                     </Grid>
                 </WrapPanel>

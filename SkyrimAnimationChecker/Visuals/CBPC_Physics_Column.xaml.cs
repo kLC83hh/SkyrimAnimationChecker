@@ -110,8 +110,8 @@ namespace SkyrimAnimationChecker
               );
         #endregion
         #region events
-        //public delegate void DataUpdateEventHandler(Common.physics_object o);
-        //public event DataUpdateEventHandler? DataUpdated;
+        public delegate void CopyEventHandler(string way);
+        public event CopyEventHandler? Copy;
         #endregion
 
         // do loop to make column
@@ -120,8 +120,12 @@ namespace SkyrimAnimationChecker
             if (Data == null) return;
             //if (Option != null && Data.Length != Option.Length) return;
             //M.D($"{Data.Length} {Option?.Length}");
-            
-            if (Data is string[]) { H0.Visibility = Visibility.Hidden; H1.Visibility = Visibility.Hidden; HL.Visibility = Visibility.Hidden; HR.Visibility = Visibility.Hidden; }
+
+            if (Data is string[])
+            {
+                H0.Visibility = Visibility.Hidden; H1.Visibility = Visibility.Hidden; HL.Visibility = Visibility.Hidden; HR.Visibility = Visibility.Hidden;
+                B01.Visibility = Visibility.Visible; B10.Visibility = Visibility.Visible;
+            }
             panel.Children.Clear();
 
             if (Data is string[] s)
@@ -243,9 +247,7 @@ namespace SkyrimAnimationChecker
             else return "straight";
         }
 
-
-
-
+        private void Copy_Button_Click(object sender, RoutedEventArgs e) => Copy?.Invoke((string)((sender as Button)?.Content ?? string.Empty));
     }
 
 }
