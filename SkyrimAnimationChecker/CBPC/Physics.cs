@@ -106,10 +106,10 @@ namespace SkyrimAnimationChecker.CBPC
             if (vs.Length != 2) throw EE.New(2202, $"Invalid data: {line}");
 
             string name = vs[0];
-            string property = vs[1];
+            string key = vs[1];
 
             string[] dBuffer = new string[2] { part[1], part[1] };
-            if (part.Length == 3) dBuffer[1] = part[2];
+            if (part.Length == 3) dBuffer[0] = part[2];
 
             double[] buffer = new double[dBuffer.Length];
             try
@@ -120,7 +120,7 @@ namespace SkyrimAnimationChecker.CBPC
             {
                 throw EE.New(2203, $"Invalid data (conversion error): {line}");
             }
-            return (name, property, buffer);
+            return (name, key, buffer);
         }
         private void Beta_auto_key_update_cbpc15xbeta2(ref string key)
         {
@@ -166,24 +166,29 @@ namespace SkyrimAnimationChecker.CBPC
             
             for (int i = 0; i < data.Length; i++)
             {
-                string buffer = data[i];
+                string buffer = data[i].TrimEnd(), comment = string.Empty;
                 if (string.IsNullOrWhiteSpace(buffer) || buffer.StartsWith('#')) continue;
 
-                if (buffer.Contains('#')) buffer = buffer.Substring(0, buffer.IndexOf('#'));
+                if (buffer.Contains('#'))
+                {
+                    comment = buffer.Substring(buffer.IndexOf('#'));
+                    buffer = buffer.Substring(0, buffer.IndexOf('#'));
+                }
                 string[] b1 = buffer.Split(' ');
                 if (b1 == null || (b1.Length != 2 && b1.Length != 3) || !b1[0].Contains('.')) continue;
 
-                string[] b2 = b1[0].Split('.');
+                string[] b2 = b1[0].Split('.').ForEach(x => x.Trim());
                 if (b2 == null || b2.Length != 2) continue;
 
                 string name = b2[0], key = b2[1];
                 if (vm.cbpc15xbeta2) Beta_auto_key_update_cbpc15xbeta2(ref key);
                 double[]? values = o.Find(name)?.GetPhysics(key);
-                if (values == null) continue;
-
-                string newline = $"{name}.{key} {values[0]}";
-                if (values.Length > 1 && values[0] != values[1] || !vm.CBPCremoveUnnecessary)
-                    newline += $" {values[1]}";
+                if (values == null) { M.D($"{name} {key}"); continue; }
+                
+                string newline = $"{b1[0]} {values[1]}";
+                if (values.Length > 1 && values[1] != values[0] || !vm.CBPCremoveUnnecessary)
+                    newline += $" {values[0]}";
+                if (string.IsNullOrEmpty(comment)) newline += comment;
                 data[i] = newline;
             }
 
