@@ -146,7 +146,19 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return buffer;
         }
-        public string[] DefaultMirrorKeys => new string[] { "rotationalZ", "linearYrotationZ", "linearZrotationY", "linearXspreadforceZ", "linearYspreadforceX", "linearZspreadforceX", "linearXspreadforceYRot", "linearXspreadforceZRot", "Xmaxoffset", "Xminoffset", "YmaxoffsetRot", "YminoffsetRot", "ZmaxoffsetRot", "ZminoffsetRot", "collisionXmaxoffset", "collisionXminoffset" };
+
+        public string[] DefaultMirrorKeys => new string[] {
+            // linear
+            "Xmaxoffset", "Xminoffset",
+            "linearXspreadforceY", "linearXspreadforceZ", "linearYspreadforceX", "linearZspreadforceX",
+            // rotaion "linearZrotationY", "rotationXspreadforceZ",
+            "YmaxoffsetRot", "YminoffsetRot", "ZmaxoffsetRot", "ZminoffsetRot",
+            "rotationalZ", "linearYrotationZ",
+            "rotationXspreadforceY", "rotationYspreadforceZ", "rotationZspreadforceX", "rotationZspreadforceY",
+            "linearXspreadforceYRot", "linearYspreadforceZRot", "linearZspreadforceXRot", "linearZspreadforceYRot",// deprecated, backward compatable
+            // collision
+            "collisionXmaxoffset", "collisionXminoffset"
+        };
         protected string[]? _MirrorKeys;
         public string[] MirrorKeys
         {
@@ -157,11 +169,25 @@ namespace SkyrimAnimationChecker.CBPC
         {
             foreach (string s in MirrorKeys)
             {
-                if (s == key) return true;
+                if (key == s)
+                {
+                    if (key == "linearYrotationZ")
+                    {
+                        if (Left.rotationalZ.Use || Right.rotationalZ.Use) return false;
+                        else return true;
+                    }
+                    return true;
+                }
             }
             return false;
         }
-        public MirrorPair[] DefaultMirrorPairs => new MirrorPair[] { new MirrorPair("Xmaxoffset", "Xminoffset"), new MirrorPair("YmaxoffsetRot", "YminoffsetRot"), new MirrorPair("ZmaxoffsetRot", "ZminoffsetRot"), new MirrorPair("collisionXmaxoffset", "collisionXminoffset") };
+
+        public MirrorPair[] DefaultMirrorPairs => new MirrorPair[] {
+            new MirrorPair("Xmaxoffset", "Xminoffset"),
+            new MirrorPair("YmaxoffsetRot", "YminoffsetRot"),
+            new MirrorPair("ZmaxoffsetRot", "ZminoffsetRot"),
+            new MirrorPair("collisionXmaxoffset", "collisionXminoffset")
+        };
         protected MirrorPair[]? _MirrorPairs;
         public MirrorPair[] MirrorPairs
         {

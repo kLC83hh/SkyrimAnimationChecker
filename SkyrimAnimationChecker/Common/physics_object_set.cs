@@ -256,13 +256,19 @@
             timetickRot = new physics_object("timetickRot");
             timeStepRot = new physics_object("timeStepRot");
 
-            linearXspreadforceYRot = new physics_object("linearXspreadforceYRot");
-            linearXspreadforceZRot = new physics_object("linearXspreadforceZRot");
-            linearYspreadforceXRot = new physics_object("linearYspreadforceXRot");
-            linearYspreadforceZRot = new physics_object("linearYspreadforceZRot");
-            linearZspreadforceXRot = new physics_object("linearZspreadforceXRot");
-            linearZspreadforceYRot = new physics_object("linearZspreadforceYRot");
+            linearXspreadforceYRot = new physics_object("linearXspreadforceYRot");// Deprecated
+            linearXspreadforceZRot = new physics_object("linearXspreadforceZRot");// Deprecated
+            linearYspreadforceXRot = new physics_object("linearYspreadforceXRot");// Deprecated
+            linearYspreadforceZRot = new physics_object("linearYspreadforceZRot");// Deprecated
+            linearZspreadforceXRot = new physics_object("linearZspreadforceXRot");// Deprecated
+            linearZspreadforceYRot = new physics_object("linearZspreadforceYRot");// Deprecated
 
+            rotationXspreadforceY = new physics_object("rotationXspreadforceY");
+            rotationXspreadforceZ = new physics_object("rotationXspreadforceZ");
+            rotationYspreadforceX = new physics_object("rotationYspreadforceX");
+            rotationYspreadforceZ = new physics_object("rotationYspreadforceZ");
+            rotationZspreadforceX = new physics_object("rotationZspreadforceX");
+            rotationZspreadforceY = new physics_object("rotationZspreadforceY");
         }
 
         #region Declaration
@@ -298,12 +304,19 @@
         public physics_object timetickRot { get => Get<physics_object>(); set => Set(value); }
         public physics_object timeStepRot { get => Get<physics_object>(); set => Set(value); }
 
-        public physics_object linearXspreadforceYRot { get => Get<physics_object>(); set => Set(value); }
-        public physics_object linearXspreadforceZRot { get => Get<physics_object>(); set => Set(value); }
-        public physics_object linearYspreadforceXRot { get => Get<physics_object>(); set => Set(value); }
-        public physics_object linearYspreadforceZRot { get => Get<physics_object>(); set => Set(value); }
-        public physics_object linearZspreadforceXRot { get => Get<physics_object>(); set => Set(value); }
-        public physics_object linearZspreadforceYRot { get => Get<physics_object>(); set => Set(value); }
+        public physics_object linearXspreadforceYRot { get => Get<physics_object>(); set => Set(value); }// Deprecated
+        public physics_object linearXspreadforceZRot { get => Get<physics_object>(); set => Set(value); }// Deprecated
+        public physics_object linearYspreadforceXRot { get => Get<physics_object>(); set => Set(value); }// Deprecated
+        public physics_object linearYspreadforceZRot { get => Get<physics_object>(); set => Set(value); }// Deprecated
+        public physics_object linearZspreadforceXRot { get => Get<physics_object>(); set => Set(value); }// Deprecated
+        public physics_object linearZspreadforceYRot { get => Get<physics_object>(); set => Set(value); }// Deprecated
+
+        public physics_object rotationXspreadforceY { get => Get<physics_object>(); set => Set(value); }
+        public physics_object rotationXspreadforceZ { get => Get<physics_object>(); set => Set(value); }
+        public physics_object rotationYspreadforceX { get => Get<physics_object>(); set => Set(value); }
+        public physics_object rotationYspreadforceZ { get => Get<physics_object>(); set => Set(value); }
+        public physics_object rotationZspreadforceX { get => Get<physics_object>(); set => Set(value); }
+        public physics_object rotationZspreadforceY { get => Get<physics_object>(); set => Set(value); }
 
         #endregion
     }

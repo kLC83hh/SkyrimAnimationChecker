@@ -67,7 +67,7 @@ namespace SkyrimAnimationChecker.Common
 
             //fileCBPC_Physics = "CBPConfig_3b.txt";
             fileCBPC_Physicss = new();
-            cbpc15xbeta2 = false;
+            cbpc15xbeta3 = false;
             cbpcUpdateFromFile_DefaultLocation = workdir;
 
             CBPC_Checker = new() { "# Collision spheres", "# Affected Nodes", "# Collider Nodes" };
@@ -116,7 +116,7 @@ namespace SkyrimAnimationChecker.Common
         public ObservableCollection<string> fileCBPC_Physicss { get => Get<ObservableCollection<string>>(); set => Set(value); }
 
         [JsonIgnore]
-        public bool cbpc15xbeta2 { get => Get<bool>(); set => Set(value); }
+        public bool cbpc15xbeta3 { get => Get<bool>(); set => Set(value); }
 
         [JsonIgnore]
         public bool writeAll { get => Get<bool>(); set => Set(value); }

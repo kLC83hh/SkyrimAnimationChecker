@@ -264,7 +264,7 @@
                         <TextBlock Text="CBPC"/>
                     </WrapPanel>
                     <WrapPanel HorizontalAlignment="Right" Grid.Column="1">
-                        <!--<CheckBox Content="1.5.xBeta2" IsChecked="{Binding cbpc15xbeta2}" Padding="0,-1"/>-->
+                        <CheckBox Content="1.5.xBeta3" ToolTip="change linear[XYZ]spreadforce[XYZ]Rot to rotation[XYZ]spreadforce[XYZ]" IsChecked="{Binding cbpc15xbeta3}" Padding="0,-1"/>
                     </WrapPanel>
                 </Grid>
                 <Grid Visibility="Collapsed">

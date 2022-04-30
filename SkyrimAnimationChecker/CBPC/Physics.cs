@@ -92,7 +92,7 @@ namespace SkyrimAnimationChecker.CBPC
                     if (line.StartsWith('#') || string.IsNullOrWhiteSpace(line)) { continue; }
                     (string name, string property, double[] data) = Parseline(line);
                     if (!named) CBPCDATA.Name = name;//M.D(property);
-                    if (vm.cbpc15xbeta2) Beta_auto_key_update_cbpc15xbeta2(ref property);
+                    if (vm.cbpc15xbeta3) Beta_auto_key_update_cbpc15xbeta3(ref property);
                     CBPCDATA.Find(name)?.SetObject(property, new physics_object(name, property, data));
                 };
             }
@@ -122,16 +122,16 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return (name, key, buffer);
         }
-        private void Beta_auto_key_update_cbpc15xbeta2(ref string key)
+        private void Beta_auto_key_update_cbpc15xbeta3(ref string key)
         {
             Dictionary<string, string> changes = new();
-            changes.Add("linearXspreadforceY", "linearXspreadforceYRot");
-            changes.Add("linearXspreadforceZ", "linearXspreadforceZRot");
-            changes.Add("linearYspreadforceX", "linearYspreadforceXRot");
-            changes.Add("linearYspreadforceZ", "linearYspreadforceZRot");
-            changes.Add("linearZspreadforceX", "linearZspreadforceXRot");
-            changes.Add("linearZspreadforceY", "linearZspreadforceYRot");
-            //if (changes.Keys.Contains(key)) key = changes[key];
+            changes.Add("linearXspreadforceYRot", "rotationXspreadforceY");
+            changes.Add("linearXspreadforceZRot", "rotationXspreadforceZ");
+            changes.Add("linearYspreadforceXRot", "rotationYspreadforceX");
+            changes.Add("linearYspreadforceZRot", "rotationYspreadforceZ");
+            changes.Add("linearZspreadforceXRot", "rotationZspreadforceX");
+            changes.Add("linearZspreadforceYRot", "rotationZspreadforceY");
+            if (changes.Keys.Contains(key)) key = changes[key];
         }
 
 
@@ -181,8 +181,14 @@ namespace SkyrimAnimationChecker.CBPC
                 if (b2 == null || b2.Length != 2) continue;
 
                 string name = b2[0], key = b2[1];
-                if (vm.cbpc15xbeta2) Beta_auto_key_update_cbpc15xbeta2(ref key);
                 double[]? values = o.Find(name)?.GetPhysics(key);
+                if (vm.cbpc15xbeta3)
+                {
+                    string oldkey = key;
+                    Beta_auto_key_update_cbpc15xbeta3(ref key);
+                    b1[0] = b1[0].Replace(oldkey, key);
+                    values ??= o.Find(name)?.GetPhysics(key);
+                }
                 if (values == null) { M.D($"{name} {key}"); continue; }
                 
                 string newline = $"{b1[0]} {values[1]}";

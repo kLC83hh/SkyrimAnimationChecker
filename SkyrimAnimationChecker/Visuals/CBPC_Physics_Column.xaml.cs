@@ -243,7 +243,7 @@ namespace SkyrimAnimationChecker
         private string GetCollective(string key)
         {
             if (key.StartsWith("collision", StringComparison.CurrentCultureIgnoreCase)) return "collision";
-            else if (key.EndsWith("Rot", StringComparison.CurrentCultureIgnoreCase) || key.StartsWith("rotational", StringComparison.CurrentCultureIgnoreCase)) return "rotation";
+            else if (key.EndsWith("Rot", StringComparison.CurrentCultureIgnoreCase) || key.StartsWith("rotation", StringComparison.CurrentCultureIgnoreCase)) return "rotation";
             else return "straight";
         }
 
