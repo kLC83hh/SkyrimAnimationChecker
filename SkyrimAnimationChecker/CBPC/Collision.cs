@@ -88,7 +88,12 @@ namespace SkyrimAnimationChecker.CBPC
                 {
                     if (initializer)
                     {
-                        if (line.StartsWith("[") && line.EndsWith("]")) output.Add(line.Substring(1, line.Length - 2));
+                        if (line.StartsWith("["))
+                        {
+                            string linebuffer = line;
+                            if (line.Contains(':')) linebuffer = line.Split(':')[0].Trim();
+                            if (linebuffer.EndsWith("]")) output.Add(linebuffer.Substring(1, linebuffer.Length - 2));
+                        }
                     }
                     else if (line.StartsWith(checker[0]) || line.StartsWith(checker[1]) || line.StartsWith(checker[2])) initializer = true;
                 }
@@ -122,15 +127,20 @@ namespace SkyrimAnimationChecker.CBPC
                 {
                     if (initializer)
                     {
-                        if (lines[i].StartsWith("[") && lines[i].EndsWith("]"))
+                        if (lines[i].StartsWith("["))
                         {
-                            string name = lines[i].Substring(1, lines[i].Length - 2);
-                            int n = MoveNextKey(lines, i);
-                            //M.D($"{i} {n} {lines[n]}");
-                            List<string> data = new();
-                            for (int j = i + 1; j <= n; j++) data.Add(lines[j]);
-                            colliders.Add(new collider_object(name, string.Join(Environment.NewLine, data)) { Group = data.Any(x => x.Contains('&')) });
-            }
+                            string linebuffer = lines[i];
+                            if (lines[i].Contains(':')) linebuffer = lines[i].Split(':')[0].Trim();
+                            if (linebuffer.EndsWith("]"))
+                            {
+                                string name = linebuffer.Substring(1, linebuffer.Length - 2);
+                                int n = MoveNextKey(lines, i);
+                                //M.D($"{i} {n} {lines[n]}");
+                                List<string> data = new();
+                                for (int j = i + 1; j <= n; j++) data.Add(lines[j]);
+                                colliders.Add(new collider_object(name, string.Join(Environment.NewLine, data)) { Group = data.Any(x => x.Contains('&')) });
+                            }
+                        }
                     }
                     else if (lines[i].StartsWith(checker[0]) || lines[i].StartsWith(checker[1]) || lines[i].StartsWith(checker[2])) initializer = true;
                 }
