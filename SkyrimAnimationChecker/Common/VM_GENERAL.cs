@@ -46,9 +46,10 @@ namespace SkyrimAnimationChecker.Common
             dirMods = @"C:\Games\FaceRim_SE-TA\SkyrimSE\mods";
 
             panelNumber = 1;
+            bodychangeNumber = 0;
 
             // NIF
-            dirNIF_bodyslide = workdir;
+            _dirNIF_bodyslide = workdir;
             fileNIF_bodyslide = "femalebody_0.nif, femalebody_1.nif";
             useCustomExample = false;
             weightNumber = 1;
@@ -60,7 +61,7 @@ namespace SkyrimAnimationChecker.Common
             fileNIF_out0 = System.IO.Path.Combine(workdir, "inter_0.nif");
 
             // CBPC
-            dirCBPC = workdir;
+            _dirCBPC = workdir;
             fileCBPC_Collision = "CBPCollisionConfig_Female.txt";
             fileCBPC_Collisions = new() { "CBPCollisionConfig.txt", "CBPCollisionConfig_Female.txt" };
             groupfilter = "[NPC L Pussy02],[NPC L RearThigh],[NPC L Thigh [LThg]],[NPC L UpperArm [LUar]],[NPC L Forearm [LLar]]";
@@ -81,14 +82,35 @@ namespace SkyrimAnimationChecker.Common
         public double Width { get => Get<double>(); set => Set(value); }
         public bool useDesktop { get => Get<bool>(); set => Set(value); }
 
+        public bool useMO2 { get => Get<bool>(); set => Set(value); }
+        public bool useBodyChange { get => Get<bool>(); set => Set(value); }
+
         // DAR
         public string dirMods { get => Get<string>(); set => Set(value); }
 
-        // page select
+        // NIF-CBPC
         public int panelNumber { get => Get<int>(); set => Set(value); }
+        [JsonIgnore]
+        public bool mo2Detected { get => Get<bool>(); set { Set(value); if (value) useMO2 = true; } }
+
+        public int bodychangeNumber { get => Get<int>(); set => Set(value); }
 
         // NIF
-        public string dirNIF_bodyslide { get => Get<string>(); set => Set(value.Replace("\\\\", "\\")); }
+        public string _dirNIF_bodyslide { get => Get<string>(); set => Set(value.Replace("\\\\", "\\")); }
+        public string dirNIF_bodyslide
+        {
+            get
+            {
+                string path = _dirNIF_bodyslide;
+                if (useMO2)
+                {
+                    if (useBodyChange) path = $@"Data\Meshes\BodyChange\CustomSet{bodychangeNumber + 1}";
+                    else path = @"Data\meshes\actors\character\character assets";
+                    //path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), path);
+                }
+                return path;
+            }
+        }
         public string fileNIF_bodyslide { get => Get<string>(); set => Set(value); }
 
         public bool useCustomExample { get => Get<bool>(); set => Set(value); }
@@ -104,7 +126,20 @@ namespace SkyrimAnimationChecker.Common
         public string fileNIF_out0 { get => Get<string>(); set => Set(value); }
 
         // CBPC
-        public string dirCBPC { get => Get<string>(); set => Set(value.Replace("\\\\", "\\")); }
+        public string _dirCBPC { get => Get<string>(); set => Set(value.Replace("\\\\", "\\")); }
+        public string dirCBPC
+        {
+            get
+            {
+                string path = _dirCBPC;
+                if (useMO2)
+                {
+                    path = @"Data\SKSE\Plugins";
+                    //path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), path);
+                }
+                return path;
+            }
+        }
 
         public string fileCBPC_Collision { get => Get<string>(); set => Set(value); }
         public ObservableCollection<string> fileCBPC_Collisions { get => Get<ObservableCollection<string>>(); set => Set(value); }

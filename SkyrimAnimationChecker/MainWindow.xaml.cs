@@ -71,7 +71,24 @@ namespace SkyrimAnimationChecker
         }
         private void MainWindow_ContentRendered(object? sender, EventArgs e)
         {
+            if (CheckMO2()) vm.mo2Detected = true;
             LoadPhysicsLocation();
+        }
+        private bool CheckMO2()
+        {
+            //string dir = System.IO.Directory.GetCurrentDirectory();
+            //if (System.IO.Directory.Exists(System.IO.Path.Combine(dir, @"SKSE\Plugins")) &&
+            //    System.IO.Directory.Exists(System.IO.Path.Combine(dir, @"meshes\actors\character\character assets")))
+            //MessageBox.Show(
+            //    $"{System.IO.Path.GetDirectoryName(@"data\SKSE\Plugins")}\n" +
+            //    $"{System.IO.Directory.Exists(@"data\SKSE\Plugins")}" +
+            //    $"{System.IO.Directory.Exists(@"data\meshes\actors\character\character assets")}"
+            //    );
+            if (System.IO.Directory.Exists(@"data\SKSE\Plugins") &&
+                System.IO.Directory.Exists(@"data\meshes\actors\character\character assets"))
+                return true;
+            else
+                return false;
         }
 
         /* shortcut commands */
@@ -155,6 +172,7 @@ namespace SkyrimAnimationChecker
         private void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => RunMakeInterNIF();
         private async void RunMakeInterNIF()
         {
+            MessageBox.Show(vm.dirNIF_bodyslide);
             int res = await Task.Run(() => new NIF.Collider(vm).Make());
             if (res != 1)
             {
@@ -406,6 +424,7 @@ namespace SkyrimAnimationChecker
 
         private async void LoadPhysicsLocation(FolderLoader? sender = null)
         {
+            //MessageBox.Show(vm.dirCBPC);
             if (System.IO.Directory.Exists(vm.dirCBPC))
             {
                 Func<string, string> getfilename = (path) =>

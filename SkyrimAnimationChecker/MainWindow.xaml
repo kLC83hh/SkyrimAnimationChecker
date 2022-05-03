@@ -37,6 +37,20 @@
                         <Rectangle Fill="Black" Width="2" Margin="5"/>
                         <CheckBox Content="UseDesktop" IsChecked="{Binding useDesktop}" Padding="0,-1"/>
                     </WrapPanel>
+                    <WrapPanel HorizontalAlignment="Right">
+                        <CheckBox Content="BC" ToolTip="BodyChange" Padding="0,-1" Margin="0,0,2,0" IsChecked="{Binding useBodyChange}"/>
+                        <CheckBox Content="MO2" Padding="0,-1" IsChecked="{Binding useMO2}">
+                            <CheckBox.Style>
+                                <Style TargetType="CheckBox" BasedOn="{StaticResource Def}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding mo2Detected}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </CheckBox.Style>
+                        </CheckBox>
+                    </WrapPanel>
                 </Grid>
                 <TextBlock Text="Just don't touch what you don't know. They are useless normally."
                            TextWrapping="Wrap" HorizontalAlignment="Left" Padding="5,2"/>
@@ -62,16 +76,33 @@
             <Rectangle Height="2" Margin="5" Fill="DimGray"/>
 
             <!--C-P selector-->
-            <WrapPanel Margin="10,2">
-                <WrapPanel.Resources>
-                    <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
-                        <Setter Property="GroupName" Value="panelGroup"/>
-                        <Setter Property="FontWeight" Value="DemiBold"/>
-                    </Style>
-                </WrapPanel.Resources>
-                <RadioButton Content="Collision" Padding="0" IsChecked="{Binding panelNumber, Converter={StaticResource weightConverter}, ConverterParameter=0}"/>
-                <RadioButton Content="Physics" Padding="0" IsChecked="{Binding panelNumber, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
-            </WrapPanel>
+            <Grid Margin="10,2" Style="{StaticResource Normal}">
+                <WrapPanel>
+                    <WrapPanel.Resources>
+                        <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
+                            <Setter Property="GroupName" Value="panelGroup"/>
+                            <Setter Property="FontWeight" Value="DemiBold"/>
+                        </Style>
+                    </WrapPanel.Resources>
+                    <RadioButton Content="Collision" Padding="0" IsChecked="{Binding panelNumber, Converter={StaticResource weightConverter}, ConverterParameter=0}"/>
+                    <RadioButton Content="Physics" Padding="0" IsChecked="{Binding panelNumber, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
+                </WrapPanel>
+                <WrapPanel HorizontalAlignment="Right">
+                    <TextBlock Text="MO2" ToolTip="MO2 auto detected" FontWeight="Bold" Foreground="Green">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <d:Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding mo2Detected}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </WrapPanel>
+            </Grid>
             <Rectangle Height="3"/>
             
             <!--NIF collision-->
@@ -123,7 +154,44 @@
                 </Grid>
                 <Grid>
                     <TextBlock Text="bodyslide folder" Style="{StaticResource emtbHeader}"/>
-                    <TextBox Text="{Binding dirNIF_bodyslide}" Grid.Column="1"/>
+                    <TextBox Text="{Binding _dirNIF_bodyslide}" Grid.Column="1">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding useMO2}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <ComboBox Grid.Column="1" SelectedIndex="{Binding bodychangeNumber}" MouseEnter="CommonCombobox_MouseEnter">
+                        <ComboBox.Style>
+                            <Style TargetType="ComboBox" BasedOn="{StaticResource cbdef}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding useMO2}" Value="True"/>
+                                            <Condition Binding="{Binding useBodyChange}" Value="True"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.Setters>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger.Setters>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ComboBox.Style>
+                        <ComboBoxItem Content="CustomSet1"/>
+                        <ComboBoxItem Content="CustomSet2"/>
+                        <ComboBoxItem Content="CustomSet3"/>
+                        <ComboBoxItem Content="CustomSet4"/>
+                        <ComboBoxItem Content="CustomSet5"/>
+                        <ComboBoxItem Content="CustomSet6"/>
+                        <ComboBoxItem Content="CustomSet7"/>
+                        <ComboBoxItem Content="CustomSet8"/>
+                        <ComboBoxItem Content="CustomSet9"/>
+                    </ComboBox>
                 </Grid>
                 <StackPanel>
                     <StackPanel.Style>
@@ -214,7 +282,9 @@
                         <TextBox Text="{Binding fileNIF_out0}" Grid.Column="1"/>
                     </Grid>
                 </StackPanel>
-                <local:FolderLoader Header="cbpconfig folder" HeaderColor="{StaticResource emph}" Location="{Binding dirCBPC}" Load="CBPCLocationLoader_Load"/>
+                <local:FolderLoader DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Header="cbpconfig folder" HeaderColor="{StaticResource emph}"
+                    Location="{Binding _dirCBPC}" Load="CBPCLocationLoader_Load"/>
                 <Grid>
                     <TextBlock Text="collision file" Style="{StaticResource lineHeader}"/>
                     <ComboBox x:Name="ColFileCB" IsEditable="True" Text="{Binding fileCBPC_Collision}" ItemsSource="{Binding fileCBPC_Collisions}" Grid.Column="1" SelectionChanged="CollisionFile_ComboBox_SelectionChanged"/>
@@ -274,7 +344,9 @@
                         <CheckBox Content="Min/Max" Padding="0,-1" IsChecked="{Binding CBPC_Phy_Mirror_MinMax}"/>-->
                     </WrapPanel>
                 </Grid>
-                <local:FolderLoader Header="cbpconfig folder" HeaderColor="{StaticResource emph}" Location="{Binding dirCBPC}" Load="CBPCLocationLoader_Load"/>
+                <local:FolderLoader DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Header="cbpconfig folder" HeaderColor="{StaticResource emph}"
+                    Location="{Binding _dirCBPC}" Load="CBPCLocationLoader_Load"/>
                 <Grid>
                     <TextBlock Text="physics file" VerticalAlignment="Center"/>
                     <!--<TextBox Text="{Binding fileCBPC_Physics}" Grid.Column="1"/>-->

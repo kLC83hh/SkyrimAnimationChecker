@@ -51,12 +51,13 @@
         <Setter Property="Foreground" Value="{StaticResource emph}"/>
     </Style>
     
-    <Style TargetType="CheckBox">
+    <Style TargetType="CheckBox" x:Key="Def">
         <Setter Property="Margin" Value="1"/>
         <Setter Property="Padding" Value="0,-1"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
-    
+    <Style TargetType="CheckBox" BasedOn="{StaticResource Def}"/>
+
     <Style TargetType="RadioButton" x:Key="rbGroup">
         <Setter Property="Padding" Value="0"/>
         <Setter Property="Margin" Value="2,0"/>

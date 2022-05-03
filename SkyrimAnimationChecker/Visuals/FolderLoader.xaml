@@ -31,7 +31,17 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="60"/>
             </Grid.ColumnDefinitions>
-            <TextBox Text="{Binding Location, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay, NotifyOnTargetUpdated=True}" KeyDown="PhysicsLocation_TextBox_KeyDown"/>
+            <TextBox Text="{Binding Location, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay, NotifyOnTargetUpdated=True}" KeyDown="PhysicsLocation_TextBox_KeyDown">
+                <TextBox.Style>
+                    <Style TargetType="TextBox">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding useMO2}" Value="True">
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
             <Button Content="Reload" Click="ReloadPhysics_Button_Click" Grid.Column="1"/>
         </Grid>
     </Grid>
