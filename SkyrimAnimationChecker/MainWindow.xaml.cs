@@ -172,7 +172,7 @@ namespace SkyrimAnimationChecker
         private void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => RunMakeInterNIF();
         private async void RunMakeInterNIF()
         {
-            MessageBox.Show(vm.dirNIF_bodyslide);
+            //MessageBox.Show(vm.dirNIF_bodyslide);
             int res = await Task.Run(() => new NIF.Collider(vm).Make());
             if (res != 1)
             {
