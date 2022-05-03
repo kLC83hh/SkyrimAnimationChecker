@@ -42,6 +42,7 @@
                         <CheckBox Content="MO2" Padding="0,-1" IsChecked="{Binding useMO2}">
                             <CheckBox.Style>
                                 <Style TargetType="CheckBox" BasedOn="{StaticResource Def}">
+                                    <Setter Property="IsEnabled" Value="False"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding mo2Detected}" Value="True">
                                             <Setter Property="IsEnabled" Value="False"/>

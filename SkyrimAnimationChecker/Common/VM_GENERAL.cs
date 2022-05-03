@@ -45,6 +45,8 @@ namespace SkyrimAnimationChecker.Common
 
             dirMods = @"C:\Games\FaceRim_SE-TA\SkyrimSE\mods";
 
+            useMO2 = false;
+
             panelNumber = 1;
             bodychangeNumber = 0;
 
@@ -82,6 +84,7 @@ namespace SkyrimAnimationChecker.Common
         public double Width { get => Get<double>(); set => Set(value); }
         public bool useDesktop { get => Get<bool>(); set => Set(value); }
 
+        [JsonIgnore]
         public bool useMO2 { get => Get<bool>(); set => Set(value); }
         public bool useBodyChange { get => Get<bool>(); set => Set(value); }
 
