@@ -11,13 +11,14 @@ namespace SkyrimAnimationChecker.DAR
         protected Common.VM_GENERAL vm;
         public DAR(Common.VM_GENERAL linker) => vm = linker;
         public DAR(Common.VM linker) => vm = linker.GENERAL;
-        public string Run()
+        public Dictionary<int, List<string>> Run()
         {
             vm.DARrunning = true;
             string[] list = GetDARfolders();
-            string[] sublist = GetAllDARsubfolders(list);
-            //Tlist(sublist);
-            string res = CheckDuplicate(sublist);
+            DAR_MOD[] sublist = GetAllDARsubfolders(list);
+            //bool res = CheckDuplicate(sublist, out string[] dups);
+            Dictionary<int, List<string>> res = CheckDuplicate(sublist);
+            vm.darWorkProgress = string.Empty;
             vm.DARrunning = false;
             return res;
         }
@@ -26,15 +27,8 @@ namespace SkyrimAnimationChecker.DAR
 
         private string[] GetDARfolders()
         {
+            vm.darWorkProgress = $"1/1 1/4";
             string[] dirs = System.IO.Directory.GetDirectories(vm.dirMods, $"*DynamicAnimationReplacer", System.IO.SearchOption.AllDirectories);
-            //T.Text = dirs.Length.ToString();
-            //if (dirs.Length > 0)
-            //{
-            //    foreach(string dir in dirs)
-            //    {
-            //        T.Text += $"{dir}\n";
-            //    }
-            //}
             return dirs;
         }
         private string[] GetDARsubfolders(string dir)
@@ -67,25 +61,65 @@ namespace SkyrimAnimationChecker.DAR
             }
             return new string[0];
         }
-        private string[] GetAllDARsubfolders(string[] list)
+        private DAR_MOD[] GetAllDARsubfolders(string[] list)
         {
-            List<string> r = new List<string>();
+            List<DAR_MOD> r = new();
+            int i = 0;
             foreach (var d in list)
             {
-                string[] b = GetDARsubfolders(d);
-                //T.Text = $"{b.Length}";
-                r.AddRange(b);
+                //string[] b = GetDARsubfolders(d);
+                //r.AddRange(b);
+                vm.darWorkProgress = $"{i++}/{list.Length} 2/4";
+                r.Add(new DAR_MOD(d, GetDARsubfolders(d)));
             }
             return r.ToArray();
         }
 
-        private string CheckDuplicate(string[] sublist)
+        private Dictionary<int, List<string>> CheckDuplicate(DAR_MOD[] list)
         {
-            string[] numbers = new string[sublist.Length];
-            for (int i = 0; i < sublist.Length; i++) numbers[i] = sublist[i].Split("\\").Last();
-            //Tlist(numbers);
-            return $"DAR Number Duplicate => {sublist.GroupBy(n => n).Any(c => c.Count() > 1)}";
+            List<int> all = new();
+            Dictionary<int, List<string>> dups = new();
+            int i = 0;
+            list.ForEach(x =>
+            {
+                vm.darWorkProgress = $"{i++}/{list.Length} 3/4";
+                x.Numbers.ForEach(n =>
+                {
+                    if (all.Contains(n) && !dups.ContainsKey(n)) dups.Add(n, new List<string>());
+                    all.Add(n);
+                });
+            });
+
+            i = 0;
+            dups.ForEach(x =>
+            {
+                vm.darWorkProgress = $"{i++}/{list.Length} 4/4";
+                list.ForEach(y => { if (y.Numbers.Contains(x.Key)) { x.Value.Add(y.Name); } });
+            });
+            //list.ForEach(x => { if (numbers.Count(y => y == x) > 1 && !dups.Contains(x)) { dups.Add(x); } });
+            //duplicates = dups.ToArray();
+
+            //return numbers.GroupBy(n => n).Any(c => c.Count() > 1);
+            //return duplicates.Length > 0;
+            return dups;
         }
 
+    }
+
+    public class DAR_MOD
+    {
+        public DAR_MOD(string name, string[] sub)
+        {
+            Name = name;
+            Numbers = new int[sub.Length];
+            for (int i = 0; i < sub.Length; i++)
+            {
+                try { Numbers[i] = Convert.ToInt32(sub[i].Split("\\").Last()); }
+                catch { throw EE.New(31001); }
+            }
+        }
+        public string Name { get; set; }
+
+        public int[] Numbers { get; set; }
     }
 }

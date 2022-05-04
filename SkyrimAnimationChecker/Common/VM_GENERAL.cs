@@ -41,9 +41,9 @@ namespace SkyrimAnimationChecker.Common
             useDesktop = true;
             string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
             string workdir = AppDomain.CurrentDomain.BaseDirectory;
-            if (useDesktop || string.IsNullOrWhiteSpace(dirMods)) workdir = desktop;
+            if (useDesktop || string.IsNullOrWhiteSpace(_dirMods)) workdir = desktop;
 
-            dirMods = @"C:\Games\FaceRim_SE-TA\SkyrimSE\mods";
+            _dirMods = @"C:\Games\FaceRim_SE-TA\SkyrimSE\mods";
 
             useMO2 = false;
 
@@ -89,7 +89,19 @@ namespace SkyrimAnimationChecker.Common
         public bool useBodyChange { get => Get<bool>(); set => Set(value); }
 
         // DAR
-        public string dirMods { get => Get<string>(); set => Set(value); }
+        public string _dirMods { get => Get<string>(); set => Set(value); }
+        [JsonIgnore]
+        public string dirMods
+        {
+            get
+            {
+                string path = _dirMods;
+                if (useMO2) path = @"Data";
+                return path;
+            }
+        }
+        [JsonIgnore]
+        public string darWorkProgress { get => Get<string>(); set => Set(value); }
 
         // NIF-CBPC
         public int panelNumber { get => Get<int>(); set => Set(value); }
@@ -100,6 +112,7 @@ namespace SkyrimAnimationChecker.Common
 
         // NIF
         public string _dirNIF_bodyslide { get => Get<string>(); set => Set(value.Replace("\\\\", "\\")); }
+        [JsonIgnore]
         public string dirNIF_bodyslide
         {
             get
@@ -109,7 +122,6 @@ namespace SkyrimAnimationChecker.Common
                 {
                     if (useBodyChange) path = $@"Data\Meshes\BodyChange\CustomSet{bodychangeNumber + 1}";
                     else path = @"Data\meshes\actors\character\character assets";
-                    //path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), path);
                 }
                 return path;
             }
@@ -130,16 +142,13 @@ namespace SkyrimAnimationChecker.Common
 
         // CBPC
         public string _dirCBPC { get => Get<string>(); set => Set(value.Replace("\\\\", "\\")); }
+        [JsonIgnore]
         public string dirCBPC
         {
             get
             {
                 string path = _dirCBPC;
-                if (useMO2)
-                {
-                    path = @"Data\SKSE\Plugins";
-                    //path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), path);
-                }
+                if (useMO2) path = @"Data\SKSE\Plugins";
                 return path;
             }
         }

@@ -164,7 +164,18 @@ namespace SkyrimAnimationChecker
 
 
         #region DAR
-        private async void RunDAR() => T.Text = await Task.Run(new DAR.DAR(vmm).Run);
+        private async void RunDAR()
+        {
+            Dictionary<int, List<string>> dar = await Task.Run(new DAR.DAR(vmm).Run);
+            string dupres = dar.Count > 0 ? $"Found [{dar.Count}]" : "None";
+            T.Text = $"DAR Number Duplicate => {dupres}";
+
+            string sres = string.Empty;
+            dar.ForEach(x => sres += $"{x.Key}={string.Join(',', x.Value.ToArray())}\n");
+            if (sres.EndsWith('\n')) sres = sres.Substring(0, sres.Length - 1);
+            sres.Trim();
+            darBox.Text = sres;
+        }
         private void DARDuplicateCheck_Button_Click(object sender, RoutedEventArgs e) => RunDAR();
         #endregion
 

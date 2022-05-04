@@ -39,7 +39,9 @@ namespace SkyrimAnimationChecker
             { 5203, $"CBPC: CollisionCBPC: Option: Can not convert extraoptions to double" },
             // 11000 mainwindow nif
             // 12000 mainwindow cbpc
-            { 12001, $"Invalid CBPC Physics location" }
+            { 12001, $"Invalid CBPC Physics location" },
+            // 30000 dar
+            { 31001, $"Conversion error: string dar number to int32" }
         };
         internal static Exception New(int code, string? msg = null, System.Diagnostics.StackTrace? trace = null, [System.Runtime.CompilerServices.CallerMemberName] string? caller = null)
         {

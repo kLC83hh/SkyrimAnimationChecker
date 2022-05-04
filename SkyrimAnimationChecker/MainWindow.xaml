@@ -61,19 +61,67 @@
             <!--DAR-->
             <StackPanel>
                 <Grid>
+                    <Grid.Style>
+                        <Style TargetType="Grid" BasedOn="{StaticResource Line}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding useMO2}" Value="True">
+                                    <!--<Setter Property="ToolTip" Value="Only work properly with MO2"/>-->
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
                     <WrapPanel>
                         <local:Indicator Trigger="{Binding DARrunning}"/>
                         <TextBlock Text="DAR"/>
                     </WrapPanel>
-                    <Button Click="DARDuplicateCheck_Button_Click" Content="Duplicate Check" Grid.Column="1"/>
+                    <Button Content="Duplicate Check"
+                            Grid.Column="1" Click="DARDuplicateCheck_Button_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="IsEnabled" Value="True"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding useMO2}" Value="True">
+                                        <Setter Property="IsEnabled" Value="True"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </Grid>
                 <Grid>
+                    <Grid.Style>
+                        <Style TargetType="Grid" BasedOn="{StaticResource Line}">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding useMO2}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
                     <TextBlock Text="mods" Style="{StaticResource lineHeader}"/>
-                    <TextBox Text="{Binding dirMods}" Grid.Column="1"/>
+                    <TextBox Text="{Binding _dirMods}" Grid.Column="1"/>
                 </Grid>
-                <TextBlock x:Name="T"/>
+                <Grid HorizontalAlignment="Right" Style="{StaticResource Normal}">
+                    <!--<TextBlock Text="{Binding darWorkProgress}"/>-->
+                    <TextBlock x:Name="T"/>
+                </Grid>
+                <TextBox x:Name="darBox" Text="" Height="19">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <!--<DataTrigger Binding="{Binding useMO2}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>-->
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
             </StackPanel>
-            <d:TextBox Text="TEST"/>
             <Rectangle Height="2" Margin="5" Fill="DimGray"/>
 
             <!--C-P selector-->
