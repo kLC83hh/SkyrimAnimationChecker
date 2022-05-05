@@ -70,7 +70,7 @@ namespace SkyrimAnimationChecker.NIF
                         nifly.NiAlphaProperty alpha = new();
                         spNI.DeleteShape(eShapes[i]);
                         nifly.NiShape cloned = spNI.CloneShape(shape, shape.name.get(), bsNI);
-                        //spNI.GetShader(cloned).SetAlpha(0.5f);
+                        spNI.GetShader(cloned).SetAlpha(0.5f);
                     }
                     break;
                 }
