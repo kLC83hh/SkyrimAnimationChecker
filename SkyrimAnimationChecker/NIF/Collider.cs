@@ -67,11 +67,10 @@ namespace SkyrimAnimationChecker.NIF
                     }
                     if (shape != null)
                     {
+                        nifly.NiAlphaProperty alpha = new();
                         spNI.DeleteShape(eShapes[i]);
-                        spNI.CloneShape(shape, shape.name.get(), bsNI);
-                        //new nifly.NiAlphaProperty().Put(0.34);
-                        //new nifly.BSLightingShaderProperty(eNI.GetHeader().GetVersion()).
-                        //eNI.GetAlphaProperty(shape).Put(new nifly.NiOStream());
+                        nifly.NiShape cloned = spNI.CloneShape(shape, shape.name.get(), bsNI);
+                        //spNI.GetShader(cloned).SetAlpha(0.5f);
                     }
                     break;
                 }

@@ -158,7 +158,7 @@ namespace SkyrimAnimationChecker.NIF
             //N.Text = niFile.GetHeader().GetVersion().IsSSE().ToString();
             M.D(niFile.GetNodes().Count);
             List<collider_object> triShapes = new();
-            foreach (var node in niFile.GetShapes())
+            foreach (nifly.NiShape node in niFile.GetShapes())
             {
                 string name = node.name.get().Trim();
                 if (name.EndsWith("Sphere")) name = name.Substring(0, name.Length - 6).Trim();
