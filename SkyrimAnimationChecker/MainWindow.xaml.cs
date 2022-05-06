@@ -51,6 +51,9 @@ namespace SkyrimAnimationChecker
                     this.Title += $" {v}";
                 }
             }
+#if DEBUG
+            this.Title += " Debug";
+#endif
 
             // general background tasks
             _ = Notifying_RightPanel();
@@ -60,18 +63,24 @@ namespace SkyrimAnimationChecker
         private VM vmm;
         private VM_GENERAL vm;
         /* general events */
-        private void VMreset_Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (MessageBox.Show("Reset settings to default", "Warning", MessageBoxButton.OKCancel) == MessageBoxResult.OK) vmm.Reset();
-        }
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             vmm.Save();
             cts.Cancel();
         }
-        private void MainWindow_ContentRendered(object? sender, EventArgs e)
+        private void VMreset_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Reset settings to default", "Warning", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            {
+                vmm.Reset();
+                CheckWhenStart();
+            }
+        }
+        private void MainWindow_ContentRendered(object? sender, EventArgs e) => CheckWhenStart();
+        private void CheckWhenStart()
         {
             if (CheckMO2()) vm.mo2Detected = true;
+            //if (!vm.mo2Detected) vm.useAdvanced = true;
             LoadPhysicsLocation();
         }
         private bool CheckMO2()
@@ -93,15 +102,15 @@ namespace SkyrimAnimationChecker
 
         /* shortcut commands */
         public static RoutedCommand SaveCommand = new();
-        private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        private async void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             switch (vm.panelNumber)
             {
                 case 0:
-                    RunCBPC();
+                    await RunCBPC();
                     break;
                 case 1:
-                    WritePhysics();
+                    await WritePhysics();
                     break;
             }
         }
@@ -180,8 +189,72 @@ namespace SkyrimAnimationChecker
         #endregion
 
         #region Collision
-        private void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => RunMakeInterNIF();
-        private async void RunMakeInterNIF()
+        private async void DoIt_Button_Click(object sender, RoutedEventArgs e) => await DoIt();
+        private async Task DoIt()
+        {
+            try
+            {
+                vm.DoItRunning = true;
+                bool do0 = (vm.weightNumber == 2 || vm.weightNumber == 0) && !System.IO.File.Exists(vm.fileNIF_out0);
+                bool do1 = (vm.weightNumber == 2 || vm.weightNumber == 1) && !System.IO.File.Exists(vm.fileNIF_out1);
+                bool newmade = false;
+                if (do0 || do1)
+                {
+                    newmade = true;
+                    if (vm.weightNumber == 2)
+                    {
+                        try
+                        {
+                            if (System.IO.File.Exists(vm.fileNIF_out0)) vm.weightNumber = 1;
+                            else if (System.IO.File.Exists(vm.fileNIF_out1)) vm.weightNumber = 0;
+                            await RunMakeInterNIF();
+                            await RetrieveFromCBPC();
+                        }
+                        catch (Exception ex) { MessageBox.Show(ex.Message); }
+                        finally { vm.weightNumber = 2; }
+                    }
+                    else
+                    {
+                        await RunMakeInterNIF();
+                        await RetrieveFromCBPC();
+                    }
+                }
+
+                do0 = System.IO.File.Exists(vm.fileNIF_out0);
+                do1 = System.IO.File.Exists(vm.fileNIF_out1);
+                bool do2 = do0 && do1;
+                if (do0 || do1)
+                {
+                    bool useNIFsBackup = vm.useNIFs, writeAllBackup = vm.writeAll, writeSomeBackup = vm.writeSome;
+                    try
+                    {
+                        //if (DATA_Colliders == null) newmade = true;
+                        if (newmade || vm.useNIFs)
+                        {
+                            vm.useNIFs = true;
+                            await RunNIF_CBPC();
+                        }
+                        else if (DATA_Colliders == null) await RunNIF_CBPC();
+                        vm.writeAll = true;
+                        vm.writeSome = true;
+                        await RunCBPC();
+                    }
+                    catch (Exception ex) { MessageBox.Show(ex.Message); }
+                    finally
+                    {
+                        if (!newmade) vm.useNIFs = useNIFsBackup;
+                        vm.writeAll = writeAllBackup;
+                        vm.writeSome = writeSomeBackup;
+                    }
+                }
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            finally { vm.DoItRunning = false; }
+        }
+
+        // make inter nif
+        private async void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => await RunMakeInterNIF();
+        private async Task RunMakeInterNIF()
         {
             //MessageBox.Show(vm.dirNIF_bodyslide);
             int res = await Task.Run(() => new NIF.Collider(vm).Make());
@@ -212,15 +285,39 @@ namespace SkyrimAnimationChecker
             //RunNIF_CBPC();
             //}
         }
-        private void SphereSize_2_Button_Click(object sender, RoutedEventArgs e) => RunNIF_CBPC();
+        // update nif from cbpc
+        private async void SphereSize_Retrieve_Button_Click(object sender, RoutedEventArgs e) => await RetrieveFromCBPC();
+        private async Task RetrieveFromCBPC()
+        {
+            try
+            {
+                vm.NIFrunning = true;
+                if (DATA_Colliders == null)
+                {
+                    bool useNifsBackup = vm.useNIFs;
+                    vm.useNIFs = false;
+                    try { await RunNIF_CBPC(); }
+                    catch (Exception ex) { MessageBox.Show(ex.Message); }
+                    finally { vm.useNIFs = useNifsBackup; }
+                }
+                if (DATA_Colliders != null && DATA_Colliders.Length > 0)
+                {
+                    await Task.Run(() => { new NIF.Collider(vm).UpdateSpheres(DATA_Colliders); });
+                }
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            finally { vm.NIFrunning = false; }
+        }
+        // get sphere data
+        private async void SphereSize_2_Button_Click(object sender, RoutedEventArgs e) => await RunNIF_CBPC();
         collider_object[]? DATA_Colliders;
         (cc_options_object op, cc_extraoptions_object eop)? Options;
-        private async void RunNIF_CBPC()
+        private async Task RunNIF_CBPC()
         {
             try
             {
                 Options = await Task.Run(() => new CBPC.Collision(vm).Option());
-                if (vm.readFromNIFs)
+                if (vm.useNIFs)
                 {
                     var result = await Task.Run(() => new NIF.Collision(vm).Get(out DATA_Colliders));
                     if (result.code > 0) MessageBox.Show(result.msg);
@@ -270,9 +367,9 @@ namespace SkyrimAnimationChecker
             }
         }
 
-
-        private void WriteCollisionConfig_3_Button_Click(object sender, RoutedEventArgs e) => RunCBPC();
-        private async void RunCBPC()
+        // save data to cbpc
+        private async void WriteCollisionConfig_3_Button_Click(object sender, RoutedEventArgs e) => await RunCBPC();
+        private async Task RunCBPC()
         {
             if (DATA_Colliders == null) return;
             CBPC_panel.Focus();
@@ -328,103 +425,114 @@ namespace SkyrimAnimationChecker
         #endregion
         #region Physics
         private void CommonCombobox_MouseEnter(object sender, MouseEventArgs e) => (sender as ComboBox)?.Focus();
-        private void PhysicsFile_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void PhysicsFile_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (PhyFileCB.Items.Count == 0) return;
             string? buffer = PhyFileCB.Items.GetItemAt(PhyFileCB.SelectedIndex).ToString();
             if (buffer != null)
             {
                 vm.fileCBPC_Physics = buffer;
-                ReadPhysics();
+                await ReadPhysics();
             }
         }
         CBPC.Icbpc_data? DATA_CBPC;
         private volatile bool PhysicsReading = false;
         private bool? leftonly = false, bindlr = null;
         private int collective = 0;
-        private async void ReadPhysics()
+        private async Task ReadPhysics()
         {
             if (PhysicsReading) return;
-            PhysicsReading = true;
-            vm.CBPC_Physics_running = true;
+            try
+            {
+                PhysicsReading = true;
+                vm.CBPC_Physics_running = true;
 
-            await Task.Run(() => {
-                //M.D(DATA_3BA?.L1.Data.collisionElastic.Value1);
-                try { DATA_CBPC = new CBPC.Physics(vm).GetPhysics(); }
-                catch (Exception e)
+                await Task.Run(() =>
                 {
-                    (int c, string msg) = EE.Parse(e);
-                    MessageBox.Show(msg);
-                    return;
-                }
+                    //M.D(DATA_3BA?.L1.Data.collisionElastic.Value1);
+                    try { DATA_CBPC = new CBPC.Physics(vm).GetPhysics(); }
+                    catch (Exception e)
+                    {
+                        (int c, string msg) = EE.Parse(e);
+                        MessageBox.Show(msg);
+                        return;
+                    }
 
-                switch (DATA_CBPC.DataType)
-                {
-                    case "3ba":
-                    case "leg":
-                    case "vagina":
-                        Dispatcher?.Invoke(() =>
-                        {
-                            if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_Physics_MultiBone w)
-                                w.Data = (CBPC.Icbpc_data_multibone)DATA_CBPC;
-                            else
+                    switch (DATA_CBPC.DataType)
+                    {
+                        case "3ba":
+                        case "leg":
+                        case "vagina":
+                            Dispatcher?.Invoke(() =>
                             {
-                                cbpcPhyPanel.Children.Clear();
-                                var page = new CBPC_Physics_MultiBone(vmm, (CBPC.Icbpc_data_multibone)DATA_CBPC, bindlr: bindlr, collective: collective);
-                                page.LeftOnlyUpdated += (val) => leftonly = val;
-                                page.BindLRUpdated += (val) => bindlr = val;
-                                page.CollectiveUpdated += (val) => collective = val;
-                                cbpcPhyPanel.Children.Add(page);
-                            }
-                        });
-                        break;
-                    case "bbp":
-                    case "belly":
-                    case "butt":
-                    case "single":
-                    case "mirrored":
-                        Dispatcher?.Invoke(() =>
-                        {
-                            if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_Physics w)
-                                w.Data = DATA_CBPC;
-                            else
+                                if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_Physics_MultiBone w)
+                                    w.Data = (CBPC.Icbpc_data_multibone)DATA_CBPC;
+                                else
+                                {
+                                    cbpcPhyPanel.Children.Clear();
+                                    var page = new CBPC_Physics_MultiBone(vmm, (CBPC.Icbpc_data_multibone)DATA_CBPC, bindlr: bindlr, collective: collective);
+                                    page.LeftOnlyUpdated += (val) => leftonly = val;
+                                    page.BindLRUpdated += (val) => bindlr = val;
+                                    page.CollectiveUpdated += (val) => collective = val;
+                                    cbpcPhyPanel.Children.Add(page);
+                                }
+                            });
+                            break;
+                        case "bbp":
+                        case "belly":
+                        case "butt":
+                        case "single":
+                        case "mirrored":
+                            Dispatcher?.Invoke(() =>
                             {
-                                cbpcPhyPanel.Children.Clear();
-                                var page = new CBPC_Physics(vmm, DATA_CBPC, bindlr: bindlr, collective: collective);
-                                page.LeftOnlyUpdated += (val) => leftonly = val;
-                                page.BindLRUpdated += (val) => bindlr = val;
-                                page.CollectiveUpdated += (val) => collective = val;
-                                cbpcPhyPanel.Children.Add(page);
-                            }
-                        });
-                        break;
-                }
-            });
-
-            vm.CBPC_Physics_running = false;
-            PhysicsReading = false;
+                                if (cbpcPhyPanel.Children.Count == 1 && cbpcPhyPanel.Children[0] is CBPC_Physics w)
+                                    w.Data = DATA_CBPC;
+                                else
+                                {
+                                    cbpcPhyPanel.Children.Clear();
+                                    var page = new CBPC_Physics(vmm, DATA_CBPC, bindlr: bindlr, collective: collective);
+                                    page.LeftOnlyUpdated += (val) => leftonly = val;
+                                    page.BindLRUpdated += (val) => bindlr = val;
+                                    page.CollectiveUpdated += (val) => collective = val;
+                                    cbpcPhyPanel.Children.Add(page);
+                                }
+                            });
+                            break;
+                    }
+                });
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            finally
+            {
+                vm.CBPC_Physics_running = false;
+                PhysicsReading = false;
+            }
         }
 
-        private void WritePhysics_Button_Click(object sender, RoutedEventArgs e) => WritePhysics();
-        private async void WritePhysics()
+        private async void WritePhysics_Button_Click(object sender, RoutedEventArgs e) => await WritePhysics();
+        private async Task WritePhysics()
         {
             if (DATA_CBPC == null) return;
-            vm.CBPC_Physics_running = true;
-            cbpcPhyPanel.Focus();
-            await Task.Run(() =>
+            try
             {
-                if (vm.overwriteCBPC_Physics)
+                vm.CBPC_Physics_running = true;
+                cbpcPhyPanel.Focus();
+                await Task.Run(() =>
                 {
-                    NotifyRightPQ.Enqueue("Save");
-                    new CBPC.Physics(vm).Save(DATA_CBPC, vm.overwriteCBPC_Physics);
-                }
-                else
-                {
-                    NotifyRightPQ.Enqueue("Copy");
-                    Dispatcher?.Invoke(() => Clipboard.SetText(new CBPC.Physics(vm).MakeCBPConfig(DATA_CBPC)));
-                }
-            });
-            vm.CBPC_Physics_running = false;
+                    if (vm.overwriteCBPC_Physics)
+                    {
+                        NotifyRightPQ.Enqueue("Save");
+                        new CBPC.Physics(vm).Save(DATA_CBPC, vm.overwriteCBPC_Physics);
+                    }
+                    else
+                    {
+                        NotifyRightPQ.Enqueue("Copy");
+                        Dispatcher?.Invoke(() => Clipboard.SetText(new CBPC.Physics(vm).MakeCBPConfig(DATA_CBPC)));
+                    }
+                });
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            finally { vm.CBPC_Physics_running = false; }
         }
 
 
@@ -481,17 +589,17 @@ namespace SkyrimAnimationChecker
         #endregion
 
 
-        private void CBPCPhysics_UpdateFromText_Button_Click(object sender, RoutedEventArgs e)
+        private async void CBPCPhysics_UpdateFromText_Button_Click(object sender, RoutedEventArgs e)
         {
             var textdialog = new TextInputDialog();
             bool? result = textdialog.ShowDialog();
             if (result == true)
             {
                 new CBPC.Physics(vm).Replace(textdialog.Text);
-                ReadPhysics();
+                await ReadPhysics();
             }
         }
-        private void CBPCPhysics_UpdateFromFile_Button_Click(object sender, RoutedEventArgs e)
+        private async void CBPCPhysics_UpdateFromFile_Button_Click(object sender, RoutedEventArgs e)
         {
             var filedialog = new Microsoft.Win32.OpenFileDialog();
             filedialog.DefaultExt = ".txt";
@@ -501,7 +609,7 @@ namespace SkyrimAnimationChecker
             if (result == true)
             {
                 new CBPC.Physics(vm).ReplaceFile(filedialog.FileName);
-                ReadPhysics();
+                await ReadPhysics();
             }
         }
 

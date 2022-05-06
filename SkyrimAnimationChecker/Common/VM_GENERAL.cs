@@ -46,6 +46,8 @@ namespace SkyrimAnimationChecker.Common
             _dirMods = @"C:\Games\FaceRim_SE-TA\SkyrimSE\mods";
 
             useMO2 = false;
+            useBodyChange = false;
+            useAdvanced = false;
 
             panelNumber = 1;
             bodychangeNumber = 0;
@@ -55,12 +57,12 @@ namespace SkyrimAnimationChecker.Common
             fileNIF_bodyslide = "femalebody_0.nif, femalebody_1.nif";
             useCustomExample = false;
             weightNumber = 1;
-            fileNIF_sphere1 = System.IO.Path.Combine(workdir, "example_0.nif");
             fileNIF_sphere0 = System.IO.Path.Combine(workdir, "example_1.nif");
+            fileNIF_sphere1 = System.IO.Path.Combine(workdir, "example_0.nif");
 
-            readFromNIFs = false;
-            fileNIF_out1 = System.IO.Path.Combine(workdir, "inter_1.nif");
+            useNIFs = false;
             fileNIF_out0 = System.IO.Path.Combine(workdir, "inter_0.nif");
+            fileNIF_out1 = System.IO.Path.Combine(workdir, "inter_1.nif");
 
             // CBPC
             _dirCBPC = workdir;
@@ -87,6 +89,11 @@ namespace SkyrimAnimationChecker.Common
         [JsonIgnore]
         public bool useMO2 { get => Get<bool>(); set => Set(value); }
         public bool useBodyChange { get => Get<bool>(); set => Set(value); }
+        public bool useAdvanced { get => Get<bool>(); set => Set(value); }
+
+        // No-Brainer
+        [JsonIgnore]
+        public bool DoItRunning { get => Get<bool>(); set => Set(value); }
 
         // DAR
         public string _dirMods { get => Get<string>(); set => Set(value); }
@@ -130,15 +137,19 @@ namespace SkyrimAnimationChecker.Common
 
         public bool useCustomExample { get => Get<bool>(); set => Set(value); }
         public int weightNumber { get => Get<int>(); set { if (value > -1) Set(value); } }
-        public string fileNIF_sphere1 { get => Get<string>(); set => Set(value); }
         public string fileNIF_sphere0 { get => Get<string>(); set => Set(value); }
+        public string fileNIF_sphere1 { get => Get<string>(); set => Set(value); }
+        [JsonIgnore]
+        public string[] fileNIF_spheres => new string[] { fileNIF_sphere0, fileNIF_sphere1 };
 
         [JsonIgnore]
         public bool overwriteInterNIFs { get => Get<bool>(); set => Set(value); }
 
-        public bool readFromNIFs { get => Get<bool>(); set => Set(value); }
-        public string fileNIF_out1 { get => Get<string>(); set => Set(value); }
+        public bool useNIFs { get => Get<bool>(); set => Set(value); }
         public string fileNIF_out0 { get => Get<string>(); set => Set(value); }
+        public string fileNIF_out1 { get => Get<string>(); set => Set(value); }
+        [JsonIgnore]
+        public string[] fileNIF_outs => new string[] { fileNIF_out0, fileNIF_out1 };
 
         // CBPC
         public string _dirCBPC { get => Get<string>(); set => Set(value.Replace("\\\\", "\\")); }

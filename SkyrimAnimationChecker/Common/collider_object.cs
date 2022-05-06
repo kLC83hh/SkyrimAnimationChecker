@@ -27,6 +27,10 @@ namespace SkyrimAnimationChecker.Common
 
         private string[] Divide(string o, char s) => o.Split(s).ForEach(x => x.Trim());
         private string[] Divide(string o, string s) => o.Split(s).ForEach(x => x.Trim());
+        /// <summary>
+        /// Capsule split
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         private void Split()
         {
             if (Data == null || Data.Contains(Environment.NewLine) && Data.Contains('&') || !Data.Contains('&')) return;
@@ -46,7 +50,7 @@ namespace SkyrimAnimationChecker.Common
                         output[i] = $"{medium[0][i]} | {medium[1][i]}";
                     }
                     //string output = $"{medium[0][0]} | {medium[1][0]}{Environment.NewLine}{medium[0][1]} | {medium[1][1]}";
-                    Data = String.Join(Environment.NewLine, output);
+                    Data = string.Join(Environment.NewLine, output);
                 }
                 else
                 {
@@ -55,6 +59,10 @@ namespace SkyrimAnimationChecker.Common
             }
             else Data = string.Join(Environment.NewLine, Divide(Data, '&'));
         }
+        /// <summary>
+        /// Capsule join
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         private void Join()
         {
             if (Data == null || Data.Contains(Environment.NewLine) && Data.Contains('&') || !Data.Contains(Environment.NewLine)) return;

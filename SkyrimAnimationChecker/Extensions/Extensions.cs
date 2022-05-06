@@ -8,6 +8,17 @@ namespace SkyrimAnimationChecker
 {
     public static class EnumerableExtensions
     {
+        public static void For<T>(this IEnumerable<T> source, Action<int, T> action)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (action == null) throw new ArgumentNullException("action");
+
+            for (int i = 0; i < source.Count(); i++)
+            {
+                action(i, source.ElementAt(i));
+            }
+        }
+
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
             if (source == null) throw new ArgumentNullException("source");

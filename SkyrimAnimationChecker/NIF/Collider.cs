@@ -80,5 +80,50 @@ namespace SkyrimAnimationChecker.NIF
             return 1;
         }
 
+        public void UpdateSpheres(Common.collider_object[] colliders)
+        {
+            nifly.NifFile?[] nifs = new nifly.NifFile?[] { null, null };
+            nifs.For((i, x) => {
+                if (System.IO.File.Exists(vm.fileNIF_outs[i])) { nifs[i] = new(); nifs[i]?.Load(vm.fileNIF_outs[i]); }
+            });
+            if (nifs.All(x => x == null)) throw EE.New(1101);
+
+            foreach (var collider in colliders)
+            {
+                bool groupBackup = collider.Group;
+                collider.Group = false;
+
+                string[] spheres = new string[] { collider.Data };
+                if (collider.Data.Contains(Environment.NewLine)) spheres = collider.Data.Split(Environment.NewLine).ForEach(x => x.Trim());
+
+                //M.D($"HERE {collider.Name}");
+                if (spheres.Length == 1)
+                {
+                    string[] buffer = spheres[0].Split('|').ForEach(x => x.Trim());
+                    if (buffer.Length != 2) continue;
+                    nifs.For((i, x) => x?.UpdateSphere(collider.Name, buffer[i]));
+                }
+                else if (spheres.Length == 2)
+                {
+                    string[][] buffer = spheres.ForEach(s => s.Split('|').ForEach(x => x.Trim()));
+                    if (buffer.Length != 2 || buffer[0].Length != 2 || buffer[1].Length != 2) continue;
+                    nifs.For((i, x) => x?.UpdateCapsule(collider.Name, buffer[0][i], buffer[1][i]));
+                }
+
+                collider.Group = groupBackup;
+            }
+
+            nifs.For((i, x) =>
+            {
+                string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), vm.fileNIF_outs[i]);
+                //string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), $"test{i}.nif");
+                //M.D(path);
+                if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+                x?.Save(path);
+            });
+        }
+
+
+
     }
 }

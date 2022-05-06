@@ -39,7 +39,7 @@
                     </WrapPanel>
                     <WrapPanel HorizontalAlignment="Right">
                         <CheckBox Content="BC" ToolTip="BodyChange" Padding="0,-1" Margin="0,0,2,0" IsChecked="{Binding useBodyChange}"/>
-                        <CheckBox Content="MO2" Padding="0,-1" IsChecked="{Binding useMO2}">
+                        <CheckBox Content="MO2" Padding="0,-1" Margin="0,0,2,0" IsChecked="{Binding useMO2}">
                             <CheckBox.Style>
                                 <Style TargetType="CheckBox" BasedOn="{StaticResource Def}">
                                     <Setter Property="IsEnabled" Value="False"/>
@@ -51,6 +51,7 @@
                                 </Style>
                             </CheckBox.Style>
                         </CheckBox>
+                        <CheckBox Content="Advanced" Padding="0,-1" FontWeight="Bold" IsChecked="{Binding useAdvanced}"/>
                     </WrapPanel>
                 </Grid>
                 <TextBlock Text="Just don't touch what you don't know. They are useless normally."
@@ -154,19 +155,114 @@
             </Grid>
             <Rectangle Height="3"/>
             
+            <!--No-Brainer-->
+            <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <d:Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding panelNumber}" Value="0"/>
+                                    <Condition Binding="{Binding useAdvanced}" Value="False"/>
+                                </MultiDataTrigger.Conditions>
+                                <MultiDataTrigger.Setters>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger.Setters>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
+                <Grid>
+                    <WrapPanel VerticalAlignment="Center" Margin="0,0,0,2">
+                        <local:Indicator Trigger="{Binding DoItRunning}"/>
+                        <Label Content="Easy-run"/>
+                    </WrapPanel>
+                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                        <WrapPanel VerticalAlignment="Center" Grid.Column="1">
+                            <WrapPanel.Resources>
+                                <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
+                                    <Setter Property="GroupName" Value="weightGroup"/>
+                                </Style>
+                            </WrapPanel.Resources>
+                            <RadioButton Content="1" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
+                            <RadioButton Content="0" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=0}"/>
+                            <RadioButton Content="Both" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=2}"/>
+                        </WrapPanel>
+                        <CheckBox IsChecked="{Binding useNIFs}" Content="Use NIFs" Padding="0,-1"/>
+                    </WrapPanel>
+                </Grid>
+                <Grid>
+                    <TextBlock Text="bodyslide folder" Style="{StaticResource emtbHeader}"/>
+                    <TextBox Text="{Binding _dirNIF_bodyslide}" Grid.Column="1">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding useMO2}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <ComboBox Grid.Column="1" SelectedIndex="{Binding bodychangeNumber}" MouseEnter="CommonCombobox_MouseEnter">
+                        <ComboBox.Style>
+                            <Style TargetType="ComboBox" BasedOn="{StaticResource cbdef}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding useMO2}" Value="True"/>
+                                            <Condition Binding="{Binding useBodyChange}" Value="True"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.Setters>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger.Setters>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ComboBox.Style>
+                        <ComboBoxItem Content="CustomSet1"/>
+                        <ComboBoxItem Content="CustomSet2"/>
+                        <ComboBoxItem Content="CustomSet3"/>
+                        <ComboBoxItem Content="CustomSet4"/>
+                        <ComboBoxItem Content="CustomSet5"/>
+                        <ComboBoxItem Content="CustomSet6"/>
+                        <ComboBoxItem Content="CustomSet7"/>
+                        <ComboBoxItem Content="CustomSet8"/>
+                        <ComboBoxItem Content="CustomSet9"/>
+                    </ComboBox>
+                </Grid>
+                <local:FolderLoader DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Header="cbpconfig folder" HeaderColor="{StaticResource emph}"
+                    Location="{Binding _dirCBPC}" Load="CBPCLocationLoader_Load"/>
+                <Grid Height="28">
+                    <Grid Style="{StaticResource Normal}" Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.ColumnSpan="2"
+                            Content="Do it" Click="DoIt_Button_Click"/>
+                    </Grid>
+                </Grid>
+            </StackPanel>
+            
             <!--NIF collision-->
             <StackPanel>
                 <StackPanel.Resources>
                     <Style TargetType="Grid" x:Key="fornif1" BasedOn="{StaticResource Line}">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsChecked, ElementName=RB_UseNif0}" Value="True">
+                            <DataTrigger Binding="{Binding weightNumber}" Value="0">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                     <Style TargetType="Grid" x:Key="fornif0" BasedOn="{StaticResource Line}">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsChecked, ElementName=RB_UseNif1}" Value="True">
+                            <DataTrigger Binding="{Binding weightNumber}" Value="1">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -177,9 +273,15 @@
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <d:Setter Property="Visibility" Value="Visible"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding panelNumber}" Value="0">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding panelNumber}" Value="0"/>
+                                    <Condition Binding="{Binding useAdvanced}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <MultiDataTrigger.Setters>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger.Setters>
+                            </MultiDataTrigger>
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Style>
@@ -190,14 +292,14 @@
                         <TextBlock Text="NIF"/>
                     </WrapPanel>
                     <CheckBox Content="Custom Sphere" IsChecked="{Binding useCustomExample}" Grid.Column="1" Padding="0,-1" HorizontalAlignment="Left"/>
-                    <WrapPanel x:Name="weightSelector" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Column="1">
+                    <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Column="1">
                         <WrapPanel.Resources>
                             <Style TargetType="RadioButton" BasedOn="{StaticResource rbGroup}">
                                 <Setter Property="GroupName" Value="weightGroup"/>
                             </Style>
                         </WrapPanel.Resources>
-                        <RadioButton x:Name="RB_UseNif1" Content="1" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
-                        <RadioButton x:Name="RB_UseNif0" Content="0" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=0}"/>
+                        <RadioButton Content="1" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=1}"/>
+                        <RadioButton Content="0" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=0}"/>
                         <RadioButton Content="Both" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=2}"/>
                     </WrapPanel>
                 </Grid>
@@ -278,14 +380,14 @@
                 <StackPanel.Resources>
                     <Style TargetType="Grid" x:Key="fornif1" BasedOn="{StaticResource Line}">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsChecked, ElementName=RB_UseNif0}" Value="True">
+                            <DataTrigger Binding="{Binding weightNumber}" Value="0">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                     <Style TargetType="Grid" x:Key="fornif0" BasedOn="{StaticResource Line}">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsChecked, ElementName=RB_UseNif1}" Value="True">
+                            <DataTrigger Binding="{Binding weightNumber}" Value="1">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -296,9 +398,15 @@
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <d:Setter Property="Visibility" Value="Visible"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding panelNumber}" Value="0">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding panelNumber}" Value="0"/>
+                                    <Condition Binding="{Binding useAdvanced}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <MultiDataTrigger.Setters>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger.Setters>
+                            </MultiDataTrigger>
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Style>
@@ -309,14 +417,14 @@
                         <TextBlock Text="NIF-CBPC"/>
                     </WrapPanel>
                     <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
-                        <CheckBox IsChecked="{Binding readFromNIFs}" Content="Read from NIFs" Padding="0,-1"/>
+                        <CheckBox IsChecked="{Binding useNIFs}" Content="Use NIFs" Padding="0,-1"/>
                     </WrapPanel>
                 </Grid>
                 <StackPanel>
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding readFromNIFs}" Value="False">
+                                <DataTrigger Binding="{Binding useNIFs}" Value="False">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -344,7 +452,45 @@
                     <TextBox Text="{Binding groupfilter}" Grid.Column="1"/>
                 </Grid>
                 <Grid>
-                    <Button Click="SphereSize_2_Button_Click" Content="2. Sphere Size" Grid.Column="1"/>
+                    <Button Grid.Column="1" HorizontalContentAlignment="Stretch" Click="SphereSize_2_Button_Click">
+                        <Button.Content>
+                            <Grid Style="{StaticResource Normal}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="2. Update CBPC" HorizontalAlignment="Center" Grid.Column="1"/>
+                                <TextBlock Text="  &gt;&gt;&gt;" HorizontalAlignment="Right" Grid.Column="2"/>
+                            </Grid>
+                        </Button.Content>
+                    </Button>
+                </Grid>
+                <Grid>
+                    <Grid.Style>
+                        <Style TargetType="Grid" BasedOn="{StaticResource Line}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <d:Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding useNIFs}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <Button Grid.Column="1" HorizontalContentAlignment="Stretch" Click="SphereSize_Retrieve_Button_Click">
+                        <Button.Content>
+                            <Grid Style="{StaticResource Normal}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="2-1. Update NIF" HorizontalAlignment="Center" Grid.Column="1"/>
+                                <TextBlock Text="&lt;&lt;&lt;  " HorizontalAlignment="Left" Grid.Column="0"/>
+                            </Grid>
+                        </Button.Content>
+                    </Button>
                 </Grid>
                 
                 <Rectangle Height="3"/>
