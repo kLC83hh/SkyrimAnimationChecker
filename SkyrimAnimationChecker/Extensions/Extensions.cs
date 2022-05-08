@@ -18,6 +18,18 @@ namespace SkyrimAnimationChecker
                 action(i, source.ElementAt(i));
             }
         }
+        public static IEnumerable<U> For<T, U>(this IEnumerable<T> source, Func<int, T, U> action)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (action == null) throw new ArgumentNullException("action");
+
+            U[] output = new U[source.Count()];
+            for (int i = 0; i < source.Count(); i++)
+            {
+                output[i] = action(i, source.ElementAt(i));
+            }
+            return output.AsEnumerable();
+        }
 
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {

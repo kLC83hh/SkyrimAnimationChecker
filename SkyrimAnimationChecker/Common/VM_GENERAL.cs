@@ -59,6 +59,7 @@ namespace SkyrimAnimationChecker.Common
             weightNumber = 1;
             fileNIF_sphere0 = System.IO.Path.Combine(workdir, "example_1.nif");
             fileNIF_sphere1 = System.IO.Path.Combine(workdir, "example_0.nif");
+            AutoCalcSpheres = false;
 
             useNIFs = false;
             fileNIF_out0 = System.IO.Path.Combine(workdir, "inter_0.nif");
@@ -144,6 +145,7 @@ namespace SkyrimAnimationChecker.Common
 
         [JsonIgnore]
         public bool overwriteInterNIFs { get => Get<bool>(); set => Set(value); }
+        public bool AutoCalcSpheres { get => Get<bool>(); set => Set(value); }
 
         public bool useNIFs { get => Get<bool>(); set => Set(value); }
         public string fileNIF_out0 { get => Get<string>(); set => Set(value); }

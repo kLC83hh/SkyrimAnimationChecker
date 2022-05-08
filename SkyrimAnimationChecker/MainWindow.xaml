@@ -7,7 +7,7 @@
         xmlns:common="clr-namespace:SkyrimAnimationChecker.Common"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=common:VM}"
         Title="SAC"
-        d:Height="570" d:Width="830">
+        d:Height="670" d:Width="830">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:MainWindow.SaveCommand}" 
                      Executed="CommandBinding_Executed"/>
@@ -192,6 +192,7 @@
                             <RadioButton Content="Both" Padding="0" IsChecked="{Binding weightNumber, Converter={StaticResource weightConverter}, ConverterParameter=2}"/>
                         </WrapPanel>
                         <CheckBox IsChecked="{Binding useNIFs}" Content="Use NIFs" Padding="0,-1"/>
+                        <CheckBox Content="AutoCalc" IsChecked="{Binding AutoCalcSpheres}" Padding="0,-1"/>
                     </WrapPanel>
                 </Grid>
                 <Grid>
@@ -369,7 +370,11 @@
                 </StackPanel>
                 <Grid>
                     <CheckBox x:Name="overwriteCheckBox" Content="overwrite" IsChecked="{Binding overwriteInterNIFs}" Padding="0,-1"/>
-                    <Button Click="MakeIntermediumNIFs_1_Button_Click" Content="1. Make Intermedium NIFs" Grid.Column="1"/>
+                    <Button Content="1. Make Intermedium NIFs" Click="MakeIntermediumNIFs_1_Button_Click" Grid.Column="1"/>
+                </Grid>
+                <Grid>
+                    <CheckBox Content="AutoCalc" IsChecked="{Binding AutoCalcSpheres}" Padding="0,-1"/>
+                    <Button Content="Re-Calc Spheres" Click="CalcSpheres_Button_Click" Grid.Column="1"/>
                 </Grid>
                 
                 <Rectangle Height="3"/>
@@ -460,7 +465,7 @@
                                     <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="2. Update CBPC" HorizontalAlignment="Center" Grid.Column="1"/>
+                                <TextBlock Text="2. Read CBPC" HorizontalAlignment="Center" Grid.Column="1"/>
                                 <TextBlock Text="  &gt;&gt;&gt;" HorizontalAlignment="Right" Grid.Column="2"/>
                             </Grid>
                         </Button.Content>
@@ -486,7 +491,7 @@
                                     <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="2-1. Update NIF" HorizontalAlignment="Center" Grid.Column="1"/>
+                                <TextBlock Text="Update NIF" HorizontalAlignment="Center" Grid.Column="1"/>
                                 <TextBlock Text="&lt;&lt;&lt;  " HorizontalAlignment="Left" Grid.Column="0"/>
                             </Grid>
                         </Button.Content>

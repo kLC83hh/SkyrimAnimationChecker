@@ -209,6 +209,7 @@ namespace SkyrimAnimationChecker
                             else if (System.IO.File.Exists(vm.fileNIF_out1)) vm.weightNumber = 0;
                             await RunMakeInterNIF();
                             await RetrieveFromCBPC();
+                            if (vm.AutoCalcSpheres) await CalcSpheres();
                         }
                         catch (Exception ex) { MessageBox.Show(ex.Message); }
                         finally { vm.weightNumber = 2; }
@@ -217,6 +218,7 @@ namespace SkyrimAnimationChecker
                     {
                         await RunMakeInterNIF();
                         await RetrieveFromCBPC();
+                        if (vm.AutoCalcSpheres) await CalcSpheres();
                     }
                 }
 
@@ -274,6 +276,18 @@ namespace SkyrimAnimationChecker
                     case 20: msg("Some of input_0 and input_1 files are not exists"); break;
                 }
             }
+        }
+
+        private async void CalcSpheres_Button_Click(object sender, RoutedEventArgs e) => await CalcSpheres();
+        private async Task CalcSpheres()
+        {
+            try
+            {
+                vm.NIFrunning = true;
+                await Task.Run(() => new NIF.Collider(vm).CalsSpheres());
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            finally { vm.NIFrunning = false; }
         }
 
         private void CollisionFile_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -587,6 +601,7 @@ namespace SkyrimAnimationChecker
         }
 
         #endregion
+
 
 
         private async void CBPCPhysics_UpdateFromText_Button_Click(object sender, RoutedEventArgs e)

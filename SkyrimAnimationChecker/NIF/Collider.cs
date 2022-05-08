@@ -16,7 +16,7 @@ namespace SkyrimAnimationChecker.NIF
         /// </summary>
         /// <param name="overwrite"></param>
         /// <returns></returns>
-        public int Make(int weight = -1, bool? overwrite = null)
+        public int Make(int weight = -1, bool? overwrite = null, bool? AutoCalc = null)
         {
             vm.NIFrunning = true;
             string[] localExample = new string[2] {
@@ -44,6 +44,9 @@ namespace SkyrimAnimationChecker.NIF
                     r1 = 0;
                     break;
             }
+
+            if (AutoCalc == null) AutoCalc = vm.AutoCalcSpheres;
+            if ((bool)AutoCalc) CalsSpheres();
             vm.NIFrunning = false;
             return r1 * (r2 > 1 ? r2 + 1 : r2);
         }
@@ -123,6 +126,140 @@ namespace SkyrimAnimationChecker.NIF
             });
         }
 
+
+        public nifly.Vector3 Vectorize(string s, nifly.Vector3? defaultVector = null)
+        {
+            if (!s.Contains(',')) return defaultVector ?? new();
+            string[] vals = s.Split(',');
+            if (vals.Length != 3) return defaultVector ?? new();
+            try
+            {
+                float x = float.Parse(vals[0]);
+                float y = float.Parse(vals[1]);
+                float z = float.Parse(vals[2]);
+                return new(x, y, z);
+            }
+            catch { return defaultVector ?? new(); }
+        }
+        public nifly.Vector3 Vectorize(string s, params float[] defaultValue)
+        {
+            if (defaultValue.Length == 1) return Vectorize(s, new nifly.Vector3(defaultValue[0], defaultValue[0], defaultValue[0]));
+            else if (defaultValue.Length == 3) return Vectorize(s, new nifly.Vector3(defaultValue[0], defaultValue[1], defaultValue[2]));
+            else return Vectorize(s, new nifly.Vector3());
+        }
+        public string[] CalsSpheres()
+        {
+            nifly.NifFile?[] nifs = new nifly.NifFile?[] { null, null };
+            nifs.For((i, x) => {
+                if (System.IO.File.Exists(vm.fileNIF_outs[i])) { nifs[i] = new(); nifs[i]?.Load(vm.fileNIF_outs[i]); }
+            });
+            if (nifs.All(x => x == null)) throw EE.New(1101);
+
+            var result = nifs.For((i, x) =>
+            {
+                if (x != null) return CalcSphere(x, vm.fileNIF_outs[i], "1,1,1", "1,1,1", false);
+                else return Array.Empty<string>();
+            }).ToArray();
+
+            return result[0].Concat(new string[] { Environment.NewLine }).Concat(result[1]).ToArray();
+        }
+        private string[] CalcSphere(nifly.NifFile nif, string path, string sens, string str, bool bounding)
+        {
+            List<object> msg = new();
+
+            // filter, Func, Action, "NPC L UpperArm [LUar]"
+            string[] filter = new string[] { "L Breast" };
+            Func<string, bool> checkFilter = (name) =>
+            {
+                foreach (string s in filter)
+                {
+                    if (name.StartsWith(s)) return true;
+                }
+                return false;
+            };
+            Func<string[], string[]> filterStringArray = (list) => {
+                List<string> result = new();
+                foreach (string s in list)
+                {
+                    foreach (string f in filter)
+                    {
+                        if (s.StartsWith(f)) result.Add(f);
+                    }
+                }
+                return result.ToArray();
+            };
+            Action<string, (nifly.Vector3 center, float radius, string msg)?> UpdateSphereResult = (name, result) => {
+                if (result != null)
+                {
+                    msg.Add($"{name} Succeed center=({result.Value.center.x:N3},{result.Value.center.y:N3},{result.Value.center.z:N3}), r={result.Value.radius:N3}");
+                    msg.Add(result.Value.msg + (bounding ? " using BoundingSphere" : string.Empty));
+                }
+                else msg.Add($"{name} Failed");
+            };
+
+            // get skinned shape
+            nifly.NiShape[] skins = nif.GetAllSkinned();
+            if (skins.Length == 0) goto test5end;
+            nifly.NiShape skin = skins.First(x => x.name.get() == "3BA");
+
+            // get skin datas
+            var skinInstance = nif.GetBlock<nifly.BSDismemberSkinInstance>(skin.SkinInstanceRef());
+            if (skinInstance == null) goto test5end;
+            var skinPartition = nif.GetBlock<nifly.NiSkinPartition>(skinInstance.skinPartitionRef);
+            if (skinPartition == null) goto test5end;
+            var skinData = nif.GetBlock<nifly.NiSkinData>(skinInstance.dataRef);
+            if (skinData == null) goto test5end;
+            msg.Add($"SkinInstance {skinPartition.numVertices} {skinPartition.numPartitions}, skinBones {skinData.bones.Count}");
+
+            // bones
+            var boneResult = nif.GetFilteredBones(out Bone[] bones, skin, filter);
+            if (boneResult <= 0) { msg.Add($"Error: GetFilteredBones {boneResult}"); goto test5end; }
+            msg.Add($"shapeBones {bones.Length}/{boneResult}");
+            msg.Add($"sens:{sens} str:{str}");
+            float move = 0;
+            foreach (var bone in bones.Reverse())
+            {
+                msg.Add(string.Empty);
+                msg.Add($"{bone.Index}: {bone.Name} [{bone.Id}] numVertices {bone.VerticesCount}");
+                msg.Add($"{bone.Index}: bounds ({bone.Bound.center.x},{bone.Bound.center.y},{bone.Bound.center.z}) {bone.Bound.radius}");
+
+                if (bone.SpheresCount == 0) { msg.Add($"{bone.Name} Sphere is not found"); continue; }
+
+                (nifly.Vector3 center, float radius, string msg)? result = null;
+                if (bounding)
+                {
+                    if (bone.Sphere != null)
+                    {
+                        //result = bone.Sphere?.UpdateVertColor();
+                        result = nif.UpdateSphere(bone.Sphere, bone.VerticesVector, bone.Triangles);
+                        //result = bone.Sphere?.UpdateSphere(bone.Bound.center, bone.Bound.radius);
+                        UpdateSphereResult(bone.SphereName, result);
+                    }
+                }
+                else
+                {
+                    foreach (nifly.NiShape sphere in bone.Spheres)
+                    {
+                        result = nif.UpdateSphere(sphere, bone.Vertices, bone.Weights.ToArray(), Vectorize(sens, 1), Vectorize(str, 1), bone.SphereName.StartsWith("L Breast") ? move : 0);
+                        //var result = outFile.UpdateSphere(bone.Sphere, skin, new nifly.Vector3(.5f, .1f, .2f), new nifly.Vector3(.33f, 1f, .33f));
+                        UpdateSphereResult(bone.SphereName, result);
+                        if (bone.SphereName.StartsWith("L Breast03")) move = (float)(result?.radius ?? 0);
+                    }
+                }
+            }
+
+            nif.Save(path);
+        test5end:
+            string[] finalout = new string[msg.Count];
+            for (int i = 0; i < msg.Count; i++)
+            {
+                finalout[i] = msg[i].ToString() ?? string.Empty;
+#if DEBUG
+                M.D(finalout[i]);
+#endif
+            }
+            return finalout;
+        }
 
 
     }
