@@ -235,6 +235,122 @@ namespace SkyrimAnimationChecker.NIF
     }
     public static class SphereExtensions
     {
+        #region Basics
+        public static char? GetSide(this NiShape sphere)
+        {
+            if (sphere.name.get().StartsWith('L') || sphere.name.get().StartsWith("NPC L")) return 'L';
+            else if (sphere.name.get().StartsWith('R') || sphere.name.get().StartsWith("NPC R")) return 'R';
+            return null;
+        }
+        /// <summary>
+        /// Only work with global vectors
+        /// </summary>
+        /// <param name="arr">Should be global vectors</param>
+        /// <param name="side">L, R</param>
+        /// <returns></returns>
+        public static Vector3[] FilterSide(this Vector3[] arr, char? side)
+        {
+            if (side == null) return arr;
+            List<Vector3> filtered = new();
+            foreach (Vector3 v in arr)
+            {
+                switch (side)
+                {
+                    case 'L':
+                    case 'l':
+                        if (v.x <= 0) filtered.Add(v);
+                        break;
+                    case 'R':
+                    case 'r':
+                        if (v.x >= 0) filtered.Add(v);
+                        break;
+                }
+            }
+            return filtered.ToArray();
+        }
+        public static Vector3 LocalizeTo(this Vector3 vector, Vector3 parent) => vector.opSub(parent);
+        public static Vector3[] LocalizeTo(this Vector3[] arr, Vector3 parent)
+        {
+            Vector3[] result = new Vector3[arr.Length];
+            for (int i = 0; i < arr.Length; i++) result[i] = arr[i].opSub(parent);
+            return result;
+        }
+        public static Vector3 RotateTo(this Vector3 vector, Matrix3 rotation) => rotation.opMult(vector);
+        public static Vector3[] RotateTo(this Vector3[] arr, Matrix3 rotation)
+        {
+            Vector3[] result = new Vector3[arr.Length];
+            for (int i = 0; i < arr.Length; i++) result[i] = rotation.opMult(arr[i]);
+            return result;
+        }
+        /// <summary>
+        /// Localized only
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <param name="window"></param>
+        /// <returns></returns>
+        public static Vector3[] WindowBy(this Vector3[] arr, Vector3 window)
+        {
+            List<Vector3> result = new();
+            foreach (Vector3 v in arr)
+            {
+                if (Math.Abs(v.x) < window.x &&
+                    Math.Abs(v.y) < window.y &&
+                    Math.Abs(v.z) < window.z)
+                    result.Add(v);
+                //else
+                //{
+                //    string mx = string.Empty, my = string.Empty, mz = string.Empty, msg = string.Empty;
+                //    if (Math.Abs(v.x) < window.x == false) { float r = v.x / window.x; if (r > 0) { r -= 1; } else { r += 1; } mx = $"x:({v.x}/{window.x}) {r * 100f:N3}%"; msg += mx; }
+                //    if (Math.Abs(v.y) < window.y == false) { float r = v.y / window.y; if (r > 0) { r -= 1; } else { r += 1; } my = $"y:({v.y}/{window.y}) {r * 100f:N3}%"; msg += my; }
+                //    if (Math.Abs(v.z) < window.z == false) { float r = v.z / window.z; if (r > 0) { r -= 1; } else { r += 1; } mz = $"z:({v.z}/{window.z}) {r * 100f:N3}%"; msg += mz; }
+                //    TEST.M.D($"{mx} {my} {mz}");//TEST.M.D(msg);
+                //}
+            }
+            return result.ToArray();
+        }
+        public static Vector3 Center(this Vector3[] arr, SkinWeight[]? weights = null)
+        {
+            if (weights == null) return arr.Mean();
+            else return arr.MeanWeighted(weights);
+        }
+        /// <summary>
+        /// Localized only
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="strength"></param>
+        /// <returns></returns>
+        public static Vector3 Strengthen(this Vector3 center, Vector3 strength) => new Vector3(center.x * strength.x, center.y * strength.y, center.z * strength.z);
+        public static float AverageDistanceTo(this Vector3[] arr, Vector3 target)
+        {
+            float sum = 0;
+            foreach (Vector3 v in arr)
+            {
+                sum += v.DistanceTo(target);
+            }
+            return sum / arr.Length;
+        }
+
+        /// <summary>
+        /// Color4(r, g, b, multplier)
+        /// </summary>
+        /// <param name="nif"></param>
+        /// <param name="shape"></param>
+        /// <param name="color">r, g, b, multplier</param>
+        public static void SetShaderEmissive(this NifFile nif, NiShape shape, Color4 color)
+        {
+            if (shape.HasShaderProperty())
+            {
+                var shader = nif.GetBlock<BSLightingShaderProperty>(shape.ShaderPropertyRef());
+                if (shader != null && shader.IsEmissive())
+                {
+                    shader.SetEmissiveMultiple(color.a);
+                    shader.SetEmissiveColor(new Color4(color.r, color.g, color.b, 1f));
+                }
+            }
+        }
+        #endregion
+
+
         public static (Vector3 center, float radius, string msg)? UpdateVertColor(this BSTriShape sphere)
         {
             M.D($"{sphere.name.get()} {sphere.rawColors.Count} {sphere.HasVertexColors()} {sphere.triangles.Count}");
@@ -343,10 +459,8 @@ namespace SkyrimAnimationChecker.NIF
 #if DEBUG
             int vCountAll = vertices.Length;
 #endif
-            char? side = null;
-            if (sphere.name.get().StartsWith('L') || sphere.name.get().StartsWith("NPC L")) side = 'L';
-            else if (sphere.name.get().StartsWith('R') || sphere.name.get().StartsWith("NPC R")) side = 'R';
-            if (side != null) vertices.Side((char)side);
+            char? side = sphere.GetSide();
+            vertices.FilterSide(side);
 #if DEBUG
             int vCountSided = vertices.Length;
 #endif
@@ -367,16 +481,32 @@ namespace SkyrimAnimationChecker.NIF
             msg = ($"using {sidenote}{vCountnote}{vCountAll}{vCountDiffnote} vertices windowed by ({window.x:N3},{window.y:N3},{window.z:N3}), m={move}");
 #endif
             // calc
-            Vector3 center = Center(vertices).Strengthen(strength);
-            float radius = vertices.AverageDistanceTo(center);
+            sphere.transform.translation = Center(vertices).Strengthen(strength);
+            sphere.transform.scale = vertices.AverageDistanceTo(sphere.transform.translation);
 
             // update
-            sphere.transform.translation = center;
-            sphere.transform.scale = radius;
+            //sphere.transform.translation = center;
+            //sphere.transform.scale = radius;
+
+            // micro adjust
             if (sphere.name.get().StartsWith("L Breast") || sphere.name.get().StartsWith("R Breast"))
             {
-                sphere.transform.translation.y -= 1f;
-                sphere.transform.translation.z -= 1.5f;
+                // scaling
+                if (sphere.name.get().Contains('1')) sphere.transform.scale *= 0.90f;
+                // translating
+                move = sphere.transform.scale / 100f;
+                if (side == 'L') sphere.transform.translation.x += move * 16f;
+                else if (side == 'R') sphere.transform.translation.x -= move * 16f;
+                sphere.transform.translation.y -= move * 33f;
+                sphere.transform.translation.z -= move * 30f;
+                if (sphere.name.get().Contains('1'))
+                {
+                    sphere.transform.translation.z += move * 15f;
+                }
+                if (sphere.name.get().Contains('2'))
+                {
+                    sphere.transform.translation.y -= move * 10f;
+                }
             }
             //float div = 3;
             //if (move == 0) move = radius;
@@ -386,15 +516,16 @@ namespace SkyrimAnimationChecker.NIF
             //sphere.transform.translation.z -= move / div;
 
             // color emission
-            if (sphere.HasShaderProperty())
-            {
-                var shader = nif.GetBlock<BSLightingShaderProperty>(sphere.ShaderPropertyRef());
-                if (shader != null && shader.IsEmissive())
-                {
-                    shader.SetEmissiveMultiple(1);
-                    shader.SetEmissiveColor(new Color4(0, 0, 1, 1));
-                }
-            }
+            nif.SetShaderEmissive(sphere, new Color4(0, 0, 1, 1));
+            //if (sphere.HasShaderProperty())
+            //{
+            //    var shader = nif.GetBlock<BSLightingShaderProperty>(sphere.ShaderPropertyRef());
+            //    if (shader != null && shader.IsEmissive())
+            //    {
+            //        shader.SetEmissiveMultiple(1);
+            //        shader.SetEmissiveColor(new Color4(0, 0, 1, 1));
+            //    }
+            //}
 
             return (sphere.transform.translation, sphere.transform.scale, msg);
         }
@@ -454,93 +585,6 @@ namespace SkyrimAnimationChecker.NIF
             return true;
         }
 
-
-        /// <summary>
-        /// Only work with global vectors
-        /// </summary>
-        /// <param name="arr">Should be global vectors</param>
-        /// <param name="side">L, R</param>
-        /// <returns></returns>
-        public static Vector3[] Side(this Vector3[] arr, char side)
-        {
-            List<Vector3> filtered = new();
-            foreach (Vector3 v in arr)
-            {
-                switch (side)
-                {
-                    case 'L':
-                    case 'l':
-                        if (v.x <= 0) filtered.Add(v);
-                        break;
-                    case 'R':
-                    case 'r':
-                        if (v.x >= 0) filtered.Add(v);
-                        break;
-                }
-            }
-            return filtered.ToArray();
-        }
-        public static Vector3 LocalizeTo(this Vector3 vector, Vector3 parent) => vector.opSub(parent);
-        public static Vector3[] LocalizeTo(this Vector3[] arr, Vector3 parent)
-        {
-            Vector3[] result = new Vector3[arr.Length];
-            for (int i = 0; i < arr.Length; i++) result[i] = arr[i].opSub(parent);
-            return result;
-        }
-        public static Vector3 RotateTo(this Vector3 vector, Matrix3 rotation) => rotation.opMult(vector);
-        public static Vector3[] RotateTo(this Vector3[] arr, Matrix3 rotation)
-        {
-            Vector3[] result = new Vector3[arr.Length];
-            for (int i = 0; i < arr.Length; i++) result[i] = rotation.opMult(arr[i]);
-            return result;
-        }
-        /// <summary>
-        /// Localized only
-        /// </summary>
-        /// <param name="arr"></param>
-        /// <param name="window"></param>
-        /// <returns></returns>
-        public static Vector3[] WindowBy(this Vector3[] arr, Vector3 window)
-        {
-            List<Vector3> result = new();
-            foreach (Vector3 v in arr)
-            {
-                if (Math.Abs(v.x) < window.x &&
-                    Math.Abs(v.y) < window.y &&
-                    Math.Abs(v.z) < window.z)
-                    result.Add(v);
-                //else
-                //{
-                //    string mx = string.Empty, my = string.Empty, mz = string.Empty, msg = string.Empty;
-                //    if (Math.Abs(v.x) < window.x == false) { float r = v.x / window.x; if (r > 0) { r -= 1; } else { r += 1; } mx = $"x:({v.x}/{window.x}) {r * 100f:N3}%"; msg += mx; }
-                //    if (Math.Abs(v.y) < window.y == false) { float r = v.y / window.y; if (r > 0) { r -= 1; } else { r += 1; } my = $"y:({v.y}/{window.y}) {r * 100f:N3}%"; msg += my; }
-                //    if (Math.Abs(v.z) < window.z == false) { float r = v.z / window.z; if (r > 0) { r -= 1; } else { r += 1; } mz = $"z:({v.z}/{window.z}) {r * 100f:N3}%"; msg += mz; }
-                //    TEST.M.D($"{mx} {my} {mz}");//TEST.M.D(msg);
-                //}
-            }
-            return result.ToArray();
-        }
-        public static Vector3 Center(this Vector3[] arr, SkinWeight[]? weights = null)
-        {
-            if (weights == null) return arr.Mean();
-            else return arr.MeanWeighted(weights);
-        }
-        /// <summary>
-        /// Localized only
-        /// </summary>
-        /// <param name="center"></param>
-        /// <param name="strength"></param>
-        /// <returns></returns>
-        public static Vector3 Strengthen(this Vector3 center, Vector3 strength) => new Vector3(center.x * strength.x, center.y * strength.y, center.z * strength.z);
-        public static float AverageDistanceTo(this Vector3[] arr, Vector3 target)
-        {
-            float sum = 0;
-            foreach (Vector3 v in arr)
-            {
-                sum += v.DistanceTo(target);
-            }
-            return sum / arr.Length;
-        }
 
     }
 
