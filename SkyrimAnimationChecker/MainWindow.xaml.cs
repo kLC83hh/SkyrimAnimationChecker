@@ -585,9 +585,9 @@ namespace SkyrimAnimationChecker
                     return output.ToArray();
                 };
                 //ColFileCB.Items.Clear();
-                //getfiles("CBPCollisionConfig*", null).ForEach(x => ColFileCB.Items.Add(x));
                 vm.fileCBPC_Collisions.Clear();
                 getfiles("CBPCollisionConfig*", null).ForEach(x => vm.fileCBPC_Collisions.Add(x));
+                if (vm.fileCBPC_Collisions.Contains(vm.fileCBPC_Collision)) ColFileCB.SelectedIndex = vm.fileCBPC_Collisions.IndexOf(vm.fileCBPC_Collision);
                 //PhyFileCB.Items.Clear();
                 //getfiles("CBPConfig*", filter).ForEach(x => PhyFileCB.Items.Add(x));
                 vm.fileCBPC_Physicss.Clear();

@@ -168,7 +168,7 @@ namespace SkyrimAnimationChecker.NIF
             List<object> msg = new();
 
             // filter, Func, Action, "NPC L UpperArm [LUar]"
-            string[] filter = new string[] { "L Breast" };
+            string[] filter = new string[] { "L Breast", "NPC L Butt", "NPC Belly" };
             Func<string, bool> checkFilter = (name) =>
             {
                 foreach (string s in filter)
@@ -240,9 +240,10 @@ namespace SkyrimAnimationChecker.NIF
                 {
                     foreach (nifly.NiShape sphere in bone.Spheres)
                     {
-                        result = nif.UpdateSphere(sphere, bone.Vertices, bone.Weights.ToArray(), Vectorize(sens, 1), Vectorize(str, 1), bone.SphereName.StartsWith("L Breast") ? move : 0);
-                        //var result = outFile.UpdateSphere(bone.Sphere, skin, new nifly.Vector3(.5f, .1f, .2f), new nifly.Vector3(.33f, 1f, .33f));
-                        UpdateSphereResult(bone.SphereName, result);
+                        if (sphere.transform.scale == 0) continue;
+                        result = nif.UpdateSphere(sphere, bone.Vertices, Vectorize(sens, 1), Vectorize(str, 1), sphere.name.get().StartsWith("L Breast") ? move : 0);
+                        //var result = outFile.UpdateSphere(sphere, skin, new nifly.Vector3(.5f, .1f, .2f), new nifly.Vector3(.33f, 1f, .33f));
+                        UpdateSphereResult(sphere.name.get(), result);
                         if (bone.SphereName.StartsWith("L Breast03")) move = (float)(result?.radius ?? 0);
                     }
                 }

@@ -53,8 +53,9 @@ namespace SkyrimAnimationChecker.NIF
                 if (string.IsNullOrEmpty(nameEnd)) return nif.GetTriShapes().Where(x => x.name.get().StartsWith(name)).ToArray();
                 else
                 {
-                    if (!nif.GetTriShapes().Any(x => x.name.get().EndsWith(nameEnd))) return Array.Empty<BSTriShape>();
-                    else return nif.GetTriShapes().Where(x => x.name.get().StartsWith(name)).Where(x => x.name.get().EndsWith(nameEnd)).ToArray();
+                    System.Text.RegularExpressions.Regex regexEnd = new($@"{nameEnd}\d*$");
+                    if (!nif.GetTriShapes().Any(x => regexEnd.IsMatch(x.name.get()))) return Array.Empty<BSTriShape>();
+                    else return nif.GetTriShapes().Where(x => x.name.get().StartsWith(name)).Where(x => regexEnd.IsMatch(x.name.get())).ToArray();
                 }
             }
         }
@@ -243,6 +244,34 @@ namespace SkyrimAnimationChecker.NIF
             return null;
         }
         /// <summary>
+        /// Localized only
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="strength"></param>
+        /// <returns></returns>
+        public static Vector3 Strengthen(this Vector3 center, Vector3 strength) => new Vector3(center.x * strength.x, center.y * strength.y, center.z * strength.z);
+
+        /// <summary>
+        /// Color4(r, g, b, multplier)
+        /// </summary>
+        /// <param name="nif"></param>
+        /// <param name="shape"></param>
+        /// <param name="color">r, g, b, multplier</param>
+        public static void SetShaderEmissive(this NifFile nif, NiShape shape, Color4 color)
+        {
+            if (shape.HasShaderProperty())
+            {
+                var shader = nif.GetBlock<BSLightingShaderProperty>(shape.ShaderPropertyRef());
+                if (shader != null && shader.IsEmissive())
+                {
+                    shader.SetEmissiveMultiple(color.a);
+                    shader.SetEmissiveColor(new Color4(color.r, color.g, color.b, 1f));
+                }
+            }
+        }
+
+        #region Vector3
+        /// <summary>
         /// Only work with global vectors
         /// </summary>
         /// <param name="arr">Should be global vectors</param>
@@ -311,35 +340,78 @@ namespace SkyrimAnimationChecker.NIF
         }
 
         public static Vector3 Center(this Vector3[] arr, SkinWeight[]? weights = null) => arr.Mean(weights);
+        public static float Radius(this Vector3[] arr, Vector3 center, SkinWeight[]? weights = null) => arr.AverageDistanceTo(center, weights);
+        #endregion
+        #region Vertex
+        /// <summary>
+        /// Only work with global vectors
+        /// </summary>
+        /// <param name="arr">Should be global vectors</param>
+        /// <param name="side">L, R</param>
+        /// <returns></returns>
+        public static Vertex[] FilterSide(this Vertex[] arr, char? side)
+        {
+            if (side == null) return arr;
+            List<Vertex> filtered = new();
+            foreach (Vertex v in arr)
+            {
+                switch (side)
+                {
+                    case 'L':
+                    case 'l':
+                        if (v.x <= 0) filtered.Add(v);
+                        break;
+                    case 'R':
+                    case 'r':
+                        if (v.x >= 0) filtered.Add(v);
+                        break;
+                }
+            }
+            return filtered.ToArray();
+        }
+
+        public static Vertex[] LocalizeTo(this Vertex[] arr, Vector3 parent)
+        {
+            Vertex[] result = new Vertex[arr.Length];
+            for (int i = 0; i < arr.Length; i++) result[i] = arr[i].LocalizeTo(parent);
+            return result;
+        }
+        public static Vertex[] RotateTo(this Vertex[] arr, Matrix3 rotation)
+        {
+            Vertex[] result = new Vertex[arr.Length];
+            for (int i = 0; i < arr.Length; i++) result[i] = arr[i].RotateBy(rotation);
+            return result;
+        }
         /// <summary>
         /// Localized only
         /// </summary>
-        /// <param name="center"></param>
-        /// <param name="strength"></param>
+        /// <param name="arr"></param>
+        /// <param name="window"></param>
         /// <returns></returns>
-        public static Vector3 Strengthen(this Vector3 center, Vector3 strength) => new Vector3(center.x * strength.x, center.y * strength.y, center.z * strength.z);
-
-        public static float Radius(this Vector3[] arr, Vector3 center, SkinWeight[]? weights = null) => arr.AverageDistanceTo(center, weights);
-
-
-        /// <summary>
-        /// Color4(r, g, b, multplier)
-        /// </summary>
-        /// <param name="nif"></param>
-        /// <param name="shape"></param>
-        /// <param name="color">r, g, b, multplier</param>
-        public static void SetShaderEmissive(this NifFile nif, NiShape shape, Color4 color)
+        public static Vertex[] WindowBy(this Vertex[] arr, Vector3 window)
         {
-            if (shape.HasShaderProperty())
+            List<Vertex> result = new();
+            foreach (Vertex v in arr)
             {
-                var shader = nif.GetBlock<BSLightingShaderProperty>(shape.ShaderPropertyRef());
-                if (shader != null && shader.IsEmissive())
-                {
-                    shader.SetEmissiveMultiple(color.a);
-                    shader.SetEmissiveColor(new Color4(color.r, color.g, color.b, 1f));
-                }
+                if (Math.Abs(v.x) < window.x &&
+                    Math.Abs(v.y) < window.y &&
+                    Math.Abs(v.z) < window.z)
+                    result.Add(v);
+                //else
+                //{
+                //    string mx = string.Empty, my = string.Empty, mz = string.Empty, msg = string.Empty;
+                //    if (Math.Abs(v.x) < window.x == false) { float r = v.x / window.x; if (r > 0) { r -= 1; } else { r += 1; } mx = $"x:({v.x}/{window.x}) {r * 100f:N3}%"; msg += mx; }
+                //    if (Math.Abs(v.y) < window.y == false) { float r = v.y / window.y; if (r > 0) { r -= 1; } else { r += 1; } my = $"y:({v.y}/{window.y}) {r * 100f:N3}%"; msg += my; }
+                //    if (Math.Abs(v.z) < window.z == false) { float r = v.z / window.z; if (r > 0) { r -= 1; } else { r += 1; } mz = $"z:({v.z}/{window.z}) {r * 100f:N3}%"; msg += mz; }
+                //    TEST.M.D($"{mx} {my} {mz}");//TEST.M.D(msg);
+                //}
             }
+            return result.ToArray();
         }
+
+        public static Vector3 Center(this Vertex[] arr, bool weight) => arr.Mean(weight);
+        public static float Radius(this Vertex[] arr, Vector3 center, bool weight) => arr.AverageDistanceTo(center, weight);
+        #endregion
         #endregion
 
 
@@ -432,12 +504,12 @@ namespace SkyrimAnimationChecker.NIF
             //BSSkinBoneData bd = skinData.bones[(int)vdArray[0].weightBones[0]];
 
             // get skin vertices
-            Vector3[] vertices = new Vector3[vdArray.Length];
-            for (int i = 0; i < vdArray.Length; i++) vertices[i] = vdArray[i].vert;
+            Vertex[] vertices = new Vertex[vdArray.Length];
+            for (int i = 0; i < vdArray.Length; i++) vertices[i] = new Vertex(i, vdArray[i].vert, 1);
 
-            return UpdateSphere(nif, sphere, vertices, Array.Empty<SkinWeight>(), sensitivity, strength);
+            return UpdateSphere(nif, sphere, vertices, sensitivity, strength);
         }
-        public static (Vector3 center, float radius, string msg)? UpdateSphere(this NifFile nif, NiShape sphere, Vector3[] vertices, SkinWeight[] weights, Vector3 sensitivity, Vector3 strength, float move = 0)
+        public static (Vector3 center, float radius, string msg)? UpdateSphere(this NifFile nif, NiShape sphere, Vertex[] vertices, Vector3 sensitivity, Vector3 strength, float move = 0)
         {
             // parent vector
             nifly.NiNode node = nif.GetParentNode(sphere);
@@ -473,8 +545,8 @@ namespace SkyrimAnimationChecker.NIF
             msg = ($"using {sidenote}{vCountnote}{vCountAll}{vCountDiffnote} vertices windowed by ({window.x:N3},{window.y:N3},{window.z:N3}), m={move}");
 #endif
             // calc
-            sphere.transform.translation = Center(vertices, weights).Strengthen(strength);
-            sphere.transform.scale = vertices.AverageDistanceTo(sphere.transform.translation, weights);
+            sphere.transform.translation = Center(vertices, true).Strengthen(strength);
+            sphere.transform.scale = vertices.AverageDistanceTo(sphere.transform.translation, true);
             sphere.MicroAdjust();
 
             // color emission
@@ -508,7 +580,27 @@ namespace SkyrimAnimationChecker.NIF
                     adjust.ScaleUp(0.08, -0.6);
                 }
             }
+            else if (sphere.name.get().StartsWith("NPC L Butt") || sphere.name.get().StartsWith("NPC R Butt"))
+            {
+                // scaling
+                adjust.ScaleUp(0.35, -0.975);
+
+                // translating, this should be done after scaling
+                adjust.Spread(0.11);
+                adjust.Forward(0.58);
+                adjust.Raise(0.55);
+            }
+            else if (sphere.name.get().StartsWith("NPC Belly"))
+            {
+                // scaling
+                adjust.ScaleUp(0.5);
+
+                // translating, this should be done after scaling
+                adjust.Lower(0.5);
+                adjust.Backward(0, 1);
+            }
         }
+
     }
 
 
@@ -550,29 +642,58 @@ namespace SkyrimAnimationChecker.NIF
         public BoundingSphere Bound => SkinData.bones[Index].bounds;
         public int WeightsCount => Weights.Count;
         public vectorSkinWeight Weights => SkinData.bones[Index].vertexWeights;
-        public SkinWeight GetWeight(Vector3 vertex) => Weights[_Vertices.IndexOf(vertex)];
+        //public SkinWeight GetWeight(Vector3 vertex) => Weights[_Vertices.IndexOf(vertex)];
 
         public int VerticesCount => _Vertices.Count;
-        public Vector3[] Vertices => _Vertices.ToArray();
+        public Vertex[] Vertices => _Vertices.ToArray();
         public vectorVector3 VerticesVector
         {
             get
             {
                 vectorVector3 buffer = new();
-                foreach (Vector3 v in _Vertices) buffer.Add(v);
+                //foreach (Vector3 v in _Vertices) buffer.Add(v);
+                foreach (Vertex v in _Vertices) buffer.Add(v.vert);
                 return buffer;
             }
         }
-        private List<Vector3> _Vertices = new();
+        private List<Vertex> _Vertices = new();
         private void GetVertices()
         {
             foreach (SkinWeight sw in Weights)
             {
-                _Vertices.Add(SkinPartition.vertData[sw.index].vert);
+                _Vertices.Add(new Vertex(sw.index, SkinPartition.vertData[sw.index].vert, sw.weight));
+                //_Vertices.Add(SkinPartition.vertData[sw.index].vert);
             }
         }
 
         public vectorTriangle Triangles => SkinPartition.partitions[0].triangles;
+    }
+    public class Vertex : Vector4
+    {
+        public Vertex(int index, Vector3 v, float weight)
+        {
+            Index = index;
+            vert = v;
+            this.weight = weight;
+        }
+        public int Index { get; set; }
+        public Vector3 vert { get; set; }
+        public float weight { get; set; }
+        public new float x { get => vert.x; set => vert.x = value; }
+        public new float y { get => vert.y; set => vert.y = value; }
+        public new float z { get => vert.z; set => vert.z = value; }
+        public new float w { get => weight; set => weight = value; }
+
+        public Vertex LocalizeTo(Vector3 parent)
+        {
+            vert = vert.opSub(parent);
+            return this;
+        }
+        public Vertex RotateBy(Matrix3 rotation)
+        {
+            vert = rotation.opMult(vert);
+            return this;
+        }
     }
     public class SphereAdjust
     {
