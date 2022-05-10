@@ -268,6 +268,7 @@ namespace SkyrimAnimationChecker.NIF
             }
             return filtered.ToArray();
         }
+
         public static Vector3 LocalizeTo(this Vector3 vector, Vector3 parent) => vector.opSub(parent);
         public static Vector3[] LocalizeTo(this Vector3[] arr, Vector3 parent)
         {
@@ -308,11 +309,8 @@ namespace SkyrimAnimationChecker.NIF
             }
             return result.ToArray();
         }
-        public static Vector3 Center(this Vector3[] arr, SkinWeight[]? weights = null)
-        {
-            if (weights == null) return arr.Mean();
-            else return arr.MeanWeighted(weights);
-        }
+
+        public static Vector3 Center(this Vector3[] arr, SkinWeight[]? weights = null) => arr.Mean(weights);
         /// <summary>
         /// Localized only
         /// </summary>
@@ -320,15 +318,9 @@ namespace SkyrimAnimationChecker.NIF
         /// <param name="strength"></param>
         /// <returns></returns>
         public static Vector3 Strengthen(this Vector3 center, Vector3 strength) => new Vector3(center.x * strength.x, center.y * strength.y, center.z * strength.z);
-        public static float AverageDistanceTo(this Vector3[] arr, Vector3 target)
-        {
-            float sum = 0;
-            foreach (Vector3 v in arr)
-            {
-                sum += v.DistanceTo(target);
-            }
-            return sum / arr.Length;
-        }
+
+        public static float Radius(this Vector3[] arr, Vector3 center, SkinWeight[]? weights = null) => arr.AverageDistanceTo(center, weights);
+
 
         /// <summary>
         /// Color4(r, g, b, multplier)
@@ -481,111 +473,42 @@ namespace SkyrimAnimationChecker.NIF
             msg = ($"using {sidenote}{vCountnote}{vCountAll}{vCountDiffnote} vertices windowed by ({window.x:N3},{window.y:N3},{window.z:N3}), m={move}");
 #endif
             // calc
-            sphere.transform.translation = Center(vertices).Strengthen(strength);
-            sphere.transform.scale = vertices.AverageDistanceTo(sphere.transform.translation);
-
-            // update
-            //sphere.transform.translation = center;
-            //sphere.transform.scale = radius;
-
-            // micro adjust
-            if (sphere.name.get().StartsWith("L Breast") || sphere.name.get().StartsWith("R Breast"))
-            {
-                // scaling
-                if (sphere.name.get().Contains('1')) sphere.transform.scale *= 0.90f;
-                // translating
-                move = sphere.transform.scale / 100f;
-                if (side == 'L') sphere.transform.translation.x += move * 16f;
-                else if (side == 'R') sphere.transform.translation.x -= move * 16f;
-                sphere.transform.translation.y -= move * 33f;
-                sphere.transform.translation.z -= move * 30f;
-                if (sphere.name.get().Contains('1'))
-                {
-                    sphere.transform.translation.z += move * 15f;
-                }
-                if (sphere.name.get().Contains('2'))
-                {
-                    sphere.transform.translation.y -= move * 10f;
-                }
-            }
-            //float div = 3;
-            //if (move == 0) move = radius;
-            //if (side == 'L') sphere.transform.translation.x += move / div;
-            //else if (side == 'R') sphere.transform.translation.x -= move / div;
-            //sphere.transform.translation.y -= move / div;
-            //sphere.transform.translation.z -= move / div;
+            sphere.transform.translation = Center(vertices, weights).Strengthen(strength);
+            sphere.transform.scale = vertices.AverageDistanceTo(sphere.transform.translation, weights);
+            sphere.MicroAdjust();
 
             // color emission
             nif.SetShaderEmissive(sphere, new Color4(0, 0, 1, 1));
-            //if (sphere.HasShaderProperty())
-            //{
-            //    var shader = nif.GetBlock<BSLightingShaderProperty>(sphere.ShaderPropertyRef());
-            //    if (shader != null && shader.IsEmissive())
-            //    {
-            //        shader.SetEmissiveMultiple(1);
-            //        shader.SetEmissiveColor(new Color4(0, 0, 1, 1));
-            //    }
-            //}
 
             return (sphere.transform.translation, sphere.transform.scale, msg);
         }
-        //public static (string msg)? UpdateSpheres(this NifFile nif, NiShape[] spheres, Vector3[] vertices, Vector3 sensitivity, Vector3 strength)
-        //{
-        //    foreach (NiShape sphere in spheres) { UpdateSphere(nif, sphere, vertices, sensitivity, strength); }
-        //}
-        public static bool MakeSphere(this NifFile nif, string name, Vector3[] vertices, float[] heightLimit, NiNode? parent = null)
+
+        public static void MicroAdjust(this NiShape sphere)
         {
-            NiNode? node = nif.GetNode(name);
-            if (node == null) return false;
-
-            Vector3 ts = node.GetTransformToParent().translation;
-            float hwindow = heightLimit[0] * heightLimit[1] / 2;
-
-            // calc
-            List<Vector3> pts = new();
-            foreach (Vector3 v in vertices)
+            SphereAdjust adjust = new SphereAdjust(sphere);
+            if (sphere.name.get().StartsWith("L Breast") || sphere.name.get().StartsWith("R Breast"))
             {
-                if (name.StartsWith('L') && v.x > 0) continue;
-                else if (name.StartsWith('R') && v.x < 0) continue;
+                // scaling
+                if (sphere.name.get().Contains('1')) adjust.Scale(0.9);
 
-                if (Math.Abs(v.y - ts.y) < 0.5 && Math.Abs(v.z - ts.z) < hwindow) pts.Add(v);
+                // translating, this should be done after scaling
+                adjust.Gather(0.16);
+                adjust.Raise(-0.3);
+                adjust.Backward(0.33);
+                if (sphere.name.get().Contains('1'))
+                {
+                    adjust.Gather(0.08);
+                    adjust.Raise(0.15);
+                }
+                if (sphere.name.get().Contains('2'))
+                {
+                    adjust.Spread(0.08, -0.2);
+                    adjust.Raise(0.1, 0.1);
+                    adjust.Forward(0.06, -0.3);
+                    adjust.ScaleUp(0.08, -0.6);
+                }
             }
-            Vector3 av = Center(pts.ToArray());
-            float d = AverageDistanceTo(pts.ToArray(), av);
-
-            // make container node
-            uint id = nif.CloneNamedNode(node.name.get());
-            nif.SetNodeName(id, node.name.get() + " Location");
-            nifly.NiNode? newnode = nif.GetNode(node.name.get() + " Location");
-            if (newnode == null) return false;
-            nif.SetParentNode(newnode, parent ?? nif.GetParentNode(node));
-            //nif.AddNode(, new MatTransform() { translation = av, scale = d }, parent ?? nif.GetParentNode(node));
-
-            // make sphere shape
-            BSTriShape newshape = new();
-            newshape.transform.translation = av.opSub(ts);
-            newshape.transform.scale = d;
-            newshape.SetVertices(true);
-            newshape.SetNormals(true);
-            newshape.SetTangents(true);
-            newshape.UpdateBounds();
-            newshape.UpdateRawVertices();
-            M.D(newshape.GetBlockName());
-            nif.CloneShape(newshape, node.name.get() + " Sphere");
-            //VertexDesc vd = new();
-            //vd.SetFlags(VertexFlags.VF_VERTEX | VertexFlags.VF_NORMAL | VertexFlags.VF_TANGENT);
-            //BSTriShape bsts = new();
-
-            //vectorVector2 uv = new(2);
-            //for (int i = 0; i < uv.Count; i++) { uv[i].u = (float)i; uv[i].v = (float)i; }
-
-            //NiShape newshape = nif.CreateShapeFromData(name + " Sphere",av.opSub(ts), , uv);
-            nif.SetParentNode(newshape, newnode);
-
-            return true;
         }
-
-
     }
 
 
@@ -651,7 +574,86 @@ namespace SkyrimAnimationChecker.NIF
 
         public vectorTriangle Triangles => SkinPartition.partitions[0].triangles;
     }
+    public class SphereAdjust
+    {
+        public SphereAdjust(NiShape sphere)
+        {
+            this.sphere = sphere;
+            side = sphere.GetSide();
+        }
+        public NiShape sphere;
+        public char? side;
 
+        /// <summary>
+        /// f = <c>sphere.transform.scale</c>*<c>A</c>+<c>B</c>
+        /// </summary>
+        /// <param name="A">ratio to scale</param>
+        /// <param name="B">raw translation</param>
+        private delegate void Adjust(float A, float B);
+
+
+        /// <inheritdoc cref="Adjust"/>
+        /// <exception cref="Exception">Not sided Exception</exception>
+        public void Gather(float A, float B = 0)
+        {
+            if (side == 'L') Right(A, B);
+            else if (side == 'R') Left(A, B);
+            else throw new Exception("Can not gather because sphere is not sided");
+        }
+        /// <inheritdoc cref="Adjust"/>
+        public void Gather(double A, double B = 0) => Gather((float)A, (float)B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Spread(float A, float B = 0) => Gather(-A, -B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Spread(double A, double B = 0) => Spread((float)A, (float)B);
+
+        /// <inheritdoc cref="Adjust"/>
+        public void Left(float A, float B = 0) => sphere.transform.translation.x -= (sphere.transform.scale * A + B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Left(double A, double B = 0) => Left((float)A, (float)B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Right(float A, float B = 0) => sphere.transform.translation.x += (sphere.transform.scale * A + B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Right(double A, double B = 0) => Right((float)A, (float)B);
+
+        /// <inheritdoc cref="Adjust"/>
+        public void Raise(float A, float B = 0) => sphere.transform.translation.z += (sphere.transform.scale * A + B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Raise(double A, double B = 0) => Raise((float)A, (float)B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Lower(float A, float B = 0) => sphere.transform.translation.z -= (sphere.transform.scale * A + B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Lower(double A, double B = 0) => Lower((float)A, (float)B);
+
+        /// <inheritdoc cref="Adjust"/>
+        public void Forward(float A, float B = 0) => sphere.transform.translation.y += (sphere.transform.scale * A + B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Forward(double A, double B = 0) => Forward((float)A, (float)B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Backward(float A, float B = 0) => sphere.transform.translation.y -= (sphere.transform.scale * A + B);
+        /// <inheritdoc cref="Adjust"/>
+        public void Backward(double A, double B = 0) => Backward((float)A, (float)B);
+
+
+        /// <inheritdoc cref="Adjust"/>
+        public void ScaleUp(float A, float B = 0) => sphere.transform.scale += (sphere.transform.scale * A + B);
+        /// <inheritdoc cref="Adjust"/>
+        public void ScaleUp(double A, double B = 0) => ScaleUp((float)A, (float)B);
+        /// <inheritdoc cref="Adjust"/>
+        public void ScaleDown(float A, float B = 0) => sphere.transform.scale -= (sphere.transform.scale * A + B);
+        /// <inheritdoc cref="Adjust"/>
+        public void ScaleDown(double A, double B = 0) => ScaleDown((float)A, (float)B);
+
+        /// <summary>
+        /// <code>sphere.transform.scale *= value</code>
+        /// </summary>
+        /// <param name="value">ratio to adjust</param>
+        public void Scale(float value) => sphere.transform.scale *= value;
+
+        /// <inheritdoc cref="Scale(float)"/>
+        public void Scale(double value) => Scale((float)value);
+
+    }
 
 
 }

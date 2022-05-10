@@ -50,7 +50,13 @@ namespace SkyrimAnimationChecker.NIF
             return newWeights;
         }
 
-        public static Vector3 Mean(this Vector3[] arr)
+
+        public static Vector3 Mean(this Vector3[] arr, SkinWeight[]? weights = null, bool normalize = true)
+        {
+            if (weights == null) return MeanNormal(arr);
+            else return MeanWeighted(arr, weights, normalize);
+        }
+        private static Vector3 MeanNormal(this Vector3[] arr)
         {
             Vector3 sum = new();
             foreach (Vector3 v in arr)
@@ -61,18 +67,20 @@ namespace SkyrimAnimationChecker.NIF
             }
             return new Vector3(sum.x / arr.Length, sum.y / arr.Length, sum.z / arr.Length);
         }
-        public static Vector3 MeanWeighted(this Vector3[] arr, SkinWeight[] weights)
+        private static Vector3 MeanWeighted(this Vector3[] arr, SkinWeight[] weights, bool normalize)
         {
-            Vector3 sum = new();
             if (arr.Length != weights.Length) throw new ArgumentException($"Argument lengths are different {arr.Length}, {weights.Length}");
-            var w = weights.Normalize();
+            var w = normalize ? weights.Normalize() : weights;
+
+            Vector4 sum = new();
             for (int i = 0; i < arr.Length; i++)
             {
                 sum.x += arr[i].x * w[i].weight;
                 sum.y += arr[i].y * w[i].weight;
                 sum.z += arr[i].z * w[i].weight;
+                sum.w += w[i].weight;
             }
-            return new Vector3(sum.x / arr.Length, sum.y / arr.Length, sum.z / arr.Length);
+            return new Vector3(sum.x / sum.w, sum.y / sum.w, sum.z / sum.w);
         }
 
         public static Vector3 Variance(this Vector3[] arr, Vector3 mean)
@@ -95,5 +103,34 @@ namespace SkyrimAnimationChecker.NIF
         public static Vector3 StdDev(this Vector3[] arr) => StdDev(arr, Mean(arr));
         public static Vector3 RMS(this Vector3[] arr, Vector3 mean) => StdDev(arr, mean);
         public static Vector3 RMS(this Vector3[] arr) => StdDev(arr);
+
+
+        public static float AverageDistanceTo(this Vector3[] arr, Vector3 target, SkinWeight[]? weights = null, bool normalize = true)
+        {
+            if (weights == null) return AverageNormalDistanceTo(arr, target);
+            else return AverageWeightedDistanceTo(arr, target, weights, normalize);
+        }
+        private static float AverageNormalDistanceTo(this Vector3[] arr, Vector3 target)
+        {
+            float sum = 0;
+            foreach (Vector3 v in arr)
+            {
+                sum += v.DistanceTo(target);
+            }
+            return sum / arr.Length;
+        }
+        private static float AverageWeightedDistanceTo(this Vector3[] arr, Vector3 target, SkinWeight[] weights, bool normalize)
+        {
+            if (arr.Length != weights.Length) throw new ArgumentException($"Argument lengths are different {arr.Length}, {weights.Length}");
+            var w = normalize ? weights.Normalize() : weights;
+
+            float sum = 0, wsum = 0;
+            for (int i = 0; i < weights.Length; i++)
+            {
+                sum += arr[i].DistanceTo(target) * weights[i].weight;
+                wsum += weights[i].weight;
+            }
+            return sum / wsum;
+        }
     }
 }
