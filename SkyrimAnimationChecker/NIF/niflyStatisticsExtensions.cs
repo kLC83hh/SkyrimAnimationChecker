@@ -53,38 +53,18 @@ namespace SkyrimAnimationChecker.NIF
 
         public static Vector3 Mean(this Vector3[] arr, SkinWeight[]? weights = null, bool normalize = true)
         {
-            if (weights == null) return MeanNormal(arr);
-            else return MeanWeighted(arr, weights, normalize);
-        }
-        private static Vector3 MeanNormal(this Vector3[] arr)
-        {
-            Vector3 sum = new();
-            foreach (Vector3 v in arr)
-            {
-                sum.x += v.x;
-                sum.y += v.y;
-                sum.z += v.z;
-            }
-            return new Vector3(sum.x / arr.Length, sum.y / arr.Length, sum.z / arr.Length);
-        }
-        private static Vector3 MeanWeighted(this Vector3[] arr, SkinWeight[] weights, bool normalize)
-        {
-            if (arr.Length != weights.Length) throw new ArgumentException($"Argument lengths are different {arr.Length}, {weights.Length}");
-            var w = normalize ? weights.Normalize() : weights;
+            if (weights != null && arr.Length != weights.Length) throw new ArgumentException($"Argument lengths are different {arr.Length}, {weights.Length}");
 
-            Vector4 sum = new();
-            for (int i = 0; i < arr.Length; i++)
+            Vertex[] vertices = new Vertex[arr.Length];
+            for (var i = 0; i < arr.Length; i++)
             {
-                sum.x += arr[i].x * w[i].weight;
-                sum.y += arr[i].y * w[i].weight;
-                sum.z += arr[i].z * w[i].weight;
-                sum.w += w[i].weight;
+                vertices[i] = new Vertex(i, arr[i], weights != null ? weights[i].weight : 1f);
             }
-            return new Vector3(sum.x / sum.w, sum.y / sum.w, sum.z / sum.w);
+            return Mean(vertices, weights != null, normalize);
         }
-
-        public static Vector3 Variance(this Vector3[] arr, Vector3 mean)
+        public static Vector3 Variance(this Vector3[] arr, Vector3? mean = null)
         {
+            if (mean == null) mean = Mean(arr);
             Vector3 sum = new();
             foreach (Vector3 v in arr)
             {
@@ -94,43 +74,24 @@ namespace SkyrimAnimationChecker.NIF
             }
             return sum;
         }
-        public static Vector3 Variance(this Vector3[] arr) => Variance(arr, Mean(arr));
-        public static Vector3 StdDev(this Vector3[] arr, Vector3 mean)
+        public static Vector3 StdDev(this Vector3[] arr, Vector3? mean = null)
         {
+            if (mean == null) mean = Mean(arr);
             Vector3 var = Variance(arr, mean);
             return new Vector3((float)Math.Sqrt(var.x), (float)Math.Sqrt(var.y), (float)Math.Sqrt(var.z));
         }
-        public static Vector3 StdDev(this Vector3[] arr) => StdDev(arr, Mean(arr));
-        public static Vector3 RMS(this Vector3[] arr, Vector3 mean) => StdDev(arr, mean);
-        public static Vector3 RMS(this Vector3[] arr) => StdDev(arr);
-
+        public static Vector3 RMS(this Vector3[] arr, Vector3? mean = null) => StdDev(arr, mean);
 
         public static float AverageDistanceTo(this Vector3[] arr, Vector3 target, SkinWeight[]? weights = null, bool normalize = true)
         {
-            if (weights == null) return AverageNormalDistanceTo(arr, target);
-            else return AverageWeightedDistanceTo(arr, target, weights, normalize);
-        }
-        private static float AverageNormalDistanceTo(this Vector3[] arr, Vector3 target)
-        {
-            float sum = 0;
-            foreach (Vector3 v in arr)
-            {
-                sum += v.DistanceTo(target);
-            }
-            return sum / arr.Length;
-        }
-        private static float AverageWeightedDistanceTo(this Vector3[] arr, Vector3 target, SkinWeight[] weights, bool normalize)
-        {
-            if (arr.Length != weights.Length) throw new ArgumentException($"Argument lengths are different {arr.Length}, {weights.Length}");
-            var w = normalize ? weights.Normalize() : weights;
+            if (weights != null && arr.Length != weights.Length) throw new ArgumentException($"Argument lengths are different {arr.Length}, {weights.Length}");
 
-            float sum = 0, wsum = 0;
-            for (int i = 0; i < weights.Length; i++)
+            Vertex[] vertices = new Vertex[arr.Length];
+            for (var i = 0; i < arr.Length; i++)
             {
-                sum += arr[i].DistanceTo(target) * weights[i].weight;
-                wsum += weights[i].weight;
+                vertices[i] = new Vertex(i, arr[i], weights != null ? weights[i].weight : 1f);
             }
-            return sum / wsum;
+            return AverageDistanceTo(vertices, target, weights != null, normalize);
         }
         #endregion
         #region Vertex
@@ -220,5 +181,13 @@ namespace SkyrimAnimationChecker.NIF
             return sum / wsum;
         }
         #endregion
+
+        public static Vector3 ToEulerDegrees(this Matrix3 rotation)
+        {
+            float y = 0, p = 0, r = 0;
+            rotation.ToEulerDegrees(ref y, ref p, ref r);
+            return new Vector3(y, p, r);
+        }
+
     }
 }

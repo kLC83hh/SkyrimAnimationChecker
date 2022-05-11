@@ -226,13 +226,6 @@ namespace SkyrimAnimationChecker.NIF
         }
 
 
-        public static Vector3 ToEulerDegrees(this Matrix3 rotation)
-        {
-            float y = 0, p = 0, r = 0;
-            rotation.ToEulerDegrees(ref y, ref p, ref r);
-            return new Vector3(y, p, r);
-        }
-
     }
     public static class SphereExtensions
     {
@@ -432,15 +425,15 @@ namespace SkyrimAnimationChecker.NIF
         }
         public static (Vector3 center, float radius, string msg)? UpdateSphere(this NifFile nif, BSTriShape sphere, vectorVector3 vertices, vectorTriangle tris)
         {
-            M.D($"{sphere.name.get()} {sphere.rawVertices.Count} {sphere.vertData.Count} {sphere.triangles.Count} {sphere.HasVertices()} {sphere.HasNormals()} {sphere.HasTangents()} {sphere.HasVertexColors()}");
-
             MatTransform parent = nif.GetParentNode(sphere).transform;
+#if DEBUG
+            M.D($"{sphere.name.get()} {sphere.rawVertices.Count} {sphere.vertData.Count} {sphere.triangles.Count} {sphere.HasVertices()} {sphere.HasNormals()} {sphere.HasTangents()} {sphere.HasVertexColors()}");
             Vector3 pRot = parent.rotation.ToEulerDegrees();
             Vector3 sRot = sphere.transform.rotation.ToEulerDegrees();
             M.D($"({parent.translation.x},{parent.translation.y},{parent.translation.z}),({pRot.x},{pRot.y},{pRot.z})" +
                 $" ({sphere.transform.translation.x},{sphere.transform.translation.y},{sphere.transform.translation.z}),({sRot.x},{sRot.y},{sRot.z})");
+#endif
             sphere.transform.scale = 1;
-
             sphere.SetVertexColors(true);
 
             vectorBSVertexData newVerts = new();
@@ -469,15 +462,7 @@ namespace SkyrimAnimationChecker.NIF
             sphere.UpdateRawTangents();
 
             // color emission
-            if (sphere.HasShaderProperty())
-            {
-                var shader = nif.GetBlock<BSLightingShaderProperty>(sphere.ShaderPropertyRef());
-                if (shader != null && shader.IsEmissive())
-                {
-                    shader.SetEmissiveMultiple(1);
-                    shader.SetEmissiveColor(new Color4(0, 0, 1, 1));
-                }
-            }
+            nif.SetShaderEmissive(sphere, new Color4(0, 0, 1, 1));
 
             M.D($"{sphere.name.get()} {sphere.rawVertices.Count} {sphere.vertData.Count} {sphere.triangles.Count} {sphere.HasVertices()} {sphere.HasNormals()} {sphere.HasTangents()} {sphere.HasVertexColors()}");
             return (new(), 0, "Manual update");
@@ -492,13 +477,9 @@ namespace SkyrimAnimationChecker.NIF
         public static (Vector3 center, float radius, string msg)? UpdateSphere(this NifFile nif, NiShape sphere, NiShape skin, Vector3 sensitivity, Vector3 strength)
         {
             // get skin datas
-            var skinInstance = nif.GetBlock<BSDismemberSkinInstance>(skin.SkinInstanceRef());
-            if (skinInstance == null) return (new(), 0, "Error: UpdateSphere: can not retrieve BSDismemberSkinInstance");
-            var skinPartition = nif.GetBlock<NiSkinPartition>(skinInstance.skinPartitionRef);
-            if (skinPartition == null) return (new(), 0, "Error: UpdateSphere: can not retrieve skinPartition");
-            var skinData = nif.GetBlock<NiSkinData>(skinInstance.dataRef);
-            if (skinData == null) return (new(), 0, "Error: UpdateSphere: can not retrieve skinData");
-            BSVertexData[] vdArray = skinPartition.vertData.ToArray();
+            var skinDismember = new SkinDismember(nif, skin);
+            if (skinDismember.Error) return (new(), 0, skinDismember.Reason);
+            BSVertexData[] vdArray = skinDismember.Partition.vertData.ToArray();
 
             //TEST.M.D($"{vdArray[0].weightBones[0]}");
             //BSSkinBoneData bd = skinData.bones[(int)vdArray[0].weightBones[0]];
@@ -558,6 +539,8 @@ namespace SkyrimAnimationChecker.NIF
         public static void MicroAdjust(this NiShape sphere)
         {
             SphereAdjust adjust = new SphereAdjust(sphere);
+            // scaling
+            // translating, this should be done after scaling
             if (sphere.name.get().StartsWith("L Breast") || sphere.name.get().StartsWith("R Breast"))
             {
                 // scaling
@@ -599,11 +582,91 @@ namespace SkyrimAnimationChecker.NIF
                 adjust.Lower(0.5);
                 adjust.Backward(0, 1);
             }
+            else if (sphere.name.get().StartsWith("VaginaB1"))
+            {
+                // scaling
+                // translating, this should be done after scaling
+                adjust.Lower(0.3);
+                adjust.Forward(0.15);
+            }
+            else if (sphere.name.get().StartsWith("Clitoral1"))
+            {
+                // scaling
+                adjust.ScaleUp(0.2);
+                // translating, this should be done after scaling
+                adjust.Lower(0.2);
+            }
         }
 
     }
 
 
+    public class SkinDismember
+    {
+        public SkinDismember(NifFile nif, NiShape skin)
+        {
+            Nif = nif;
+            Skin = skin;
+        }
+        public NifFile Nif { get; set; }
+        public NiShape Skin { get; set; }
+
+
+        private readonly Dictionary<byte, string> reasons = new()
+        {
+            { 1, "Error: can not retrieve BSDismemberSkinInstance" },
+            { 2, "Error: can not retrieve NiSkinPartition" },
+            { 4, "Error: can not retrieve NiSkinData" }
+        };
+        public string Reason
+        {
+            get
+            {
+                foreach (var key in reasons.Keys)
+                {
+                    if ((_Error & key) == key) return reasons[(byte)(_Error & key)];
+                }
+                return string.Empty;
+            }
+        }
+        private byte _Error = 0;
+        public bool Error => _Error != 0;
+
+
+        private BSDismemberSkinInstance? _Instance = null;
+        public BSDismemberSkinInstance Instance
+        {
+            get
+            {
+                if (_Instance == null) _Instance = Nif.GetBlock<BSDismemberSkinInstance>(Skin.SkinInstanceRef());
+                if (_Instance == null) { _Instance = new(); _Error |= 1; }
+                return _Instance;
+            }
+        }
+
+        private NiSkinPartition? _Partition = null;
+        public NiSkinPartition Partition
+        {
+            get
+            {
+                if (_Partition == null) _Partition = Nif.GetBlock<NiSkinPartition>(Instance.skinPartitionRef);
+                if (_Partition == null) { _Partition = new(); _Error |= 2; }
+                return _Partition;
+            }
+        }
+
+        private NiSkinData? _Data = null;
+        public NiSkinData Data
+        {
+            get
+            {
+                if (_Data == null) _Data = Nif.GetBlock<NiSkinData>(Instance.dataRef);
+                if (_Data == null) { _Data = new(); _Error |= 4; }
+                return _Data;
+            }
+        }
+
+    }
     public class Bone
     {
         public Bone(NifFile nif, NiShape skin, int index, uint id, string name)

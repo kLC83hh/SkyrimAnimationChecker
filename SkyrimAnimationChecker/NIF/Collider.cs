@@ -167,27 +167,34 @@ namespace SkyrimAnimationChecker.NIF
         {
             List<object> msg = new();
 
-            // filter, Func, Action, "NPC L UpperArm [LUar]"
-            string[] filter = new string[] { "L Breast", "NPC L Butt", "NPC Belly" };
-            Func<string, bool> checkFilter = (name) =>
+            // get skinned shape
+            nifly.NiShape[] skins = nif.GetAllSkinned();
+            if (skins.Length == 0) goto CalcSphereEnd;
+            foreach (var s in skins) nif.GetShader(s).SetAlpha(0.5f);
+
+            // filter, Func, Action
+            Action<string, string[]> calc = (name, filter) => msg = CalcInSkin(msg, filter, name, skins, nif, sens, str, bounding);
+
+            calc("3BA", new string[] { "L Breast", "NPC L Butt", "NPC Belly", "Clitoral1", "VaginaB1" });
+            calc("Hands", new string[] { "NPC L Finger" });
+
+            nif.Save(path);
+        CalcSphereEnd:
+            string[] finalout = new string[msg.Count];
+            for (int i = 0; i < msg.Count; i++)
             {
-                foreach (string s in filter)
-                {
-                    if (name.StartsWith(s)) return true;
-                }
-                return false;
-            };
-            Func<string[], string[]> filterStringArray = (list) => {
-                List<string> result = new();
-                foreach (string s in list)
-                {
-                    foreach (string f in filter)
-                    {
-                        if (s.StartsWith(f)) result.Add(f);
-                    }
-                }
-                return result.ToArray();
-            };
+                finalout[i] = msg[i].ToString() ?? string.Empty;
+#if DEBUG
+                M.D(finalout[i]);
+#endif
+            }
+            return finalout;
+        }
+        private List<object> CalcInSkin(List<object> msg, string[] filter, string name, nifly.NiShape[] skins, nifly.NifFile nif, string sens, string str, bool bounding)
+        {
+            nifly.NiShape skin = skins.First(x => x.name.get() == name);
+
+            // Func, Action
             Action<string, (nifly.Vector3 center, float radius, string msg)?> UpdateSphereResult = (name, result) => {
                 if (result != null)
                 {
@@ -196,24 +203,24 @@ namespace SkyrimAnimationChecker.NIF
                 }
                 else msg.Add($"{name} Failed");
             };
-
-            // get skinned shape
-            nifly.NiShape[] skins = nif.GetAllSkinned();
-            if (skins.Length == 0) goto test5end;
-            nifly.NiShape skin = skins.First(x => x.name.get() == "3BA");
+            Func<Bone, Bone> getWorkbone = (bone) =>
+            {
+                if (bone.Name == "VaginaB1")
+                {
+                    nif.GetFilteredBones(out Bone[] buffer, skins.First(x => x.name.get() == "3BBB_Vagina"), new string[] { bone.Name });
+                    return buffer.First(x => x.Name == bone.Name);
+                }
+                return bone;
+            };
 
             // get skin datas
-            var skinInstance = nif.GetBlock<nifly.BSDismemberSkinInstance>(skin.SkinInstanceRef());
-            if (skinInstance == null) goto test5end;
-            var skinPartition = nif.GetBlock<nifly.NiSkinPartition>(skinInstance.skinPartitionRef);
-            if (skinPartition == null) goto test5end;
-            var skinData = nif.GetBlock<nifly.NiSkinData>(skinInstance.dataRef);
-            if (skinData == null) goto test5end;
-            msg.Add($"SkinInstance {skinPartition.numVertices} {skinPartition.numPartitions}, skinBones {skinData.bones.Count}");
+            var skinDismember = new SkinDismember(nif, skin);
+            if (skinDismember.Error) { msg.Add(skinDismember.Reason); return msg; }
+            msg.Add($"SkinInstance {skinDismember.Partition.numVertices} {skinDismember.Partition.numPartitions}, skinBones {skinDismember.Data.bones.Count}");
 
             // bones
             var boneResult = nif.GetFilteredBones(out Bone[] bones, skin, filter);
-            if (boneResult <= 0) { msg.Add($"Error: GetFilteredBones {boneResult}"); goto test5end; }
+            if (boneResult <= 0) { msg.Add($"Error: GetFilteredBones {boneResult}"); return msg; }
             msg.Add($"shapeBones {bones.Length}/{boneResult}");
             msg.Add($"sens:{sens} str:{str}");
             float move = 0;
@@ -231,7 +238,8 @@ namespace SkyrimAnimationChecker.NIF
                     if (bone.Sphere != null)
                     {
                         //result = bone.Sphere?.UpdateVertColor();
-                        result = nif.UpdateSphere(bone.Sphere, bone.VerticesVector, bone.Triangles);
+                        var workbone = getWorkbone(bone);
+                        result = nif.UpdateSphere(bone.Sphere, workbone.VerticesVector, workbone.Triangles);
                         //result = bone.Sphere?.UpdateSphere(bone.Bound.center, bone.Bound.radius);
                         UpdateSphereResult(bone.SphereName, result);
                     }
@@ -241,7 +249,7 @@ namespace SkyrimAnimationChecker.NIF
                     foreach (nifly.NiShape sphere in bone.Spheres)
                     {
                         if (sphere.transform.scale == 0) continue;
-                        result = nif.UpdateSphere(sphere, bone.Vertices, Vectorize(sens, 1), Vectorize(str, 1), sphere.name.get().StartsWith("L Breast") ? move : 0);
+                        result = nif.UpdateSphere(sphere, getWorkbone(bone).Vertices, Vectorize(sens, 1), Vectorize(str, 1), sphere.name.get().StartsWith("L Breast") ? move : 0);
                         //var result = outFile.UpdateSphere(sphere, skin, new nifly.Vector3(.5f, .1f, .2f), new nifly.Vector3(.33f, 1f, .33f));
                         UpdateSphereResult(sphere.name.get(), result);
                         if (bone.SphereName.StartsWith("L Breast03")) move = (float)(result?.radius ?? 0);
@@ -249,17 +257,7 @@ namespace SkyrimAnimationChecker.NIF
                 }
             }
 
-            nif.Save(path);
-        test5end:
-            string[] finalout = new string[msg.Count];
-            for (int i = 0; i < msg.Count; i++)
-            {
-                finalout[i] = msg[i].ToString() ?? string.Empty;
-#if DEBUG
-                M.D(finalout[i]);
-#endif
-            }
-            return finalout;
+            return msg;
         }
 
 
