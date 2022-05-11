@@ -28,17 +28,19 @@ namespace SkyrimAnimationChecker.NIF
             if (overwrite == null) overwrite = vm.overwriteInterNIFs;
             string[] bsfile = vm.fileNIF_bodyslide.Split(',').ForEach(x => x.Trim());
             if (bsfile.Length != 2) throw EE.New(1011);
+            string[] bhfile = vm.fileNIF_bsHands.Split(',').ForEach(x => x.Trim());
+            if (bsfile.Length != 2) throw EE.New(1012);
             switch (weight)
             {
                 case 2:
-                    r1 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere0 : localExample[0], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[0]), vm.fileNIF_out0, overwrite);
-                    r2 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere1 : localExample[1], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[1]), vm.fileNIF_out1, overwrite);
+                    r1 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere0 : localExample[0], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[0]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[0]), vm.fileNIF_out0, overwrite);
+                    r2 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere1 : localExample[1], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[1]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[1]), vm.fileNIF_out1, overwrite);
                     break;
                 case 1:
-                    r2 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere1 : localExample[1], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[1]), vm.fileNIF_out1, overwrite);
+                    r2 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere1 : localExample[1], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[1]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[1]), vm.fileNIF_out1, overwrite);
                     break;
                 case 0:
-                    r1 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere0 : localExample[0], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[0]), vm.fileNIF_out0, overwrite);
+                    r1 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere0 : localExample[0], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[0]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[0]), vm.fileNIF_out0, overwrite);
                     break;
                 default:
                     r1 = 0;
@@ -50,34 +52,38 @@ namespace SkyrimAnimationChecker.NIF
             vm.NIFrunning = false;
             return r1 * (r2 > 1 ? r2 + 1 : r2);
         }
-        private int Replace3BA(string sphere, string bodyslide, string output, bool? overwrite = null)
+        private int Replace3BA(string sphere, string bodyslide, string bshands, string output, bool? overwrite = null)
         {
             if (overwrite == null) overwrite = false;
             if (System.IO.File.Exists(output) && !(bool)overwrite) return 2;
             if (!System.IO.File.Exists(sphere) || !System.IO.File.Exists(bodyslide)) return 4;
-            nifly.NifFile spNI = new nifly.NifFile(), bsNI = new nifly.NifFile();
+            nifly.NifFile spNI = new nifly.NifFile(), bsNI = new nifly.NifFile(), bhNI = new nifly.NifFile();
             spNI.Load(sphere);
             bsNI.Load(bodyslide);
-            nifly.vectorNiShape eShapes = spNI.GetShapes(), bsShapes = bsNI.GetShapes();
-            for (int i = 0; i < eShapes.Count; i++)
+            if (!System.IO.File.Exists(bshands)) bhNI.Load(bshands);
+            nifly.vectorNiShape eShapes = spNI.GetShapes(), bsShapes = bsNI.GetShapes(), bhShapes = bhNI.GetShapes();
+            Action<string, nifly.NiShape, nifly.vectorNiShape, nifly.NifFile> replace = (name, tshape, shapes, file) =>
             {
-                if (eShapes[i].name.get() == "3BA")
+                if (tshape.name.get() == name)
                 {
                     nifly.NiShape? shape = null;
-                    foreach (var s in bsShapes)
+                    foreach (var s in shapes)
                     {
-                        if (s.name.get() == "3BA") { shape = s; break; }
+                        if (s.name.get() == name) { shape = s; break; }
                     }
                     if (shape != null)
                     {
-                        nifly.NiAlphaProperty alpha = new();
-                        spNI.DeleteShape(eShapes[i]);
-                        nifly.NiShape cloned = spNI.CloneShape(shape, shape.name.get(), bsNI);
-                        spNI.GetShader(cloned).SetAlpha(0.5f);
+                        spNI.DeleteShape(tshape);
+                        spNI.CloneShape(shape, shape.name.get(), file);
                     }
-                    break;
                 }
+            };
+            for (int i = 0; i < eShapes.Count; i++)
+            {
+                replace("3BA", eShapes[i], bsShapes, bsNI);
+                if (!System.IO.File.Exists(bshands)) replace("Hands", eShapes[i], bhShapes, bhNI);
             }
+            foreach (var skin in spNI.GetAllSkinned()) spNI.GetShader(skin).SetAlpha(0.5f);
             spNI.FinalizeData();
             spNI.Save(output);
             return 1;

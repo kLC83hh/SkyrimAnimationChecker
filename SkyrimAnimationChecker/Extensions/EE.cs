@@ -19,6 +19,7 @@ namespace SkyrimAnimationChecker
             { 1003, $"NIF: Colliders: Combine: {Environment.NewLine}Invalid data: Group statuses are different." },
             { 1004, $"NIF: Colliders: Combine: {Environment.NewLine}Invalid data: Sphere names are different." },
             { 1011, $"NIF: Make: Incorrect bodyslide file name" },
+            { 1012, $"NIF: Make: Incorrect bsHands file name" },
             { 1101, $"NIF: Collider: No nifs are found." },
             // 2000 cbpc physics
             { 2001, $"CBPC: Physics: Parse_Type: {Environment.NewLine}Can not retrieve CBPConfig data." },

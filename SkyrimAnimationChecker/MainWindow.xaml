@@ -357,7 +357,14 @@
                     </StackPanel.Style>
                     <Grid>
                         <TextBlock Text="bs file name"/>
-                        <TextBox Text="{Binding fileNIF_bodyslide}" Grid.Column="1"/>
+                        <Grid Grid.Column="1" Style="{StaticResource Normal}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding fileNIF_bodyslide}"/>
+                            <TextBox Text="{Binding fileNIF_bsHands}" Grid.Column="1"/>
+                        </Grid>
                     </Grid>
                     <Grid Style="{StaticResource fornif1}">
                         <TextBlock Text="sphere nif_1" Style="{StaticResource lineHeader}"/>

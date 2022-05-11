@@ -55,6 +55,7 @@ namespace SkyrimAnimationChecker.Common
             // NIF
             _dirNIF_bodyslide = workdir;
             fileNIF_bodyslide = "femalebody_0.nif, femalebody_1.nif";
+            fileNIF_bsHands = "femalehands_0.nif, femalehands_1.nif";
             useCustomExample = false;
             weightNumber = 1;
             fileNIF_sphere0 = System.IO.Path.Combine(workdir, "example_1.nif");
@@ -135,6 +136,7 @@ namespace SkyrimAnimationChecker.Common
             }
         }
         public string fileNIF_bodyslide { get => Get<string>(); set => Set(value); }
+        public string fileNIF_bsHands { get => Get<string>(); set => Set(value); }
 
         public bool useCustomExample { get => Get<bool>(); set => Set(value); }
         public int weightNumber { get => Get<int>(); set { if (value > -1) Set(value); } }
