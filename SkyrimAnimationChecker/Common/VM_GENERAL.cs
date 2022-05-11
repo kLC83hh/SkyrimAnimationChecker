@@ -36,6 +36,7 @@ namespace SkyrimAnimationChecker.Common
     {
         partial void DefaultCommon()
         {
+            Version = string.Empty;
             Height = 570;
             Width = 830;
             useDesktop = true;
@@ -49,7 +50,7 @@ namespace SkyrimAnimationChecker.Common
             useBodyChange = false;
             useAdvanced = false;
 
-            panelNumber = 1;
+            panelNumber = 0;
             bodychangeNumber = 0;
 
             // NIF
@@ -57,12 +58,12 @@ namespace SkyrimAnimationChecker.Common
             fileNIF_bodyslide = "femalebody_0.nif, femalebody_1.nif";
             fileNIF_bsHands = "femalehands_0.nif, femalehands_1.nif";
             useCustomExample = false;
-            weightNumber = 1;
+            weightNumber = 2;
             fileNIF_sphere0 = System.IO.Path.Combine(workdir, "example_1.nif");
             fileNIF_sphere1 = System.IO.Path.Combine(workdir, "example_0.nif");
-            AutoCalcSpheres = false;
+            AutoCalcSpheres = true;
 
-            useNIFs = false;
+            useNIFs = true;
             fileNIF_out0 = System.IO.Path.Combine(workdir, "inter_0.nif");
             fileNIF_out1 = System.IO.Path.Combine(workdir, "inter_1.nif");
 
@@ -83,7 +84,7 @@ namespace SkyrimAnimationChecker.Common
             CBPCremoveUnnecessary = true;
 
         }
-
+        public string Version { get => Get<string>(); set => Set(value); }
         public double Height { get => Get<double>(); set => Set(value); }
         public double Width { get => Get<double>(); set => Set(value); }
         public bool useDesktop { get => Get<bool>(); set => Set(value); }

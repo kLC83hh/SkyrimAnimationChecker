@@ -48,6 +48,7 @@ namespace SkyrimAnimationChecker
                 {
                     string v = a.GetName().Version?.ToString() ?? string.Empty;
                     while (v.EndsWith(".0")) { v = v.Remove(v.Length - 2); }
+                    if (v != vm.Version) { appUpdates = true; vm.Version = v; }
                     this.Title += $" {v}";
                 }
             }
@@ -62,6 +63,7 @@ namespace SkyrimAnimationChecker
         #region ui/ux operation
         private VM vmm;
         private VM_GENERAL vm;
+        private bool appUpdates = false;
         /* general events */
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -79,6 +81,13 @@ namespace SkyrimAnimationChecker
         private void MainWindow_ContentRendered(object? sender, EventArgs e) => CheckWhenStart();
         private void CheckWhenStart()
         {
+            if (appUpdates)
+            {
+                if (MessageBox.Show("The app is newly updated.\nDo you want to reset settings to default?", "Choose", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
+                {
+                    vmm.Reset();
+                }
+            }
             if (CheckMO2()) vm.mo2Detected = true;
             //if (!vm.mo2Detected) vm.useAdvanced = true;
             LoadPhysicsLocation();
