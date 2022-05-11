@@ -48,7 +48,11 @@ namespace SkyrimAnimationChecker
                 {
                     string v = a.GetName().Version?.ToString() ?? string.Empty;
                     while (v.EndsWith(".0")) { v = v.Remove(v.Length - 2); }
-                    if (v != vm.Version) { appUpdates = true; vm.Version = v; }
+                    if (vm.Version != v)
+                    {
+                        if (!string.IsNullOrEmpty(vm.Version)) appUpdates = true;
+                        vm.Version = v;
+                    }
                     this.Title += $" {v}";
                 }
             }
