@@ -208,6 +208,22 @@
                             </Style>
                         </TextBox.Style>
                     </TextBox>
+                    <TextBlock Text="{Binding dirNIF_bodyslide}" Grid.Column="1">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}">
+                                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="Foreground" Value="#a000"/>
+                                <Setter Property="Margin" Value="1"/>
+                                <Setter Property="IsEnabled" Value="False"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding useMO2}" Value="False">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                     <ComboBox Grid.Column="1" SelectedIndex="{Binding bodychangeNumber}" MouseEnter="CommonCombobox_MouseEnter">
                         <ComboBox.Style>
                             <Style TargetType="ComboBox" BasedOn="{StaticResource cbdef}">
@@ -238,7 +254,7 @@
                 </Grid>
                 <local:FolderLoader DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
                     Header="cbpconfig folder" HeaderColor="{StaticResource emph}"
-                    Location="{Binding _dirCBPC}" Load="CBPCLocationLoader_Load"/>
+                    Location="{Binding _dirCBPC}" Location2="{Binding dirCBPC}" Load="CBPCLocationLoader_Load"/>
                 <Grid Height="28">
                     <Grid Style="{StaticResource Normal}" Grid.Column="1">
                         <Grid.ColumnDefinitions>
@@ -317,6 +333,22 @@
                             </Style>
                         </TextBox.Style>
                     </TextBox>
+                    <TextBlock Text="{Binding dirNIF_bodyslide}" Grid.Column="1">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}">
+                                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="Foreground" Value="#a000"/>
+                                <Setter Property="Margin" Value="1"/>
+                                <Setter Property="IsEnabled" Value="False"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding useMO2}" Value="False">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                     <ComboBox Grid.Column="1" SelectedIndex="{Binding bodychangeNumber}" MouseEnter="CommonCombobox_MouseEnter">
                         <ComboBox.Style>
                             <Style TargetType="ComboBox" BasedOn="{StaticResource cbdef}">
@@ -453,7 +485,7 @@
                 </StackPanel>
                 <local:FolderLoader DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
                     Header="cbpconfig folder" HeaderColor="{StaticResource emph}"
-                    Location="{Binding _dirCBPC}" Load="CBPCLocationLoader_Load"/>
+                    Location="{Binding _dirCBPC}" Location2="{Binding dirCBPC}" Load="CBPCLocationLoader_Load"/>
                 <Grid>
                     <TextBlock Text="collision file" Style="{StaticResource lineHeader}"/>
                     <ComboBox x:Name="ColFileCB" IsEditable="True" Text="{Binding fileCBPC_Collision}" ItemsSource="{Binding fileCBPC_Collisions}" Grid.Column="1" SelectionChanged="CollisionFile_ComboBox_SelectionChanged"/>
@@ -553,7 +585,7 @@
                 </Grid>
                 <local:FolderLoader DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
                     Header="cbpconfig folder" HeaderColor="{StaticResource emph}"
-                    Location="{Binding _dirCBPC}" Load="CBPCLocationLoader_Load"/>
+                    Location="{Binding _dirCBPC}" Location2="{Binding dirCBPC}" Load="CBPCLocationLoader_Load"/>
                 <Grid>
                     <TextBlock Text="physics file" VerticalAlignment="Center"/>
                     <!--<TextBox Text="{Binding fileCBPC_Physics}" Grid.Column="1"/>-->

@@ -90,8 +90,8 @@ namespace SkyrimAnimationChecker.Common
         public bool useDesktop { get => Get<bool>(); set => Set(value); }
 
         [JsonIgnore]
-        public bool useMO2 { get => Get<bool>(); set => Set(value); }
-        public bool useBodyChange { get => Get<bool>(); set => Set(value); }
+        public bool useMO2 { get => Get<bool>(); set { Set(value); OnPropertyChanged("dirMods"); OnPropertyChanged("dirNIF_bodyslide"); OnPropertyChanged("dirCBPC"); } }
+        public bool useBodyChange { get => Get<bool>(); set { Set(value); OnPropertyChanged("dirNIF_bodyslide"); } }
         public bool useAdvanced { get => Get<bool>(); set => Set(value); }
 
         // No-Brainer

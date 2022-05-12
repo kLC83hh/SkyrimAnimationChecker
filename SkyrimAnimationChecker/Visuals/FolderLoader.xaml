@@ -42,6 +42,22 @@
                     </Style>
                 </TextBox.Style>
             </TextBox>
+            <TextBlock Text="{Binding Location2, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource lineHeader}">
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                        <Setter Property="Background" Value="White"/>
+                        <Setter Property="Foreground" Value="#a000"/>
+                        <Setter Property="Margin" Value="1"/>
+                        <Setter Property="IsEnabled" Value="False"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding useMO2}" Value="False">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
             <Button Content="Reload" Click="ReloadPhysics_Button_Click" Grid.Column="1"/>
         </Grid>
     </Grid>

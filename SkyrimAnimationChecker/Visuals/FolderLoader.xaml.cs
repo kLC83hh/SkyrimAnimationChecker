@@ -91,6 +91,20 @@ namespace SkyrimAnimationChecker
                       //((FolderLoader)d).Make();
                   }))
               );
+        public string Location2
+        {
+            get => (string)GetValue(Location2Property);
+            set => SetValue(Location2Property, value);
+        }
+        public static readonly DependencyProperty Location2Property
+            = DependencyProperty.Register(
+                  "Location2", typeof(string), typeof(FolderLoader),
+                  new FrameworkPropertyMetadata(string.Empty, new PropertyChangedCallback((d, e) =>
+                  {
+                      if (d is not FolderLoader) return;
+                      //((FolderLoader)d).Make();
+                  }))
+              );
         #endregion
         #region Events
         public delegate void LoadEventHandler(FolderLoader sender);
