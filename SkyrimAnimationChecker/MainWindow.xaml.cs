@@ -39,7 +39,6 @@ namespace SkyrimAnimationChecker
             // events and shortcuts
             this.Closing += MainWindow_Closing;
             this.ContentRendered += MainWindow_ContentRendered;
-            SaveCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
             
             // title manipulation (version)
             foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
@@ -114,17 +113,27 @@ namespace SkyrimAnimationChecker
         }
 
         /* shortcut commands */
-        public static RoutedCommand SaveCommand = new();
+        private static RoutedCommand MakeCommand(KeyGesture gesture, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            => new RoutedCommand(name, typeof(Window), new InputGestureCollection() { gesture });
+        public static RoutedCommand SaveCommand = MakeCommand(new KeyGesture(Key.S, ModifierKeys.Control));
         private async void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            switch (vm.panelNumber)
+            if (e.Command is RoutedCommand com)
             {
-                case 0:
-                    await RunCBPC();
-                    break;
-                case 1:
-                    await WritePhysics();
-                    break;
+                switch (com.Name)
+                {
+                    case var value when value == SaveCommand.Name:
+                        switch (vm.panelNumber)
+                        {
+                            case 0:
+                                await RunCBPC();
+                                break;
+                            case 1:
+                                await WritePhysics();
+                                break;
+                        }
+                        break;
+                }
             }
         }
 

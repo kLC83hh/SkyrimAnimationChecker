@@ -9,8 +9,7 @@
         Title="SAC"
         d:Height="670" d:Width="830">
     <Window.CommandBindings>
-        <CommandBinding Command="{x:Static local:MainWindow.SaveCommand}" 
-                     Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:MainWindow.SaveCommand}" Executed="CommandBinding_Executed"/>
     </Window.CommandBindings>
 
     <Grid x:Name="TopGrid" Margin="2">

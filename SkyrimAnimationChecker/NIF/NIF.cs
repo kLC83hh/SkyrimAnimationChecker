@@ -230,6 +230,40 @@ namespace SkyrimAnimationChecker.NIF
     public static class SphereExtensions
     {
         #region Basics
+        /// <summary>
+        /// Get value is positive(+) or negative(-).
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns>[+-]</returns>
+        public static char GetPN(float value) => value < 0 ? '-' : '+';
+        /// <summary>
+        /// Get sphere is distributed pos/neg direction on the <c>axis</c>.
+        /// </summary>
+        /// <param name="sphere"></param>
+        /// <param name="axis">[xyzXYZ]</param>
+        /// <returns>[+-]</returns>
+        /// <exception cref="ArgumentException">axis is not [xyzXYZ]</exception>
+        public static char GetPN(this NiShape sphere, char axis)
+        {
+            switch (axis)
+            {
+                case 'x':
+                case 'X':
+                    return GetPN(sphere.transform.translation.x);
+                case 'y':
+                case 'Y':
+                    return GetPN(sphere.transform.translation.y);
+                case 'z':
+                case 'Z':
+                    return GetPN(sphere.transform.translation.z);
+            }
+            throw new ArgumentException("axis must be x or y or z");
+        }
+        /// <summary>
+        /// Determine a <c>sphere</c> is which sided or not via its name.
+        /// </summary>
+        /// <param name="sphere"></param>
+        /// <returns>[LR]</returns>
         public static char? GetSide(this NiShape sphere)
         {
             if (sphere.name.get().StartsWith('L') || sphere.name.get().StartsWith("NPC L")) return 'L';
@@ -291,6 +325,7 @@ namespace SkyrimAnimationChecker.NIF
             return filtered.ToArray();
         }
 
+        public static Vector3 GlobalizeTo(this Vector3 vector, Vector3 parent) => vector.opAdd(parent);
         public static Vector3 LocalizeTo(this Vector3 vector, Vector3 parent) => vector.opSub(parent);
         public static Vector3[] LocalizeTo(this Vector3[] arr, Vector3 parent)
         {
@@ -298,8 +333,8 @@ namespace SkyrimAnimationChecker.NIF
             for (int i = 0; i < arr.Length; i++) result[i] = arr[i].opSub(parent);
             return result;
         }
-        public static Vector3 RotateTo(this Vector3 vector, Matrix3 rotation) => rotation.opMult(vector);
-        public static Vector3[] RotateTo(this Vector3[] arr, Matrix3 rotation)
+        public static Vector3 RotateBy(this Vector3 vector, Matrix3 rotation) => rotation.opMult(vector);
+        public static Vector3[] RotateBy(this Vector3[] arr, Matrix3 rotation)
         {
             Vector3[] result = new Vector3[arr.Length];
             for (int i = 0; i < arr.Length; i++) result[i] = rotation.opMult(arr[i]);
@@ -369,7 +404,7 @@ namespace SkyrimAnimationChecker.NIF
             for (int i = 0; i < arr.Length; i++) result[i] = arr[i].LocalizeTo(parent);
             return result;
         }
-        public static Vertex[] RotateTo(this Vertex[] arr, Matrix3 rotation)
+        public static Vertex[] RotateBy(this Vertex[] arr, Matrix3 rotation)
         {
             Vertex[] result = new Vertex[arr.Length];
             for (int i = 0; i < arr.Length; i++) result[i] = arr[i].RotateBy(rotation);
@@ -380,17 +415,33 @@ namespace SkyrimAnimationChecker.NIF
         /// </summary>
         /// <param name="arr"></param>
         /// <param name="window"></param>
+        /// <param name="standard">min,max,center</param>
         /// <returns></returns>
-        public static Vertex[] WindowBy(this Vertex[] arr, Vector3 window)
+        public static Vertex[] WindowBy(this Vertex[] arr, Vector3 window, string standard = "center")
         {
             List<Vertex> result = new();
-            foreach (Vertex v in arr)
+            Vertex std;
+            switch (standard)
             {
-                if (Math.Abs(v.x) < window.x &&
-                    Math.Abs(v.y) < window.y &&
-                    Math.Abs(v.z) < window.z)
+                case "min": (_, std) = arr.MinMax(); break;
+                case "max": (std, _) = arr.MinMax(); break;
+                case "center":
+                default:
+                    std = new();
+                    (Vertex max, Vertex min) = arr.MinMax();
+                    std.vert = max.vert.opAdd(min.vert).opDiv(2f);
+                    break;
+            }
+            Vector3 win = window;
+            if (standard == "center") win = window.opDiv(2f);
+            foreach (var v in arr)
+            {
+                if (Math.Abs(v.x - std.x) <= win.x &&
+                    Math.Abs(v.y - std.y) <= win.y &&
+                    Math.Abs(v.z - std.z) <= win.z)
                     result.Add(v);
                 //else
+                //    TEST.M.D($"{Math.Abs(v.x - std.x)}/{win.x}({Math.Abs(v.x - std.x) < win.x}), {Math.Abs(v.y - std.y)}/{win.y}({Math.Abs(v.y - std.y) < win.y}), {Math.Abs(v.z - std.z)}/{win.z}({Math.Abs(v.z - std.z) < win.z})");
                 //{
                 //    string mx = string.Empty, my = string.Empty, mz = string.Empty, msg = string.Empty;
                 //    if (Math.Abs(v.x) < window.x == false) { float r = v.x / window.x; if (r > 0) { r -= 1; } else { r += 1; } mx = $"x:({v.x}/{window.x}) {r * 100f:N3}%"; msg += mx; }
@@ -440,15 +491,13 @@ namespace SkyrimAnimationChecker.NIF
             foreach (Vector3 v in vertices)
             {
                 Vector3 local = v;
-                local = local.LocalizeTo(parent.translation).RotateTo(parent.rotation.Transpose());
-                local = local.LocalizeTo(sphere.transform.translation).RotateTo(sphere.transform.rotation.Transpose());
+                local = local.LocalizeTo(parent.translation).RotateBy(parent.rotation.Transpose());
+                local = local.LocalizeTo(sphere.transform.translation).RotateBy(sphere.transform.rotation.Transpose());
                 newVerts.Add(new BSVertexData() { vert = local, colorData = new arrayuint8_4(new byte[4] { 255, 0, 0, 255 }) });
             }
             sphere.SetVertexData(newVerts);
 
             M.D($"{vertices.Count} {tris.Count}");
-            //var t = new vectoruint32(sphere.vertData.Count);
-            //for (int i = 0; i < t.Count; i++) { t[i] = (uint)i; }
             var newtris = new vectorTriangle();
             foreach (Triangle t in tris)
             {
@@ -456,6 +505,8 @@ namespace SkyrimAnimationChecker.NIF
                     newtris.Add(t);
             }
             sphere.SetTriangles(newtris);
+            //var t = new vectoruint32(sphere.vertData.Count);
+            //for (int i = 0; i < t.Count; i++) { t[i] = (uint)i; }
             //sphere.ReorderTriangles();
 
             sphere.UpdateRawNormals();
@@ -488,17 +539,18 @@ namespace SkyrimAnimationChecker.NIF
             Vertex[] vertices = new Vertex[vdArray.Length];
             for (int i = 0; i < vdArray.Length; i++) vertices[i] = new Vertex(i, vdArray[i].vert, 1);
 
-            return UpdateSphere(nif, sphere, vertices, sensitivity, strength);
+            return UpdateSphere(nif, sphere, vertices, strength, sensitivity);
         }
-        public static (Vector3 center, float radius, string msg)? UpdateSphere(this NifFile nif, NiShape sphere, Vertex[] vertices, Vector3 sensitivity, Vector3 strength, float move = 0)
+        public static (Vector3 center, float radius, string msg)? UpdateSphere(this NifFile nif, NiShape sphere, Vertex[] oVertices, Vector3 strength, Vector3 sensitivity, string windowBase = "center", float move = 0, bool weight = true)
         {
             // parent vector
             nifly.NiNode node = nif.GetParentNode(sphere);
             MatTransform parent = node.GetTransformToParent();
 
-            // box size
-            Vector3 width = vertices.Width();
-            Vector3 window = new() { x = width.x * sensitivity.x, y = width.y * sensitivity.y, z = width.z * sensitivity.z };
+            // deep copy vertices
+            Vertex[]? vertices = new Vertex[oVertices.Length];
+            for (int i = 0; i < vertices.Length; i++) vertices[i] = new Vertex(oVertices[i].Index, oVertices[i].vert, oVertices[i].weight);
+            if (vertices == null) throw new Exception("DeepClone Failed");
 
             // select vertices
 #if DEBUG
@@ -509,10 +561,11 @@ namespace SkyrimAnimationChecker.NIF
 #if DEBUG
             int vCountSided = vertices.Length;
 #endif
-            vertices = vertices.LocalizeTo(parent.translation).RotateTo(parent.rotation.Transpose());
+            vertices = vertices.LocalizeTo(parent.translation).RotateBy(parent.rotation.Transpose());
 #if DEBUG
             int vCountLocalized = vertices.Length;
 #endif
+            Vector3 window = vertices.Width().opMult(sensitivity);
             vertices = vertices.WindowBy(window);
             string msg = string.Empty;
 #if DEBUG
@@ -523,12 +576,13 @@ namespace SkyrimAnimationChecker.NIF
             if (vCountLocalized != vCountSided) vCountnote += $"l{vCountLocalized}/";
             if (vCountSided != vCountAll) vCountnote += $"s{vCountSided}/";
             string vCountDiffnote = vCountDiff < 0 ? $" ({vCountDiff}) {((float)vCountWindowed / (float)vCountAll) * 100f:N3}%" : string.Empty;
-            msg = ($"using {sidenote}{vCountnote}{vCountAll}{vCountDiffnote} vertices windowed by ({window.x:N3},{window.y:N3},{window.z:N3}), m={move}");
+            string weighted = weight ? "" : ", unweighted";
+            msg = ($"using {sidenote}{vCountnote}{vCountAll}{vCountDiffnote} vertices windowed by ({window.x:N3},{window.y:N3},{window.z:N3}), m={move}{weighted}");
 #endif
             // calc
-            sphere.transform.translation = Center(vertices, true).Strengthen(strength);
-            sphere.transform.scale = vertices.AverageDistanceTo(sphere.transform.translation, true);
-            sphere.MicroAdjust();
+            sphere.transform.translation = vertices.Center(weight).Strengthen(strength);
+            sphere.transform.scale = vertices.AverageDistanceTo(sphere.transform.translation, weight);
+            sphere.MicroAdjust(parent);
 
             // color emission
             nif.SetShaderEmissive(sphere, new Color4(0, 0, 1, 1));
@@ -536,7 +590,7 @@ namespace SkyrimAnimationChecker.NIF
             return (sphere.transform.translation, sphere.transform.scale, msg);
         }
 
-        public static void MicroAdjust(this NiShape sphere)
+        public static void MicroAdjust(this NiShape sphere, MatTransform parent)
         {
             SphereAdjust adjust = new SphereAdjust(sphere);
             // scaling
@@ -585,16 +639,47 @@ namespace SkyrimAnimationChecker.NIF
             else if (sphere.name.get().StartsWith("VaginaB1"))
             {
                 // scaling
+                adjust.ScaleDown(0.15);
                 // translating, this should be done after scaling
-                adjust.Lower(0.3);
-                adjust.Forward(0.15);
+                adjust.Lower(1);
+                adjust.Forward(0.2);
             }
             else if (sphere.name.get().StartsWith("Clitoral1"))
             {
                 // scaling
-                adjust.ScaleUp(0.2);
+                adjust.ScaleUp(0.15);
                 // translating, this should be done after scaling
-                adjust.Lower(0.2);
+                adjust.Lower(0.3);
+            }
+            else if (sphere.name.get().StartsWith("NPC L Pussy"))
+            {
+                // scaling
+                //adjust.ScaleUp(0.1);
+                // translating, this should be done after scaling
+                adjust.Gather('y', 0.1, -0.6);
+                adjust.Backward(0, 0.3);
+                if (Math.Abs(sphere.transform.translation.x + parent.translation.x) < sphere.transform.scale) adjust.Spread(0, sphere.transform.scale - Math.Abs(sphere.transform.translation.x + parent.translation.x));
+            }
+            else if (sphere.name.get().StartsWith("NPC L Calf [LClf]"))
+            {
+                // this sphere's parent node is upside down
+                // scaling
+                adjust.ScaleDown(0.05);
+                // translating, this should be done after scaling
+                adjust.Gather('z', 0, 3.3);
+                adjust.Raise(0, 3);
+                adjust.Backward(0.1);
+            }
+            else if (sphere.name.get().StartsWith("NPC L Thigh [LThg]"))
+            {
+                // this sphere's parent node is upside down, left-right flipped, and biased in z axis which means can not gather-spread
+                // scaling
+                adjust.ScaleUp(0.5, -3);
+                // translating, this should be done after scaling
+                adjust.Raise(5, -20);
+                adjust.Lower(0, 3);
+                adjust.Right(2.5, -10);
+                adjust.Forward(0.75, -2);
             }
         }
 
@@ -733,6 +818,7 @@ namespace SkyrimAnimationChecker.NIF
     }
     public class Vertex : Vector4
     {
+        public Vertex() { Index = 0; vert = new(); weight = 1; }
         public Vertex(int index, Vector3 v, float weight)
         {
             Index = index;
@@ -747,16 +833,10 @@ namespace SkyrimAnimationChecker.NIF
         public new float z { get => vert.z; set => vert.z = value; }
         public new float w { get => weight; set => weight = value; }
 
-        public Vertex LocalizeTo(Vector3 parent)
-        {
-            vert = vert.opSub(parent);
-            return this;
-        }
-        public Vertex RotateBy(Matrix3 rotation)
-        {
-            vert = rotation.opMult(vert);
-            return this;
-        }
+        public Vertex GlobalizeTo(Vector3 parent) => new(Index, vert.opAdd(parent), weight);
+        public Vertex LocalizeTo(Vector3 parent) => new(Index, vert.opSub(parent), weight);
+        public Vertex RotateBy(Matrix3 rotation) => new(Index, rotation.opMult(vert), weight);
+        public float DistanceTo(Vertex target) => vert.DistanceTo(target.vert);
     }
     public class SphereAdjust
     {
@@ -777,19 +857,54 @@ namespace SkyrimAnimationChecker.NIF
 
 
         /// <inheritdoc cref="Adjust"/>
-        /// <exception cref="Exception">Not sided Exception</exception>
-        public void Gather(float A, float B = 0)
-        {
-            if (side == 'L') Right(A, B);
-            else if (side == 'R') Left(A, B);
-            else throw new Exception("Can not gather because sphere is not sided");
-        }
-        /// <inheritdoc cref="Adjust"/>
+        /// <exception cref="Exception">Not sided Exception, Can not determine sphere distribution</exception>
+        public void Gather(float A, float B = 0) => Gather('s', A, B);
+        /// <inheritdoc cref="Gather(float, float)"/>
         public void Gather(double A, double B = 0) => Gather((float)A, (float)B);
-        /// <inheritdoc cref="Adjust"/>
+        /// <inheritdoc cref="Gather(float, float)"/>
         public void Spread(float A, float B = 0) => Gather(-A, -B);
-        /// <inheritdoc cref="Adjust"/>
+        /// <inheritdoc cref="Gather(float, float)"/>
         public void Spread(double A, double B = 0) => Spread((float)A, (float)B);
+
+        /// <inheritdoc cref="Gather(float, float)"/>
+        /// <param name="axis">[sxyzSXYZ] s=side sphere by name</param>
+        public void Gather(char axis, float A, float B = 0)
+        {
+            switch (axis)
+            {
+                case 's':
+                case 'S':
+                    if (side == 'L') Right(A, B);
+                    else if (side == 'R') Left(A, B);
+                    else throw new Exception("Can not gather because sphere is not sided");
+                    break;
+                case 'x':
+                case 'X':
+                    if (sphere.GetPN('x') == '-') Right(A, B);
+                    else if (sphere.GetPN('x') == '+') Left(A, B);
+                    else throw new Exception($"Can not gather because system can not determine how the sphere is distributed in {axis} axis");
+                    break;
+                case 'y':
+                case 'Y':
+                    if (sphere.GetPN('y') == '-') Forward(A, B);
+                    else if (sphere.GetPN('y') == '+') Backward(A, B);
+                    else throw new Exception($"Can not gather because system can not determine how the sphere is distributed in {axis} axis");
+                    break;
+                case 'z':
+                case 'Z':
+                    if (sphere.GetPN('z') == '-') Raise(A, B);
+                    else if (sphere.GetPN('z') == '+') Lower(A, B);
+                    else throw new Exception($"Can not gather because system can not determine how the sphere is distributed in {axis} axis");
+                    break;
+            }
+        }
+        /// <inheritdoc cref="Gather(char, float, float)"/>
+        public void Gather(char axis, double A, double B = 0) => Gather(axis, (float)A, (float)B);
+        /// <inheritdoc cref="Gather(char, float, float)"/>
+        public void Spread(char axis, float A, float B = 0) => Gather(axis, -A, -B);
+        /// <inheritdoc cref="Gather(char, float, float)"/>
+        public void Spread(char axis, double A, double B = 0) => Spread(axis, (float)A, (float)B);
+
 
         /// <inheritdoc cref="Adjust"/>
         public void Left(float A, float B = 0) => sphere.transform.translation.x -= (sphere.transform.scale * A + B);
@@ -800,6 +915,7 @@ namespace SkyrimAnimationChecker.NIF
         /// <inheritdoc cref="Adjust"/>
         public void Right(double A, double B = 0) => Right((float)A, (float)B);
 
+
         /// <inheritdoc cref="Adjust"/>
         public void Raise(float A, float B = 0) => sphere.transform.translation.z += (sphere.transform.scale * A + B);
         /// <inheritdoc cref="Adjust"/>
@@ -808,6 +924,7 @@ namespace SkyrimAnimationChecker.NIF
         public void Lower(float A, float B = 0) => sphere.transform.translation.z -= (sphere.transform.scale * A + B);
         /// <inheritdoc cref="Adjust"/>
         public void Lower(double A, double B = 0) => Lower((float)A, (float)B);
+
 
         /// <inheritdoc cref="Adjust"/>
         public void Forward(float A, float B = 0) => sphere.transform.translation.y += (sphere.transform.scale * A + B);
@@ -828,6 +945,7 @@ namespace SkyrimAnimationChecker.NIF
         /// <inheritdoc cref="Adjust"/>
         public void ScaleDown(double A, double B = 0) => ScaleDown((float)A, (float)B);
 
+
         /// <summary>
         /// <code>sphere.transform.scale *= value</code>
         /// </summary>
@@ -838,6 +956,5 @@ namespace SkyrimAnimationChecker.NIF
         public void Scale(double value) => Scale((float)value);
 
     }
-
 
 }

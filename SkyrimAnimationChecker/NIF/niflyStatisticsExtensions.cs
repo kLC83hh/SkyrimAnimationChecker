@@ -95,7 +95,12 @@ namespace SkyrimAnimationChecker.NIF
         }
         #endregion
         #region Vertex
-        public static Vector3 Width(this Vertex[] arr, bool symetric = true)
+        public static Vector3 Width(this Vertex[] arr)
+        {
+            (Vertex max, Vertex min) = arr.MinMax();
+            return max.vert.opSub(min.vert);
+        }
+        public static Vector3 Width(this Vertex[] arr, bool symetric)
         {
             if (symetric)
             {
@@ -180,8 +185,136 @@ namespace SkyrimAnimationChecker.NIF
             }
             return sum / wsum;
         }
+
+        public static (Vertex max, Vertex min) MinMax(this Vertex[] array, Matrix3? rotation = null)
+        {
+            Vertex[] arr = new Vertex[array.Length];
+            if (rotation == null) arr = array;
+            else
+            {
+                for (int i = 0; i < array.Length; i++) { arr[i] = new(); arr[i].vert = array[i].vert.RotateBy(rotation); }
+            }
+
+            Vertex max = new(), min = new();
+
+            max.x = arr.MaxBy(v => v.x)?.x ?? 0f;
+            max.y = arr.MaxBy(v => v.y)?.y ?? 0f;
+            max.z = arr.MaxBy(v => v.z)?.z ?? 0f;
+            max.w = arr.MaxBy(v => v.w)?.w ?? 0f;
+
+            min.x = arr.MinBy(v => v.x)?.x ?? 0f;
+            min.y = arr.MinBy(v => v.y)?.y ?? 0f;
+            min.z = arr.MinBy(v => v.z)?.z ?? 0f;
+            min.w = arr.MinBy(v => v.w)?.w ?? 0f;
+
+            return (max, min);
+        }
+        public static (Vertex max, Vertex min) MinMax(this Vertex[] array, char axis, Matrix3? rotation = null)
+        {
+            Vertex[] arr = new Vertex[array.Length];
+            if (rotation == null) arr = array;
+            else
+            {
+                for (int i = 0; i < array.Length; i++) { arr[i] = new(); arr[i].vert = array[i].vert.RotateBy(rotation); }
+            }
+
+            if (arr.Length == 1) return (arr[0], arr[0]);
+            else if (arr.Length > 1)
+            {
+                switch (axis)
+                {
+                    case 'x':
+                    case 'X':
+                        return (arr.MaxBy(v => v.x) ?? new(), arr.MinBy(v => v.x) ?? new());
+                    case 'y':
+                    case 'Y':
+                        return (arr.MaxBy(v => v.y) ?? new(), arr.MinBy(v => v.y) ?? new());
+                    case 'z':
+                    case 'Z':
+                        return (arr.MaxBy(v => v.z) ?? new(), arr.MinBy(v => v.z) ?? new());
+                    case 'w':
+                    case 'W':
+                        return (arr.MaxBy(v => v.w) ?? new(), arr.MinBy(v => v.w) ?? new());
+                }
+            }
+            return (new(), new());
+        }
+        /// <summary>
+        /// direction 0=+, 1=-
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <param name="axis">[xyz] must have length of 1</param>
+        /// <param name="multiplier">0~2</param>
+        /// <returns></returns>
+        public static Vertex[][] LinearSplit(this Vertex[] array, char axis, MatTransform? parent = null, float multiplier = 1f)
+        {
+            Vertex[] arr = new Vertex[array.Length];
+            for (int i = 0; i < array.Length; i++) arr[i] = new(array[i].Index, array[i].vert, array[i].w);
+            if (parent != null) { for (int i = 0; i < arr.Length; i++) arr[i] = arr[i].RotateBy(parent.rotation.Transpose()); }
+            
+            (Vertex max, Vertex min) = arr.MinMax(axis);
+            float halfdistance = min.DistanceTo(max) / 2f * Clamp(multiplier, 2f);
+            List<Vertex> mins = new(), maxs = new();
+            foreach (Vertex v in arr)
+            {
+                if (v.DistanceTo(max) < halfdistance) { maxs.Add(parent != null ? v.RotateBy(parent.rotation) : v); }
+                if (v.DistanceTo(min) < halfdistance) { mins.Add(parent != null ? v.RotateBy(parent.rotation) : v); }
+            }
+            return new Vertex[][] { maxs.ToArray(), mins.ToArray() };
+        }
+        /// <summary>
+        /// direction 0=+, 1=-
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <param name="axes">[xyz] must have length of 2</param>
+        /// <param name="multiplier">0~2</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static Vertex[,][] QuadrantSplit(this Vertex[] array, char[] axes, MatTransform? parent = null, float multiplier = 1f)
+        {
+            Vertex[] arr = new Vertex[array.Length];
+            for (int i = 0; i < array.Length; i++) arr[i] = new(array[i].Index, array[i].vert, array[i].w);
+            if (parent != null) { for (int i = 0; i < arr.Length; i++) arr[i] = arr[i].RotateBy(parent.rotation.Transpose()); }
+
+            if (axes.Length != 2) throw new ArgumentException("direction must has length of 2");
+            Vertex[,] axis = new Vertex[2, 2];
+            float[] halfdistance = new float[2];
+            for (int i = 0; i < 2; i++) (axis[i, 0], axis[i, 1]) = arr.MinMax(axes[i]);
+            for (int i = 0; i < 2; i++) halfdistance[i] = axis[i, 0].DistanceTo(axis[i, 1]) / 2f * Clamp(multiplier, 2f);
+            List<Vertex>[,] quad = new List<Vertex>[,] {
+                { new List<Vertex>() , new List<Vertex>() },
+                { new List<Vertex>() , new List<Vertex>() }
+            };
+            foreach (Vertex v in arr)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    for (int j = 0; j < 2; j++)
+                    {
+                        if (v.DistanceTo(axis[0, i]) < halfdistance[0] &&
+                            v.DistanceTo(axis[1, j]) < halfdistance[1])
+                            quad[i, j].Add(parent != null ? v.RotateBy(parent.rotation) : v);
+                    }
+                }
+            }
+            Vertex[,][] vertices = new Vertex[2, 2][];
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    vertices[i, j] = quad[i, j].ToArray();
+                }
+            }
+            return vertices;
+        }
         #endregion
 
+        public static float Clamp(this float value, float max = 0, float min = 1)
+        {
+            if (value < min) value = min;
+            if (value > max) value = max;
+            return value;
+        }
         public static Vector3 ToEulerDegrees(this Matrix3 rotation)
         {
             float y = 0, p = 0, r = 0;

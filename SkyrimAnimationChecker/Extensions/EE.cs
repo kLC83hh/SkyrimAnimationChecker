@@ -21,6 +21,8 @@ namespace SkyrimAnimationChecker
             { 1011, $"NIF: Make: Incorrect bodyslide file name" },
             { 1012, $"NIF: Make: Incorrect bsHands file name" },
             { 1101, $"NIF: Collider: No nifs are found." },
+            { 1201, $"NIF: Collider: Calc Finished with some error" },
+            { 1202, $"NIF: Collider: Calc Failed" },
             // 2000 cbpc physics
             { 2001, $"CBPC: Physics: Parse_Type: {Environment.NewLine}Can not retrieve CBPConfig data." },
             { 2008, $"CBPC: Physics: Parse_Type: {Environment.NewLine}Can not recognize CBPConfig data type." },
