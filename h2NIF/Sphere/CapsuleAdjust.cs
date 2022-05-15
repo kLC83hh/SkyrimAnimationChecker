@@ -51,6 +51,7 @@ namespace h2NIF.Sphere
                     else _Center = new();
                 }
                 return _Center;
+                //return Spheres[0].transform.translation.Midpoint(Spheres[1].transform.translation);
             }
         }
         private float? _Distance;
@@ -58,12 +59,13 @@ namespace h2NIF.Sphere
         {
             get
             {
-                if (_Distance == null)
-                {
-                    if (Spheres.Length == 2) _Distance = Spheres[0].transform.translation.DistanceTo(Spheres[1].transform.translation);
-                    else _Distance = 0f;
-                }
-                return (float)_Distance;
+                //if (_Distance == null)
+                //{
+                //    if (Spheres.Length == 2) _Distance = Spheres[0].transform.translation.DistanceTo(Spheres[1].transform.translation);
+                //    else _Distance = 0f;
+                //}
+                //return (float)_Distance;
+                return Spheres[0].transform.translation.DistanceTo(Spheres[1].transform.translation);
             }
         }
 

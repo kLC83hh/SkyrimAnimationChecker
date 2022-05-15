@@ -107,7 +107,7 @@ namespace h2NIF.Sphere
             cPar.Add("Hands", new string[] { "NPC L Finger", "NPC L Hand [LHnd]" });
 
             //"NPC Spine1 [Spn1]", "NPC Pelvis [Pelv]", "NPC L RearThigh"
-            bPar.Add("3BA", new string[] { "NPC L Thigh [LThg]" });
+            bPar.Add("3BA", new string[] { "NPC L Pussy02" });
             //bPar.Add("Hands", new string[] { "NPC L Hand [LHnd]" });
 
             if (Bounding) calc(bPar);
@@ -177,7 +177,11 @@ namespace h2NIF.Sphere
                     msg.Add(result?.ToString() ?? $"{sphere.name.get()} Failed to update");
                     //if (bone.SphereName.StartsWith("L Breast03")) move = (float)(result?.Radius ?? 0);
                 }
-                if (result != null) CapsuleManager.Create(bone).Invoke();
+                if (result != null)
+                {
+                    string cResult = CapsuleManager.Create(bone).Invoke();
+                    msg.Add(cResult);
+                }
             }
             return msg;
         }
@@ -409,8 +413,8 @@ namespace h2NIF.Sphere
     }
     internal static class CapsuleManager
     {
-        private static Action nullAction = new Action(() => { });
-        public static Action Create(Bone bone)
+        private static Func<string> nullAction = new Func<string>(() => $"nullAction");
+        public static Func<string> Create(Bone bone)
         {
             if (bone.Name.StartsWith("NPC L Pussy"))
             {
@@ -418,10 +422,11 @@ namespace h2NIF.Sphere
                 {
                     CapsuleAdjust adjust = new CapsuleAdjust(bone);
                     // scaling
-                    adjust.ScaleUp(0.2);
+                    adjust.ScaleUp(1);
                     // translating, this should be done after scaling
-                    adjust.Spread('y', 0, 0.67);
-                    adjust.Backward(0, 0.2);
+                    adjust.Spread('y', 0, 1.5);
+                    adjust.Backward(0, 0.4);
+                    adjust.Raise(0.5);
 
                     MatTransform tf = bone.Node.GetTransformToParent();
                     foreach (NiShape sphere in bone.Spheres)
@@ -430,6 +435,7 @@ namespace h2NIF.Sphere
                         //    adjust.Spread(0, sphere.transform.scale - Math.Abs(sphere.transform.translation.x + tf.translation.x));
                         sphere.transform.translation.x = -tf.translation.x - sphere.transform.scale;
                     }
+                    return $"{adjust.Name} CapsuleAdjust ({adjust.Center.x},{adjust.Center.y},{adjust.Center.z}) {adjust.Distance}";
                 });
             }
             else if (bone.Name.StartsWith("NPC L Hand [LHnd]"))
@@ -444,6 +450,7 @@ namespace h2NIF.Sphere
                     adjust.Gather('y', 0.5);
                     adjust.Forward(-0.1, 1);
                     adjust.Lower(0, 2);
+                    return $"{adjust.Name} CapsuleAdjust ({adjust.Center.x},{adjust.Center.y},{adjust.Center.z}) {adjust.Distance}";
                 });
             }
             else if (bone.Name.StartsWith("NPC L Calf [LClf]"))
@@ -459,6 +466,7 @@ namespace h2NIF.Sphere
                     adjust.Raise(0.55);
                     adjust.Backward(0.15, -0.5);
                     adjust.Backward(0.15);
+                    return $"{adjust.Name} CapsuleAdjust ({adjust.Center.x},{adjust.Center.y},{adjust.Center.z}) {adjust.Distance}";
                 });
             }
             else if (bone.Name.StartsWith("NPC L Thigh [LThg]"))
@@ -476,6 +484,7 @@ namespace h2NIF.Sphere
                     adjust.Lower(0, -1);
                     adjust.Right(0, 0.5);
                     adjust.Forward(0.05, 0.5);
+                    return $"{adjust.Name} CapsuleAdjust ({adjust.Center.x},{adjust.Center.y},{adjust.Center.z}) {adjust.Distance}";
                 });
             }
             else if (bone.Name.StartsWith("NPC L RearThigh"))
@@ -490,6 +499,7 @@ namespace h2NIF.Sphere
                     adjust.Gather('x', 0.2);
                     adjust.Right(0.2);
                     adjust.Forward(0.5);
+                    return $"{adjust.Name} CapsuleAdjust ({adjust.Center.x},{adjust.Center.y},{adjust.Center.z}) {adjust.Distance}";
                 });
             }
             else if (bone.Name.StartsWith("NPC L UpperArm [LUar]"))
@@ -505,6 +515,7 @@ namespace h2NIF.Sphere
                     adjust.Gather('y', 0, 0.3);
                     adjust.Spread('z', 1.5);
                     adjust.Right(0, 1.5);
+                    return $"{adjust.Name} CapsuleAdjust ({adjust.Center.x},{adjust.Center.y},{adjust.Center.z}) {adjust.Distance}";
                 });
             }
             else if (bone.Name.StartsWith("NPC L Forearm [LLar]"))
@@ -518,6 +529,7 @@ namespace h2NIF.Sphere
                     // translating, this should be done after scaling
                     adjust.Gather('x', 0, 1.125);
                     adjust.Right(0, 0.5);
+                    return $"{adjust.Name} CapsuleAdjust ({adjust.Center.x},{adjust.Center.y},{adjust.Center.z}) {adjust.Distance}";
                 });
             }
             else return nullAction;
