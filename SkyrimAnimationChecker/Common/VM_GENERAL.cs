@@ -59,8 +59,9 @@ namespace SkyrimAnimationChecker.Common
             fileNIF_bsHands = "femalehands_0.nif, femalehands_1.nif";
             useCustomExample = false;
             weightNumber = 2;
-            fileNIF_sphere0 = System.IO.Path.Combine(workdir, "example_1.nif");
-            fileNIF_sphere1 = System.IO.Path.Combine(workdir, "example_0.nif");
+            fileNIF_sphere = System.IO.Path.Combine(workdir, "sphere.nif");
+            //fileNIF_sphere0 = System.IO.Path.Combine(workdir, "example_1.nif");
+            //fileNIF_sphere1 = System.IO.Path.Combine(workdir, "example_0.nif");
             AutoCalcSpheres = true;
 
             useNIFs = true;
@@ -141,10 +142,11 @@ namespace SkyrimAnimationChecker.Common
 
         public bool useCustomExample { get => Get<bool>(); set => Set(value); }
         public int weightNumber { get => Get<int>(); set { if (value > -1) Set(value); } }
-        public string fileNIF_sphere0 { get => Get<string>(); set => Set(value); }
-        public string fileNIF_sphere1 { get => Get<string>(); set => Set(value); }
-        [JsonIgnore]
-        public string[] fileNIF_spheres => new string[] { fileNIF_sphere0, fileNIF_sphere1 };
+        public string fileNIF_sphere { get => Get<string>(); set => Set(value); }
+        //public string fileNIF_sphere0 { get => Get<string>(); set => Set(value); }
+        //public string fileNIF_sphere1 { get => Get<string>(); set => Set(value); }
+        //[JsonIgnore]
+        //public string[] fileNIF_spheres => new string[] { fileNIF_sphere0, fileNIF_sphere1 };
 
         [JsonIgnore]
         public bool overwriteInterNIFs { get => Get<bool>(); set => Set(value); }

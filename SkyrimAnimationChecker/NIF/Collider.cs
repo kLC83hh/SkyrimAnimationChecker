@@ -19,10 +19,11 @@ namespace SkyrimAnimationChecker.NIF
         public int Make(int weight = -1, bool? overwrite = null, bool? AutoCalc = null)
         {
             vm.NIFrunning = true;
-            string[] localExample = new string[2] {
-                System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "example_0.nif"),
-                System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "example_1.nif")
-            };
+            //string[] localExample = new string[2] {
+            //    System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "example_0.nif"),
+            //    System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "example_1.nif")
+            //};
+            string localExample = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sphere.nif");
             int r1 = 1, r2 = 1;
             if (weight < 0) weight = vm.weightNumber;
             if (overwrite == null) overwrite = vm.overwriteInterNIFs;
@@ -33,14 +34,14 @@ namespace SkyrimAnimationChecker.NIF
             switch (weight)
             {
                 case 2:
-                    r1 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere0 : localExample[0], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[0]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[0]), vm.fileNIF_out0, overwrite);
-                    r2 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere1 : localExample[1], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[1]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[1]), vm.fileNIF_out1, overwrite);
+                    r1 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere : localExample, System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[0]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[0]), vm.fileNIF_out0, overwrite);
+                    r2 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere : localExample, System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[1]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[1]), vm.fileNIF_out1, overwrite);
                     break;
                 case 1:
-                    r2 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere1 : localExample[1], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[1]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[1]), vm.fileNIF_out1, overwrite);
+                    r2 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere : localExample, System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[1]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[1]), vm.fileNIF_out1, overwrite);
                     break;
                 case 0:
-                    r1 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere0 : localExample[0], System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[0]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[0]), vm.fileNIF_out0, overwrite);
+                    r1 = Replace3BA(vm.useCustomExample ? vm.fileNIF_sphere : localExample, System.IO.Path.Combine(vm.dirNIF_bodyslide, bsfile[0]), System.IO.Path.Combine(vm.dirNIF_bodyslide, bhfile[0]), vm.fileNIF_out0, overwrite);
                     break;
                 default:
                     r1 = 0;
@@ -48,7 +49,7 @@ namespace SkyrimAnimationChecker.NIF
             }
 
             if (AutoCalc == null) AutoCalc = vm.AutoCalcSpheres;
-            if ((bool)AutoCalc) CalsSpheres();
+            if (r1 == 1 && r2 == 1 && (bool)AutoCalc) CalsSpheres();
             vm.NIFrunning = false;
             return r1 * (r2 > 1 ? r2 + 1 : r2);
         }
@@ -145,6 +146,7 @@ namespace SkyrimAnimationChecker.NIF
             {
                 try
                 {
+                    if (x == null) return;
                     var calc = new h2NIF.Sphere.Calculator(x);
                     if (calc.Calculate("1,1,1", false))
                     {

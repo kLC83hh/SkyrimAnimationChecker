@@ -387,7 +387,7 @@
                         </Style>
                     </StackPanel.Style>
                     <Grid>
-                        <TextBlock Text="bs file name"/>
+                        <TextBlock Text="bodyslide name"/>
                         <Grid Grid.Column="1" Style="{StaticResource Normal}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
@@ -397,14 +397,18 @@
                             <TextBox Text="{Binding fileNIF_bsHands}" Grid.Column="1"/>
                         </Grid>
                     </Grid>
-                    <Grid Style="{StaticResource fornif1}">
+                    <Grid>
+                        <TextBlock Text="sphere src" Style="{StaticResource lineHeader}"/>
+                        <TextBox Text="{Binding fileNIF_sphere}" Grid.Column="1"/>
+                    </Grid>
+                    <!--<Grid Style="{StaticResource fornif1}">
                         <TextBlock Text="sphere nif_1" Style="{StaticResource lineHeader}"/>
                         <TextBox Text="{Binding fileNIF_sphere1}" Grid.Column="1"/>
                     </Grid>
                     <Grid Style="{StaticResource fornif0}">
                         <TextBlock Text="sphere nif_0" Style="{StaticResource lineHeader}"/>
                         <TextBox Text="{Binding fileNIF_sphere0}" Grid.Column="1"/>
-                    </Grid>
+                    </Grid>-->
                 </StackPanel>
                 <Grid>
                     <CheckBox x:Name="overwriteCheckBox" Content="overwrite" IsChecked="{Binding overwriteInterNIFs}" Padding="0,-1"/>

@@ -211,6 +211,7 @@ namespace SkyrimAnimationChecker
         #endregion
 
         #region Collision
+        // no-brainer
         private async void DoIt_Button_Click(object sender, RoutedEventArgs e) => await DoIt();
         private async Task DoIt()
         {
@@ -300,6 +301,7 @@ namespace SkyrimAnimationChecker
             }
         }
 
+        // uato calc collision spheres
         private async void CalcSpheres_Button_Click(object sender, RoutedEventArgs e) => await CalcSpheres();
         private async Task CalcSpheres()
         {
@@ -422,7 +424,7 @@ namespace SkyrimAnimationChecker
             }
         }
 
-
+        // check write checkbox
         private void CBPC_panel_All_CheckBox_Click(object sender, RoutedEventArgs e)
         {
             if (sender == null || sender is not CheckBox) return;
@@ -579,7 +581,6 @@ namespace SkyrimAnimationChecker
 
         private async void LoadPhysicsLocation(FolderLoader? sender = null)
         {
-            //MessageBox.Show(vm.dirCBPC);
             if (System.IO.Directory.Exists(vm.dirCBPC))
             {
                 Func<string, string> getfilename = (path) =>
@@ -606,12 +607,11 @@ namespace SkyrimAnimationChecker
                     }
                     return output.ToArray();
                 };
-                //ColFileCB.Items.Clear();
+                
                 vm.fileCBPC_Collisions.Clear();
                 getfiles("CBPCollisionConfig*", null).ForEach(x => vm.fileCBPC_Collisions.Add(x));
                 if (vm.fileCBPC_Collisions.Contains(vm.fileCBPC_Collision)) ColFileCB.SelectedIndex = vm.fileCBPC_Collisions.IndexOf(vm.fileCBPC_Collision);
-                //PhyFileCB.Items.Clear();
-                //getfiles("CBPConfig*", filter).ForEach(x => PhyFileCB.Items.Add(x));
+                
                 vm.fileCBPC_Physicss.Clear();
                 getfiles("CBPConfig*", filter).ForEach(x => vm.fileCBPC_Physicss.Add(x));
             }

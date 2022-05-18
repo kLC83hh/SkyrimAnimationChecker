@@ -102,12 +102,12 @@ namespace h2NIF.Sphere
             };
             Dictionary<string, string[]> cPar = new(), bPar = new();
 
-            cPar.Add("3BA", new string[] { "L Breast", "NPC L Butt", "NPC Belly", "Clitoral1", "NPC L Pussy02", "NPC L Calf [LClf]", "NPC L Thigh [LThg]", "NPC L Forearm [LLar]", "NPC L UpperArm [LUar]", "NPC L RearThigh" });
+            cPar.Add("3BA", new string[] { "L Breast", "NPC L Butt", "NPC Belly", "Clitoral1", "NPC L Pussy02", "NPC L Calf [LClf]", "NPC L Thigh [LThg]", "NPC L Forearm [LLar]", "NPC L UpperArm [LUar]", "NPC L RearThigh", "NPC Spine1 [Spn1]" });
             cPar.Add("3BBB_Vagina", new string[] { "VaginaB1" });
             cPar.Add("Hands", new string[] { "NPC L Finger", "NPC L Hand [LHnd]" });
 
-            //"NPC Spine1 [Spn1]", "NPC Pelvis [Pelv]", "NPC L RearThigh"
-            bPar.Add("3BA", new string[] { "NPC L Pussy02" });
+            //"NPC Spine1 [Spn1]", "NPC Pelvis [Pelv]", "NPC L RearThigh", Anal
+            bPar.Add("3BA", new string[] { "NPC LT Anus2" });
             //bPar.Add("Hands", new string[] { "NPC L Hand [LHnd]" });
 
             if (Bounding) calc(bPar);
@@ -180,7 +180,7 @@ namespace h2NIF.Sphere
                 if (result != null)
                 {
                     string cResult = CapsuleManager.Create(bone).Invoke();
-                    msg.Add(cResult);
+                    if (!string.IsNullOrWhiteSpace(cResult)) msg.Add(cResult);
                 }
             }
             return msg;
@@ -408,12 +408,24 @@ namespace h2NIF.Sphere
                     adjust.Lower(0.3);
                 });
             }
+            else if (name.StartsWith("NPC Spine1 [Spn1]"))
+            {
+                return new(() =>
+                {
+                    SphereAdjust adjust = new SphereAdjust(sphere);
+                    // scaling
+                    adjust.ScaleDown(0.26);
+                    // translating, this should be done after scaling
+                    adjust.Lower(1.4);
+                    adjust.Backward(0.4);
+                });
+            }
             else return nullAction;
         }
     }
     internal static class CapsuleManager
     {
-        private static Func<string> nullAction = new Func<string>(() => $"nullAction");
+        private static Func<string> nullAction = new Func<string>(() => string.Empty);
         public static Func<string> Create(Bone bone)
         {
             if (bone.Name.StartsWith("NPC L Pussy"))
