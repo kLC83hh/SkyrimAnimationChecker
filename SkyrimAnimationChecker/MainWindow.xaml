@@ -257,6 +257,10 @@
                 <local:FolderLoader DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
                     Header="cbpconfig folder" HeaderColor="{StaticResource emph}"
                     Location="{Binding _dirCBPC}" Location2="{Binding dirCBPC}" Load="CBPCLocationLoader_Load"/>
+                <Grid>
+                    <TextBlock Text="collision file" Style="{StaticResource lineHeader}"/>
+                    <ComboBox IsEditable="True" Text="{Binding fileCBPC_Collision}" SelectedIndex="{Binding fileCBPC_Collision_Index}" ItemsSource="{Binding fileCBPC_Collisions}" Grid.Column="1"/>
+                </Grid>
                 <Grid Height="28">
                     <Grid Style="{StaticResource Normal}" Grid.Column="1">
                         <Grid.ColumnDefinitions>
@@ -494,7 +498,7 @@
                     Location="{Binding _dirCBPC}" Location2="{Binding dirCBPC}" Load="CBPCLocationLoader_Load"/>
                 <Grid>
                     <TextBlock Text="collision file" Style="{StaticResource lineHeader}"/>
-                    <ComboBox x:Name="ColFileCB" IsEditable="True" Text="{Binding fileCBPC_Collision}" ItemsSource="{Binding fileCBPC_Collisions}" Grid.Column="1" SelectionChanged="CollisionFile_ComboBox_SelectionChanged"/>
+                    <ComboBox IsEditable="True" Text="{Binding fileCBPC_Collision}" ItemsSource="{Binding fileCBPC_Collisions}" SelectedIndex="{Binding fileCBPC_Collision_Index}" Grid.Column="1"/>
                 </Grid>
                 <Rectangle Height="3"/>
                 <Grid>

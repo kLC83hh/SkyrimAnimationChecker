@@ -173,6 +173,8 @@ namespace SkyrimAnimationChecker.Common
 
         public string fileCBPC_Collision { get => Get<string>(); set => Set(value); }
         public ObservableCollection<string> fileCBPC_Collisions { get => Get<ObservableCollection<string>>(); set => Set(value); }
+        [JsonIgnore]
+        public int fileCBPC_Collision_Index { get => Get<int>(); set => Set(value); }
         public string groupfilter { get => Get<string>(); set => Set(value); }
 
         [JsonIgnore]
