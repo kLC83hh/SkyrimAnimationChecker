@@ -354,7 +354,8 @@ namespace SkyrimAnimationChecker
         {
             try
             {
-                Options = await Task.Run(() => new CBPC.Collision(vm).Option());
+                try { Options = await Task.Run(() => new CBPC.Collision(vm).Option()); }
+                catch (Exception ex) { if (EE.Parse(ex).code == 5201) Options = null; }
                 if (vm.useNIFs)
                 {
                     var result = await Task.Run(() => new NIF.Collision(vm).Get(out DATA_Colliders));

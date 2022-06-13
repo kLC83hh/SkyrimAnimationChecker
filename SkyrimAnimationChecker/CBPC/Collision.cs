@@ -13,7 +13,9 @@ namespace SkyrimAnimationChecker.CBPC
         public Collision(VM linker) : base(linker) { }
 
 
-        private string[] CollisionAll = Array.Empty<string>();
+        private volatile string[] CollisionAll = Array.Empty<string>();
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
         private string path => System.IO.Path.Combine(vm.dirCBPC, vm.fileCBPC_Collision);
         public string[] Read(bool backup = false)
         {

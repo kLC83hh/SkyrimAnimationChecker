@@ -43,8 +43,11 @@
                                 <Style TargetType="CheckBox" BasedOn="{StaticResource Def}">
                                     <Setter Property="IsEnabled" Value="False"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding mo2Detected}" Value="True">
-                                            <Setter Property="IsEnabled" Value="False"/>
+                                        <DataTrigger Binding="{Binding mo2Detected}" Value="False">
+                                            <!--<Setter Property="IsEnabled" Value="True"/>-->
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding useAdvanced}" Value="True">
+                                            <Setter Property="IsEnabled" Value="True"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
