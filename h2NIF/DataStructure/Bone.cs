@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using h2NIF.Extensions;
 using nifly;
-using h2NIF.Extensions;
 
 namespace h2NIF.DataStructure
 {
@@ -60,7 +55,7 @@ namespace h2NIF.DataStructure
                 return buffer;
             }
         }
-        private List<Vertex> _Vertices = new();
+        private readonly List<Vertex> _Vertices = new();
         private void GetVertices()
         {
             foreach (SkinWeight sw in Weights)

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SkyrimAnimationChecker.CBPC
+﻿namespace SkyrimAnimationChecker.CBPC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public interface Icbpc_data : Common.IPropertyHandler
     {
         public virtual string DataType => "single";
@@ -21,6 +16,8 @@ namespace SkyrimAnimationChecker.CBPC
 
         public Common.physics_object_set? Find(string name);
     }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public interface Icbpc_data_mirrored : Icbpc_data
     {
         public virtual string[] DefaultMirrorKeys => new string[] {
@@ -44,11 +41,15 @@ namespace SkyrimAnimationChecker.CBPC
         public string[] MirrorKeys { get; set; }
         public MirrorPair[] MirrorPairs { get; set; }
     }
-    public interface Icbpc_data_multibone: Icbpc_data_mirrored
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
+    public interface Icbpc_data_multibone : Icbpc_data_mirrored
     {
         public abstract Icbpc_data GetData(int? num = null);
         public string[] UsingKeys { get; }
     }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public interface Icbpc_breast_data : Icbpc_data_multibone
     {
         //public abstract Icbpc_data_mirrored GetData(int? num = null);

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
+﻿using SkyrimAnimationChecker.Common;
+using System.Text.Json.Serialization;
 
 namespace SkyrimAnimationChecker.CBPC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public class cbpc_belly : cbpc_data, Icbpc_data
     {
         public cbpc_belly() : base() { }
@@ -14,9 +11,9 @@ namespace SkyrimAnimationChecker.CBPC
         public cbpc_belly(int num, physics_object_set? data = null) : base(num, data) { }
 
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public override string DataType => "belly";
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         protected override string DefaultName => "NPCBelly";
 
         public override physics_object_set? Find(string name) => Data;

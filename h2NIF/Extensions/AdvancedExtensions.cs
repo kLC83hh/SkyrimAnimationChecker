@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using h2NIF.DataStructure;
 using nifly;
-using h2NIF.DataStructure;
 
 namespace h2NIF.Extensions
 {
@@ -200,7 +195,7 @@ namespace h2NIF.Extensions
         {
             if (side == null) return arr;
             List<Vertex> filtered = new();
-            foreach(var v in arr)
+            foreach (var v in arr)
             {
                 switch (side)
                 {
@@ -271,7 +266,7 @@ namespace h2NIF.Extensions
             if (wBase == "center") win = window.opDiv(2f);
 
             List<Vertex> result = new();
-            foreach(var v in arr)
+            foreach (var v in arr)
             {
                 if (Math.Abs(v.x - std.x) <= win.x &&
                     Math.Abs(v.y - std.y) <= win.y &&

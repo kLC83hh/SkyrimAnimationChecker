@@ -1,12 +1,11 @@
-﻿using System;
+﻿using nifly;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using nifly;
 
 namespace SkyrimAnimationChecker.NIF
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public static class niflyStatisticsExtensions
     {
         #region Vector3
@@ -45,8 +44,10 @@ namespace SkyrimAnimationChecker.NIF
             SkinWeight[] newWeights = new SkinWeight[weights.Length];
             for (int i = 0; i < weights.Length; i++)
             {
-                newWeights[i] = new();
-                newWeights[i].weight = weights[i].weight / max;
+                newWeights[i] = new()
+                {
+                    weight = weights[i].weight / max
+                };
             }
             return newWeights;
         }
@@ -192,20 +193,22 @@ namespace SkyrimAnimationChecker.NIF
             if (rotation == null) arr = array;
             else
             {
-                for (int i = 0; i < array.Length; i++) { arr[i] = new(); arr[i].vert = array[i].vert.RotateBy(rotation); }
+                for (int i = 0; i < array.Length; i++) { arr[i] = new() { vert = array[i].vert.RotateBy(rotation) }; }
             }
 
-            Vertex max = new(), min = new();
-
-            max.x = arr.MaxBy(v => v.x)?.x ?? 0f;
-            max.y = arr.MaxBy(v => v.y)?.y ?? 0f;
-            max.z = arr.MaxBy(v => v.z)?.z ?? 0f;
-            max.w = arr.MaxBy(v => v.w)?.w ?? 0f;
-
-            min.x = arr.MinBy(v => v.x)?.x ?? 0f;
-            min.y = arr.MinBy(v => v.y)?.y ?? 0f;
-            min.z = arr.MinBy(v => v.z)?.z ?? 0f;
-            min.w = arr.MinBy(v => v.w)?.w ?? 0f;
+            Vertex max = new()
+            {
+                x = arr.MaxBy(v => v.x)?.x ?? 0f,
+                y = arr.MaxBy(v => v.y)?.y ?? 0f,
+                z = arr.MaxBy(v => v.z)?.z ?? 0f,
+                w = arr.MaxBy(v => v.w)?.w ?? 0f
+            }, min = new()
+            {
+                x = arr.MinBy(v => v.x)?.x ?? 0f,
+                y = arr.MinBy(v => v.y)?.y ?? 0f,
+                z = arr.MinBy(v => v.z)?.z ?? 0f,
+                w = arr.MinBy(v => v.w)?.w ?? 0f
+            };
 
             return (max, min);
         }
@@ -215,7 +218,7 @@ namespace SkyrimAnimationChecker.NIF
             if (rotation == null) arr = array;
             else
             {
-                for (int i = 0; i < array.Length; i++) { arr[i] = new(); arr[i].vert = array[i].vert.RotateBy(rotation); }
+                for (int i = 0; i < array.Length; i++) { arr[i] = new() { vert = array[i].vert.RotateBy(rotation) }; }
             }
 
             if (arr.Length == 1) return (arr[0], arr[0]);
@@ -251,7 +254,7 @@ namespace SkyrimAnimationChecker.NIF
             Vertex[] arr = new Vertex[array.Length];
             for (int i = 0; i < array.Length; i++) arr[i] = new(array[i].Index, array[i].vert, array[i].w);
             if (parent != null) { for (int i = 0; i < arr.Length; i++) arr[i] = arr[i].RotateBy(parent.rotation.Transpose()); }
-            
+
             (Vertex max, Vertex min) = arr.MinMax(axis);
             float halfdistance = min.DistanceTo(max) / 2f * Clamp(multiplier, 2f);
             List<Vertex> mins = new(), maxs = new();

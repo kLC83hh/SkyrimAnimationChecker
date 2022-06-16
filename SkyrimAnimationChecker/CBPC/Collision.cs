@@ -1,9 +1,8 @@
-﻿using System;
+﻿using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
+using System.Text.RegularExpressions;
 
 namespace SkyrimAnimationChecker.CBPC
 {
@@ -44,7 +43,7 @@ namespace SkyrimAnimationChecker.CBPC
                 if (line.Contains('='))
                 {
                     string[] buffer = line.Split('=').ForEach(x => x.Trim());
-                    if (buffer[1].Contains('#')) buffer[1] = buffer[1].Substring(0, buffer[1].IndexOf('#')).Trim();
+                    if (buffer[1].Contains('#')) buffer[1] = buffer[1][..buffer[1].IndexOf('#')].Trim();
                     if (buffer.Length == 2)
                     {
                         if (buffer[0] == "Conditions")
@@ -84,7 +83,7 @@ namespace SkyrimAnimationChecker.CBPC
             string[] checker = vm.CBPC_Checker.ToArray();
             if (lines.Contains(checker[0]) || lines.Contains(checker[1]) && lines.Contains(checker[2]))
             {
-                List<string> output = new List<string>();
+                List<string> output = new();
                 bool initializer = false;
                 foreach (string line in lines)
                 {
@@ -94,14 +93,14 @@ namespace SkyrimAnimationChecker.CBPC
                         {
                             string linebuffer = line;
                             if (line.Contains(':')) linebuffer = line.Split(':')[0].Trim();
-                            if (linebuffer.EndsWith("]")) output.Add(linebuffer.Substring(1, linebuffer.Length - 2));
+                            if (linebuffer.EndsWith("]")) output.Add(linebuffer[1..^1]);
                         }
                     }
                     else if (line.StartsWith(checker[0]) || line.StartsWith(checker[1]) || line.StartsWith(checker[2])) initializer = true;
                 }
                 return output.ToArray();
             }
-            return new string[] { };
+            return Array.Empty<string>();
         }
         public collider_object[] GetColliders()
         {
@@ -110,12 +109,12 @@ namespace SkyrimAnimationChecker.CBPC
             string[] lines = CollisionAll;
             string[] checker = vm.CBPC_Checker.ToArray();
 
-            List<collider_object> colliders = new List<collider_object>();
+            List<collider_object> colliders = new();
             if (lines.Contains(checker[0]) || lines.Contains(checker[1]) && lines.Contains(checker[2]))
             {
-                Func<string[], int, int> MoveNextKey = (lines, i) =>
+                static int MoveNextKey(string[] lines, int i)
                 {
-                    System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"^[\d-]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    Regex regex = new(@"^[\d-]", RegexOptions.IgnoreCase);
                     do
                     {
                         i++;
@@ -123,7 +122,7 @@ namespace SkyrimAnimationChecker.CBPC
                     }
                     while (regex.IsMatch(lines[i]));
                     return --i;
-                };
+                }
                 bool initializer = false;
                 for (int i = 0; i < lines.Length; i++)
                 {
@@ -135,7 +134,7 @@ namespace SkyrimAnimationChecker.CBPC
                             if (lines[i].Contains(':')) linebuffer = lines[i].Split(':')[0].Trim();
                             if (linebuffer.EndsWith("]"))
                             {
-                                string name = linebuffer.Substring(1, linebuffer.Length - 2);
+                                string name = linebuffer[1..^1];
                                 int n = MoveNextKey(lines, i);
                                 //M.D($"{i} {n} {lines[n]}");
                                 List<string> data = new();
@@ -151,7 +150,7 @@ namespace SkyrimAnimationChecker.CBPC
             return colliders.ToArray();
         }
 
-        private List<string> MakeOptions((cc_options_object op, cc_extraoptions_object eop)? ops)
+        private static List<string> MakeOptions((cc_options_object op, cc_extraoptions_object eop)? ops)
         {
             List<string> buffer = new();
             if (ops != null && ops.Value.op.Use)
@@ -177,16 +176,20 @@ namespace SkyrimAnimationChecker.CBPC
             if (CollisionAll.Length == 0) throw EE.New(5011);
             string[] lines = CollisionAll;
 
-            Func<string, bool> Found = (name) =>
+            bool Found(string name)
             {
                 bool res = false;
                 foreach (var item in o)
                 {
-                    if (name.StartsWith($"[{item.Name}]")) res = true;
+                    if (name.StartsWith($"[{item.Name}]"))
+                    {
+                        res = true;
+                        break;
+                    }
                 }
                 return res;
-            };
-            Func<string, string> Data = (name) =>
+            }
+            string Data(string name)
             {
                 string res = string.Empty;
                 foreach (var item in o)
@@ -194,10 +197,10 @@ namespace SkyrimAnimationChecker.CBPC
                     if (name.StartsWith($"[{item.Name}]")) res = item.Data;
                 }
                 return res;
-            };
-            Func<string[], int, int> MoveNextKey = (lines, i) =>
+            }
+            int MoveNextKey(string[] lines, int i)
             {
-                System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"^[\d-]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                Regex regex = new(@"^[\d-]", RegexOptions.IgnoreCase);
                 do
                 {
                     i++;
@@ -205,10 +208,9 @@ namespace SkyrimAnimationChecker.CBPC
                 }
                 while (regex.IsMatch(lines[i]));
                 return --i;
-            };
+            }
 
-            List<string> output = new();
-            List<string> options = MakeOptions(ops);
+            List<string> output = new(), options = MakeOptions(ops);
             for (int i = 0; i < lines.Length; i++)
             {
                 if (lines[i].Contains('=') && ops != null)
@@ -219,7 +221,7 @@ namespace SkyrimAnimationChecker.CBPC
                         if (ops.Value.op.Keys.Contains(buffer[0]) || ops.Value.eop.Keys.Contains(buffer[0]))
                         {
                             string comment = string.Empty;
-                            if (buffer[1].Contains('#')) comment = buffer[1].Substring(buffer[1].IndexOf('#'));
+                            if (buffer[1].Contains('#')) comment = buffer[1][buffer[1].IndexOf('#')..];
 
                             output.Add(
                                 string.IsNullOrEmpty(comment)

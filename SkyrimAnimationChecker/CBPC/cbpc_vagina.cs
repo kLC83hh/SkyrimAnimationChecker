@@ -1,12 +1,12 @@
-﻿using System;
+﻿using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
+using System.Text.Json.Serialization;
 
 namespace SkyrimAnimationChecker.CBPC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public class cbpc_vagina : PropertyHandler, Icbpc_data_multibone
     {
         public cbpc_vagina() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType", "UsingKeys" })
@@ -15,12 +15,12 @@ namespace SkyrimAnimationChecker.CBPC
             Clit = new("Clit");
             Labia = new("Labia");
         }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public string DataType => "vagina";
         /// <summary>
         /// A short name from bone 1. Short names of all 3 bones should be same.
         /// </summary>
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public string Name { get => Vagina.NameShort; set { } }
         public string NameShort => Name;
         public string[] MirrorKeys
@@ -53,18 +53,15 @@ namespace SkyrimAnimationChecker.CBPC
         /// </summary>
         /// <param name="name">Fullname e.g. ExtraBreast1L</param>
         /// <returns></returns>
-        public physics_object_set? Find(string name)
+        public physics_object_set? Find(string name) => name switch
         {
-            switch (name)
-            {
-                case "Vagina": return Vagina.Data;
-                case "VaginaB": return Vagina.Data;
-                case "Clit": return Clit.Data;
-                case "LLabia": return Labia.Left;
-                case "RLabia": return Labia.Right;
-            }
-            return null;
-        }
+            "Vagina" => Vagina.Data,
+            "VaginaB" => Vagina.Data,
+            "Clit" => Clit.Data,
+            "LLabia" => Labia.Left,
+            "RLabia" => Labia.Right,
+            _ => null,
+        };
 
         /// <summary>
         /// Breast data for bone 1
@@ -90,17 +87,17 @@ namespace SkyrimAnimationChecker.CBPC
         /// <param name="num">1,2,3</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public Icbpc_data GetData(int? num = null)
+        public Icbpc_data GetData(int? num = null) => num switch
         {
-            if (num == null) throw new ArgumentNullException(nameof(num));
-            switch (num)
+            null => throw new ArgumentNullException(nameof(num)),
+            _ => num switch
             {
-                case 0: return Vagina;
-                case 1: return Clit;
-                case 2: return Labia;
+                0 => Vagina,
+                1 => Clit,
+                2 => Labia,
+                _ => throw new ArgumentException(null, nameof(num)),
             }
-            throw new ArgumentNullException(nameof(num));
-        }
+        };
 
 
         private string[] _UsingKeys = Array.Empty<string>();

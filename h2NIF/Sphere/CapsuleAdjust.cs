@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using h2NIF.Extensions;
 using nifly;
-using h2NIF.Extensions;
 
 namespace h2NIF.Sphere
 {
@@ -54,7 +49,7 @@ namespace h2NIF.Sphere
                 //return Spheres[0].transform.translation.Midpoint(Spheres[1].transform.translation);
             }
         }
-        private float? _Distance;
+        //private float? _Distance;
         public float Distance
         {
             get
@@ -100,14 +95,14 @@ namespace h2NIF.Sphere
 
         public void Right(float A, float B = 0)
         {
-            foreach(var sphere in Spheres) new Adjust(sphere).Right(A, B);
+            foreach (var sphere in Spheres) new Adjust(sphere).Right(A, B);
         }
         public void Right(double A, double B = 0) => Right((float)A, (float)B);
         public void Left(float A, float B = 0) => Right(-A, -B);
         public void Left(double A, double B = 0) => Left((float)A, (float)B);
         public void Forward(float A, float B = 0)
         {
-            foreach(var sphere in Spheres) new Adjust(sphere).Forward(A, B);
+            foreach (var sphere in Spheres) new Adjust(sphere).Forward(A, B);
         }
         public void Forward(double A, double B = 0) => Forward((float)A, (float)B);
         public void Backward(float A, float B = 0) => Forward(-A, -B);

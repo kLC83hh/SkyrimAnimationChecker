@@ -1,9 +1,8 @@
-﻿using System;
+﻿using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
+using System.Text.RegularExpressions;
 
 namespace SkyrimAnimationChecker.NIF
 {
@@ -23,7 +22,8 @@ namespace SkyrimAnimationChecker.NIF
 
             string[] filter;
             try { filter = new CBPC.Collision(vm).Filter(); }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 o = Array.Empty<collider_object>();
                 vm.NIFrunning = false;
                 return EE.Parse(e);
@@ -67,12 +67,16 @@ namespace SkyrimAnimationChecker.NIF
 
             o = Mirror(res, filter);
             vm.NIFrunning = false;
-            return (0, String.Empty);
+            return (0, string.Empty);
         }
-        private collider_object[] Mirror(collider_object[] co, string[] filter)
+        private static collider_object[] Mirror(collider_object[] co, string[] filter)
         {
             List<collider_object> all = new();
-            Func<string, string> TrimSub = (name) => { if (name.Contains('[') && name.Contains(']')) { return name.Substring(0, Math.Min(name.IndexOf('['), name.IndexOf(']'))); } else { return name; } };
+            static string TrimSub(string name)
+            {
+                if (name.Contains('[') && name.Contains(']')) return name[..Math.Min(name.IndexOf('['), name.IndexOf(']'))];
+                else return name;
+            }
             foreach (collider_object c in co)
             {
                 all.Add(c);
@@ -87,19 +91,19 @@ namespace SkyrimAnimationChecker.NIF
                     string[] databuffer = c.Data.Split(' ').ForEach(x => x.Trim());
                     for (int i = 0; i < databuffer.Length; i++)
                     {
-                        System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"^[\d-]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        Regex regex = new(@"^[\d-]", RegexOptions.IgnoreCase);
                         if (regex.IsMatch(databuffer[i]))
                         {
-                            if (databuffer[i].StartsWith('-')) databuffer[i] = databuffer[i].Substring(1);
+                            if (databuffer[i].StartsWith('-')) databuffer[i] = databuffer[i][1..];
                             else databuffer[i] = $"-{databuffer[i]}";
                         }
                     }
-                    all.Add(new collider_object() { Name = namebuffer, Data = String.Join(' ', databuffer), Write = c.Write, Group = c.Group });
+                    all.Add(new collider_object() { Name = namebuffer, Data = string.Join(' ', databuffer), Write = c.Write, Group = c.Group });
                 }
             }
             return all.ToArray();
         }
-        private collider_object[] Combine(params collider_object[][]? colObj)
+        private static collider_object[] Combine(params collider_object[][]? colObj)
         {
             if (colObj == null) throw new ArgumentNullException(nameof(colObj));
 
@@ -137,32 +141,33 @@ namespace SkyrimAnimationChecker.NIF
         }
         private collider_object[] GetTriShapes(string file, string[] filter)
         {
-            Func<string, bool> nameCheck = (name) => {
+            bool nameCheck(string name)
+            {
                 if (!CBPC_collider_object_nameSelector.Right.ForAll(x => !name.Contains(x))) return false;
                 foreach (string s in filter)
                 {
                     if (name.StartsWith(s)) return true;
                 }
                 return false;
-            };
-            Func<string, string> filtered = (name) =>
+            }
+            string filtered(string name)
             {
                 foreach (string s in filter)
                 {
                     if (name.StartsWith(s)) return s;
                 }
                 return name;
-            };
-            nifly.NifFile niFile = new nifly.NifFile();
+            }
+            nifly.NifFile niFile = new();
             niFile.Load(file);
             //N.Text = niFile.GetHeader().GetVersion().IsSSE().ToString();
-            M.D(niFile.GetNodes().Count);
+            //M.D(niFile.GetNodes().Count);
             List<collider_object> triShapes = new();
             foreach (nifly.NiShape node in niFile.GetShapes())
             {
                 string name = node.name.get().Trim();
-                if (name.EndsWith("Sphere")) name = name.Substring(0, name.Length - 6).Trim();
-                if (name.EndsWith("Sphere2")) name = name.Substring(0, name.Length - 7).Trim();
+                if (name.EndsWith("Sphere")) name = name[..^6].Trim();
+                if (name.EndsWith("Sphere2")) name = name[..^7].Trim();
                 //M.D(name);
                 if (nameCheck(name) && node.transform.scale != 0)
                 {

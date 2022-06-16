@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using nifly;
-using h2NIF.Extensions;
+﻿using nifly;
 
 namespace h2NIF.Sphere
 {

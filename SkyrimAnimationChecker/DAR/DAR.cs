@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkyrimAnimationChecker.DAR
 {
@@ -31,27 +29,28 @@ namespace SkyrimAnimationChecker.DAR
             string[] dirs = System.IO.Directory.GetDirectories(vm.dirMods, $"*DynamicAnimationReplacer", System.IO.SearchOption.AllDirectories);
             return dirs;
         }
-        private string[] GetDARsubfolders(string dir)
+        private static string[] GetDARsubfolders(string dir)
         {
             var a = new System.IO.DirectoryInfo(dir);
             //T.Text = $"{a.EnumerateFiles().Count()}";
-            if (a.EnumerateFiles().Count() > 0) {
+            if (a.EnumerateFiles().Any())
+            {
                 System.IO.FileInfo[] b = a.EnumerateFiles().ToArray();
-                List<string> r = new List<string>();
+                List<string> r = new();
                 foreach (var file in b)
                 {
                     r.Add(file.FullName);
                 }
                 return r.ToArray();
             }
-            else if (a.EnumerateDirectories().Count() > 0)
+            else if (a.EnumerateDirectories().Any())
             {
                 //Tlist(a.EnumerateDirectories().ToArray());
                 var b = new System.IO.DirectoryInfo(a.EnumerateDirectories().First().FullName);
                 //T.Text = $"{b.EnumerateDirectories().Count()}";
-                if (b.EnumerateDirectories().Count() > 0)
+                if (b.EnumerateDirectories().Any())
                 {
-                    List<string> r = new List<string>();
+                    List<string> r = new();
                     foreach (var d in b.EnumerateDirectories())
                     {
                         r.Add(d.FullName);
@@ -59,7 +58,7 @@ namespace SkyrimAnimationChecker.DAR
                     return r.ToArray();
                 }
             }
-            return new string[0];
+            return Array.Empty<string>();
         }
         private DAR_MOD[] GetAllDARsubfolders(string[] list)
         {

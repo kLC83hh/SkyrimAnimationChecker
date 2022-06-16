@@ -1,10 +1,8 @@
-﻿using System;
+﻿using nifly;
+using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
-using nifly;
 
 namespace SkyrimAnimationChecker.NIF
 {
@@ -62,7 +60,7 @@ namespace SkyrimAnimationChecker.NIF
         public static BSTriShape[] GetTriShapes(this NifFile nif)
         {
             vectorNiShape shapes = nif.GetShapes();
-            List<BSTriShape> bSTriShapes = new List<BSTriShape>();
+            List<BSTriShape> bSTriShapes = new();
             foreach (var shape in shapes)
             {
                 var trishape = nif.GetBlock<BSTriShape>(nif.GetBlockID(shape));
@@ -110,11 +108,11 @@ namespace SkyrimAnimationChecker.NIF
                 NiShape? shape = nif.GetShape(name);
                 if (shape != null)
                 {
-                    var val = GetVals(transform);
-                    shape.transform.scale = val.s;
-                    shape.transform.translation.x = val.x;
-                    shape.transform.translation.y = val.y;
-                    shape.transform.translation.z = val.z;
+                    var (x, y, z, s) = GetVals(transform);
+                    shape.transform.scale = s;
+                    shape.transform.translation.x = x;
+                    shape.transform.translation.y = y;
+                    shape.transform.translation.z = z;
                 }
             }
             else
@@ -122,11 +120,11 @@ namespace SkyrimAnimationChecker.NIF
                 NiNode? node = nif.GetNode(name);
                 if (node != null)
                 {
-                    var val = GetVals(transform);
-                    node.transform.scale = val.s;
-                    node.transform.translation.x = val.x;
-                    node.transform.translation.y = val.y;
-                    node.transform.translation.z = val.z;
+                    var (x, y, z, s) = GetVals(transform);
+                    node.transform.scale = s;
+                    node.transform.translation.x = x;
+                    node.transform.translation.y = y;
+                    node.transform.translation.z = z;
                 }
             }
         }
@@ -243,22 +241,13 @@ namespace SkyrimAnimationChecker.NIF
         /// <param name="axis">[xyzXYZ]</param>
         /// <returns>[+-]</returns>
         /// <exception cref="ArgumentException">axis is not [xyzXYZ]</exception>
-        public static char GetPN(this NiShape sphere, char axis)
+        public static char GetPN(this NiShape sphere, char axis) => axis switch
         {
-            switch (axis)
-            {
-                case 'x':
-                case 'X':
-                    return GetPN(sphere.transform.translation.x);
-                case 'y':
-                case 'Y':
-                    return GetPN(sphere.transform.translation.y);
-                case 'z':
-                case 'Z':
-                    return GetPN(sphere.transform.translation.z);
-            }
-            throw new ArgumentException("axis must be x or y or z");
-        }
+            'x' or 'X' => GetPN(sphere.transform.translation.x),
+            'y' or 'Y' => GetPN(sphere.transform.translation.y),
+            'z' or 'Z' => GetPN(sphere.transform.translation.z),
+            _ => throw new ArgumentException("axis must be x or y or z"),
+        };
         /// <summary>
         /// Determine a <c>sphere</c> is which sided or not via its name.
         /// </summary>
@@ -276,7 +265,7 @@ namespace SkyrimAnimationChecker.NIF
         /// <param name="center"></param>
         /// <param name="strength"></param>
         /// <returns></returns>
-        public static Vector3 Strengthen(this Vector3 center, Vector3 strength) => new Vector3(center.x * strength.x, center.y * strength.y, center.z * strength.z);
+        public static Vector3 Strengthen(this Vector3 center, Vector3 strength) => new(center.x * strength.x, center.y * strength.y, center.z * strength.z);
 
         /// <summary>
         /// Color4(r, g, b, multplier)
@@ -470,7 +459,7 @@ namespace SkyrimAnimationChecker.NIF
                 vert.colorData[2] = 0;
                 vert.colorData[3] = 255;
             }
-            foreach (Triangle t in sphere.triangles) { }
+            //foreach (Triangle t in sphere.triangles) { }
             M.D($"{sphere.name.get()} {sphere.rawColors.Count} {sphere.HasVertexColors()} {sphere.triangles.Count}");
             return (new(), 0, "Manual update");
         }
@@ -592,7 +581,7 @@ namespace SkyrimAnimationChecker.NIF
 
         public static void MicroAdjust(this NiShape sphere, MatTransform parent)
         {
-            SphereAdjust adjust = new SphereAdjust(sphere);
+            SphereAdjust adjust = new(sphere);
             // scaling
             // translating, this should be done after scaling
             if (sphere.name.get().StartsWith("L Breast") || sphere.name.get().StartsWith("R Breast"))
@@ -804,7 +793,7 @@ namespace SkyrimAnimationChecker.NIF
                 return buffer;
             }
         }
-        private List<Vertex> _Vertices = new();
+        private readonly List<Vertex> _Vertices = new();
         private void GetVertices()
         {
             foreach (SkinWeight sw in Weights)
@@ -816,6 +805,7 @@ namespace SkyrimAnimationChecker.NIF
 
         public vectorTriangle Triangles => SkinPartition.partitions[0].triangles;
     }
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public class Vertex : Vector4
     {
         public Vertex() { Index = 0; vert = new(); weight = 1; }
@@ -826,6 +816,7 @@ namespace SkyrimAnimationChecker.NIF
             this.weight = weight;
         }
         public int Index { get; set; }
+
         public Vector3 vert { get; set; }
         public float weight { get; set; }
         public new float x { get => vert.x; set => vert.x = value; }

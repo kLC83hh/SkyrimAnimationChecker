@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -25,9 +22,9 @@ namespace SkyrimAnimationChecker.Common
 
         [JsonIgnore]
         private object[] VMs => Values;
-        private T? NewVM<T>(JsonElement j)
+        private static T? NewVM<T>(JsonElement j)
         {
-            T? buffer = default;
+            T? buffer;
             try { buffer = JsonSerializer.Deserialize<T>(j); }
             catch (JsonException e)
             {
@@ -66,18 +63,16 @@ namespace SkyrimAnimationChecker.Common
 
         #region Save to file
         [JsonIgnore]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
         private static string vmFilePath => System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SkyrimAnimationCheckerConfig.json");
 
-        [JsonIgnore]
-        public static int LoadCount = 0;
+        private static int LoadCount = 0;
 
         public void Save()
         {
-            using (System.IO.StreamWriter sw = new(vmFilePath, false))
-            {
-                JsonSerializer.Serialize(sw.BaseStream, VMs, VMs.GetType(), new JsonSerializerOptions() { WriteIndented = true });
-                sw.Flush();
-            }
+            using System.IO.StreamWriter sw = new(vmFilePath, false);
+            JsonSerializer.Serialize(sw.BaseStream, VMs, VMs.GetType(), new JsonSerializerOptions() { WriteIndented = true });
+            sw.Flush();
         }
         public bool Load<T>(ref T o, bool force = false)
         {

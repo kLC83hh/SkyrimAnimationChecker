@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using nifly;
+﻿using h2NIF.DataStructure;
 using h2NIF.Extensions;
-using h2NIF.DataStructure;
+using nifly;
+using System.Text;
 
 namespace h2NIF.Sphere
 {
@@ -28,13 +24,13 @@ namespace h2NIF.Sphere
             //if (!AdjustManager.IsAvailable) AdjustManager.Create(nif);
         }
 
-        List<bool> Errors = new();
+        private readonly List<bool> Errors = new();
         /// <summary>
         /// <para><c>true</c>: all cleared</para>
         /// <para><c>false</c>: some error has occurred</para>
         /// </summary>
         public bool Result => Errors.All(x => !x);
-        List<object> _Message = new();
+        private readonly List<object> _Message = new();
         public string[] Message
         {
             get
@@ -70,7 +66,7 @@ namespace h2NIF.Sphere
                 {
                     _Skins = new();
                     var buffer = Nif.GetAllSkinned();
-                    foreach(var s in buffer)
+                    foreach (var s in buffer)
                     {
                         var item = new Skin(Nif, s);
                         if (item.Error) { _Message.Add(item.Reason); }
@@ -96,10 +92,10 @@ namespace h2NIF.Sphere
         public bool Calculate(string str, bool bounding)
         {
             Bounding = bounding;
-            Action<Dictionary<string, string[]>> calc = (par) =>
+            void calc(Dictionary<string, string[]> par)
             {
                 foreach (var pair in par) Errors.Add(CalcSkin(pair.Value, pair.Key, str));
-            };
+            }
             Dictionary<string, string[]> cPar = new(), bPar = new();
 
             cPar.Add("3BA", new string[] { "L Breast", "NPC L Butt", "NPC Belly", "Clitoral1", "NPC L Pussy02", "NPC L Calf [LClf]", "NPC L Thigh [LThg]", "NPC L Forearm [LLar]", "NPC L UpperArm [LUar]", "NPC L RearThigh", "NPC Spine1 [Spn1]" });
@@ -141,7 +137,7 @@ namespace h2NIF.Sphere
             if (bone.SpheresCount == 0) { msg.Add($"{bone.Name} Sphere is not found"); return msg; }
 
             // Func, Action
-            Func<Bone, Bone> getWorkbone = (bone) =>
+            Bone getWorkbone(Bone bone)
             {
                 if (bone.Name == "VaginaB1")
                 {
@@ -154,7 +150,7 @@ namespace h2NIF.Sphere
                     return buffer.First(x => x.Name == bone.Name);
                 }
                 return bone;
-            };
+            }
 
             UpdateResult? result = null;
             if (Bounding)
@@ -326,7 +322,7 @@ namespace h2NIF.Sphere
     }
     internal static class AdjustManager
     {
-        private static Action nullAction = new Action(() => { });
+        private static readonly Action nullAction = new(() => { });
         public static Action Create(string name, NiShape sphere, NiNode parent)
         {
             //SphereAdjust adjust = new SphereAdjust(sphere);
@@ -336,7 +332,7 @@ namespace h2NIF.Sphere
             {
                 return new(() =>
                 {
-                    SphereAdjust adjust = new SphereAdjust(sphere);
+                    SphereAdjust adjust = new(sphere);
                     // scaling
                     if (name.Contains('1')) adjust.Scale(0.9);
 
@@ -362,7 +358,7 @@ namespace h2NIF.Sphere
             {
                 return new(() =>
                 {
-                    SphereAdjust adjust = new SphereAdjust(sphere);
+                    SphereAdjust adjust = new(sphere);
                     // scaling
                     adjust.ScaleUp(0.35, -0.975);
 
@@ -376,7 +372,7 @@ namespace h2NIF.Sphere
             {
                 return new(() =>
                 {
-                    SphereAdjust adjust = new SphereAdjust(sphere);
+                    SphereAdjust adjust = new(sphere);
                     // scaling
                     adjust.ScaleUp(0.5);
 
@@ -389,7 +385,7 @@ namespace h2NIF.Sphere
             {
                 return new(() =>
                 {
-                    SphereAdjust adjust = new SphereAdjust(sphere);
+                    SphereAdjust adjust = new(sphere);
                     // scaling
                     adjust.ScaleDown(0.15);
                     // translating, this should be done after scaling
@@ -401,7 +397,7 @@ namespace h2NIF.Sphere
             {
                 return new(() =>
                 {
-                    SphereAdjust adjust = new SphereAdjust(sphere);
+                    SphereAdjust adjust = new(sphere);
                     // scaling
                     adjust.ScaleUp(0.15);
                     // translating, this should be done after scaling
@@ -412,7 +408,7 @@ namespace h2NIF.Sphere
             {
                 return new(() =>
                 {
-                    SphereAdjust adjust = new SphereAdjust(sphere);
+                    SphereAdjust adjust = new(sphere);
                     // scaling
                     adjust.ScaleDown(0.26);
                     // translating, this should be done after scaling
@@ -425,14 +421,14 @@ namespace h2NIF.Sphere
     }
     internal static class CapsuleManager
     {
-        private static Func<string> nullAction = new Func<string>(() => string.Empty);
+        private static readonly Func<string> nullAction = new(() => string.Empty);
         public static Func<string> Create(Bone bone)
         {
             if (bone.Name.StartsWith("NPC L Pussy"))
             {
                 return new(() =>
                 {
-                    CapsuleAdjust adjust = new CapsuleAdjust(bone);
+                    CapsuleAdjust adjust = new(bone);
                     // scaling
                     adjust.ScaleUp(1);
                     // translating, this should be done after scaling
@@ -455,7 +451,7 @@ namespace h2NIF.Sphere
                 return new(() =>
                 {
                     // this sphere's parent node is rotated along with the hand, x=fore-back, y=in-out, z=arm-hand
-                    CapsuleAdjust adjust = new CapsuleAdjust(bone);
+                    CapsuleAdjust adjust = new(bone);
                     // scaling
                     //adjust.ScaleUp(0.2);
                     // translating, this should be done after scaling
@@ -470,7 +466,7 @@ namespace h2NIF.Sphere
                 return new(() =>
                 {
                     // this sphere's parent node is upside down
-                    CapsuleAdjust adjust = new CapsuleAdjust(bone);
+                    CapsuleAdjust adjust = new(bone);
                     // scaling
                     adjust.ScaleDown(0.05);
                     //translating, this should be done after scaling
@@ -486,7 +482,7 @@ namespace h2NIF.Sphere
                 return new(() =>
                 {
                     // this sphere's parent node is upside down, left-right flipped, and biased in z axis
-                    CapsuleAdjust adjust = new CapsuleAdjust(bone);
+                    CapsuleAdjust adjust = new(bone);
                     // scaling
                     adjust.ScaleDown(0.1);
                     // translating, this should be done after scaling
@@ -504,7 +500,7 @@ namespace h2NIF.Sphere
                 return new(() =>
                 {
                     // this sphere's parent node is upside down, left-right flipped, and biased in z axis
-                    CapsuleAdjust adjust = new CapsuleAdjust(bone);
+                    CapsuleAdjust adjust = new(bone);
                     // scaling
                     adjust.ScaleUp(0.5, -3);
                     // translating, this should be done after scaling
@@ -519,7 +515,7 @@ namespace h2NIF.Sphere
                 return new(() =>
                 {
                     // this sphere's parent node is rotated along with the forearm, x=in-out, y=fore-back, z=arm-hand
-                    CapsuleAdjust adjust = new CapsuleAdjust(bone);
+                    CapsuleAdjust adjust = new(bone);
                     // scaling
                     //adjust.ScaleUp(0.5, -1);
                     // translating, this should be done after scaling
@@ -535,7 +531,7 @@ namespace h2NIF.Sphere
                 return new(() =>
                 {
                     // this sphere's parent node is rotated along with the forearm, x=in-out, y=fore-back, z=arm-hand
-                    CapsuleAdjust adjust = new CapsuleAdjust(bone);
+                    CapsuleAdjust adjust = new(bone);
                     // scaling
                     adjust.ScaleUp(1, -2.5);
                     // translating, this should be done after scaling

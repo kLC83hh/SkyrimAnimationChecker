@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace h2NIF.Sphere
+﻿namespace h2NIF.Sphere
 {
     internal class Adjust
     {
         public Adjust(nifly.NiShape s) => sphere = s;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
         public nifly.NiShape sphere { get; }
 
         /// <summary>

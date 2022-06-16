@@ -1,5 +1,6 @@
 ﻿namespace SkyrimAnimationChecker.Common
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public partial class physics_object_set : PropertyHandler
     {
         // Property Handling
@@ -61,7 +62,7 @@
         public string Name { get => Get<string>(); set => Set(value); }
         public override string ToString() { return Name; }
     }
-    
+
     // part
     public partial class physics_object_set : PropertyHandler
     {
@@ -216,7 +217,6 @@
         public physics_object linearYspreadforceZ { get => Get<physics_object>(); set => Set(value); }
         public physics_object linearZspreadforceX { get => Get<physics_object>(); set => Set(value); }
         public physics_object linearZspreadforceY { get => Get<physics_object>(); set => Set(value); }
-
         #endregion
     }
     // normal-3b additional
@@ -317,7 +317,6 @@
         public physics_object rotationYspreadforceZ { get => Get<physics_object>(); set => Set(value); }
         public physics_object rotationZspreadforceX { get => Get<physics_object>(); set => Set(value); }
         public physics_object rotationZspreadforceY { get => Get<physics_object>(); set => Set(value); }
-
         #endregion
     }
     // 3b_Gravities

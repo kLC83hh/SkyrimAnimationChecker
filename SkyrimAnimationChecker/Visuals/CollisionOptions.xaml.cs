@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SkyrimAnimationChecker.Common;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using SkyrimAnimationChecker.Common;
 
 namespace SkyrimAnimationChecker
 {
@@ -80,7 +69,7 @@ namespace SkyrimAnimationChecker
                     g.Children.Add(vb);
 
                     var tb = new TextBox();
-                    tb.SetBinding(TextBox.TextProperty, new Binding() { Path= new PropertyPath(key), Source = ExtraOptions });
+                    tb.SetBinding(TextBox.TextProperty, new Binding() { Path = new PropertyPath(key), Source = ExtraOptions });
                     tb.SetValue(Grid.ColumnProperty, 1);
                     g.Children.Add(tb);
 
@@ -88,7 +77,7 @@ namespace SkyrimAnimationChecker
                 }
                 else
                 {
-                    var g = (Grid)extrapanel.Children[extrapanel.Children.Count - 1];
+                    var g = (Grid)extrapanel.Children[^1];
                     string key = ExtraOptions.Keys[i];
 
                     var vb = new Viewbox();

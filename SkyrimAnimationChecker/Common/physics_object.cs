@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SkyrimAnimationChecker.Common
+﻿namespace SkyrimAnimationChecker.Common
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public class physics_object : Notify.NotifyPropertyChanged
     {
         public physics_object(string key)

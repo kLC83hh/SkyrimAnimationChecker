@@ -5,9 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SkyrimAnimationChecker"
         xmlns:common="clr-namespace:SkyrimAnimationChecker.Common"
-        mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=common:VM}"
-        Title="SAC"
-        d:Height="670" d:Width="830">
+        mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=common:VM_GENERAL}"
+        Title="SAC" d:Height="670" d:Width="830">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:MainWindow.SaveCommand}" Executed="CommandBinding_Executed"/>
     </Window.CommandBindings>
@@ -37,7 +36,17 @@
                         <CheckBox Content="UseDesktop" IsChecked="{Binding useDesktop}" Padding="0,-1"/>
                     </WrapPanel>
                     <WrapPanel HorizontalAlignment="Right">
-                        <CheckBox Content="BC" ToolTip="BodyChange" Padding="0,-1" Margin="0,0,2,0" IsChecked="{Binding useBodyChange}"/>
+                        <CheckBox Content="BC" ToolTip="Use BodyChange, available only when MO2 is captured" Padding="0,-1" Margin="0,0,2,0" IsChecked="{Binding useBodyChange}">
+                            <CheckBox.Style>
+                                <Style TargetType="CheckBox" BasedOn="{StaticResource Def}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding useMO2}" Value="False">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </CheckBox.Style>
+                        </CheckBox>
                         <CheckBox Content="MO2" Padding="0,-1" Margin="0,0,2,0" IsChecked="{Binding useMO2}">
                             <CheckBox.Style>
                                 <Style TargetType="CheckBox" BasedOn="{StaticResource Def}">
@@ -230,6 +239,7 @@
                         <ComboBox.Style>
                             <Style TargetType="ComboBox" BasedOn="{StaticResource cbdef}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
+                                <d:Setter Property="Visibility" Value="Visible"/>
                                 <Style.Triggers>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
@@ -359,6 +369,7 @@
                         <ComboBox.Style>
                             <Style TargetType="ComboBox" BasedOn="{StaticResource cbdef}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
+                                <d:Setter Property="Visibility" Value="Visible"/>
                                 <Style.Triggers>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
@@ -663,7 +674,10 @@
                         <TextBox Grid.Column="1"/>
                     </Grid>
                     <Grid>
-                        <CheckBox Content="All" IsChecked="{Binding writeAll}" Click="CBPC_panel_All_CheckBox_Click" Padding="0,-1"/>
+                        <WrapPanel>
+                            <CheckBox Content="All" IsChecked="{Binding writeAll}" Checked="CheckBox_Check_Changed" Unchecked="CheckBox_Check_Changed" Padding="0,-1,5,-1"/>
+                            <CheckBox Content="V" ToolTip="Override Vaginals" IsChecked="{Binding overrideVaginal}" Checked="CheckBox_Check_Changed" Unchecked="CheckBox_Check_Changed" Padding="0,-1,0,-1"/>
+                        </WrapPanel>
                         <Button Grid.Column="1" Click="WriteCollisionConfig_3_Button_Click">
                             <Button.Style>
                                 <Style TargetType="Button">

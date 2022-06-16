@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkyrimAnimationChecker.Common
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public class collider_object : Notify.NotifyPropertyChanged
     {
         public collider_object() { }
@@ -25,8 +23,8 @@ namespace SkyrimAnimationChecker.Common
         public string Name { get => Get<string>(); set => Set(value); }
         public string Data { get => Get<string>(); set => Set(value); }
 
-        private string[] Divide(string o, char s) => o.Split(s).ForEach(x => x.Trim());
-        private string[] Divide(string o, string s) => o.Split(s).ForEach(x => x.Trim());
+        private static string[] Divide(string o, char s) => o.Split(s).ForEach(x => x.Trim());
+        private static string[] Divide(string o, string s) => o.Split(s).ForEach(x => x.Trim());
         /// <summary>
         /// Capsule split
         /// </summary>
@@ -73,7 +71,7 @@ namespace SkyrimAnimationChecker.Common
                 if (!medium.Aggregate(medium[0].Length == 2, (accu, next) => accu & medium[0].Length == next.Length)) throw new Exception($"Invalid data structure: {Data}");
 
                 string[] out0 = new string[medium.Length];
-                for (int i = 0; i < medium.Length; i++)out0[i] = medium[i][0];
+                for (int i = 0; i < medium.Length; i++) out0[i] = medium[i][0];
                 string[] out1 = new string[medium.Length];
                 for (int i = 0; i < medium.Length; i++) out1[i] = medium[i][1];
 

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using h2NIF.Extensions;
 using nifly;
-using h2NIF.Extensions;
 
 namespace h2NIF.DataStructure
 {
@@ -19,14 +14,17 @@ namespace h2NIF.DataStructure
         }
         public int Index { get; set; }
         private Vector3 _vert = new();
+#pragma warning disable IDE1006 // Naming Styles
         public Vector3 vert
         {
             get => _vert; set
             {
-                Vector3 buffer = new();
-                buffer.x = value.x;
-                buffer.y = value.y;
-                buffer.z = value.z;
+                Vector3 buffer = new()
+                {
+                    x = value.x,
+                    y = value.y,
+                    z = value.z
+                };
                 _vert = buffer;
             }
         }
@@ -35,6 +33,7 @@ namespace h2NIF.DataStructure
         public new float y { get => vert.y; set => vert.y = value; }
         public new float z { get => vert.z; set => vert.z = value; }
         public new float w { get => weight; set => weight = value; }
+#pragma warning restore IDE1006 // Naming Styles
 
         public Vertex GlobalizeTo(Vector3 parent) => new(Index, vert.opAdd(parent), weight);
         public Vertex LocalizeTo(Vector3 parent) => new(Index, vert.opSub(parent), weight);

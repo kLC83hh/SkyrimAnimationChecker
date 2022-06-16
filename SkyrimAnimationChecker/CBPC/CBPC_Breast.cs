@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
+﻿using SkyrimAnimationChecker.Common;
+using System.Text.Json.Serialization;
 
 namespace SkyrimAnimationChecker.CBPC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public class cbpc_breast : cbpc_data_mirrored
     {
         public cbpc_breast() : base() { }
@@ -14,26 +11,23 @@ namespace SkyrimAnimationChecker.CBPC
         public cbpc_breast(int num, physics_object_set? left = null, physics_object_set? right = null) : base(num, left, right) { }
 
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public override string DataType => "breast";
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         protected override string DefaultName => "Breast";
 
-        public override physics_object_set? Find(string name)
+        public override physics_object_set? Find(string name) => name switch
         {
-            switch (name)
-            {
-                case "LBreast": return Left;
-                case "ExtraBreast1L": return Left;
-                case "ExtraBreast2L": return Left;
-                case "ExtraBreast3L": return Left;
-                case "RBreast": return Right;
-                case "ExtraBreast1R": return Right;
-                case "ExtraBreast2R": return Right;
-                case "ExtraBreast3R": return Right;
-            }
-            return null;
-        }
+            "LBreast" => Left,
+            "ExtraBreast1L" => Left,
+            "ExtraBreast2L" => Left,
+            "ExtraBreast3L" => Left,
+            "RBreast" => Right,
+            "ExtraBreast1R" => Right,
+            "ExtraBreast2R" => Right,
+            "ExtraBreast3R" => Right,
+            _ => null,
+        };
 
         protected override string NameParser(string name)
         {

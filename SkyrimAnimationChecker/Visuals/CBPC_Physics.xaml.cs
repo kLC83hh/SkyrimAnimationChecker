@@ -1,19 +1,10 @@
-﻿using System;
+﻿using SkyrimAnimationChecker.CBPC;
+using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using SkyrimAnimationChecker.Common;
-using SkyrimAnimationChecker.CBPC;
 
 namespace SkyrimAnimationChecker.Common
 {
@@ -88,7 +79,7 @@ namespace SkyrimAnimationChecker
             if (!vm.VMphysics_BindLR) SetIsMirrored();
             Make();
         }
-        VM_VPhysics vm;
+        private readonly VM_VPhysics vm;
 
         #region Properties
         public Icbpc_data Data
@@ -130,7 +121,7 @@ namespace SkyrimAnimationChecker
             if (Data is Icbpc_data_mirrored m) return CheckMirrorFilter(filter) ? m.DefaultMirrorKeys : filter;
             else return filter;
         }
-        private bool CheckMirrorFilter(string[]? filter) => filter?.Length < 1 || filter?.Length == 1 && filter[0] == "default";
+        private static bool CheckMirrorFilter(string[]? filter) => filter?.Length < 1 || filter?.Length == 1 && filter[0] == "default";
 
 
         private void MirrorPair_TextBox_TextChanged(object sender, TextChangedEventArgs e) => SetMirrorPair();
@@ -148,7 +139,7 @@ namespace SkyrimAnimationChecker
                 return CheckMirrorPair(sPair, out MirrorPair[]? pairs) || pairs == null ? m.DefaultMirrorPairs : pairs;
             else return Array.Empty<MirrorPair>();
         }
-        private bool CheckMirrorPair(string? s, out MirrorPair[]? pairs)
+        private static bool CheckMirrorPair(string? s, out MirrorPair[]? pairs)
         {
             if (s == null) { pairs = null; return true; }
             string[] sPairs = s.Split('|');
@@ -169,9 +160,11 @@ namespace SkyrimAnimationChecker
             if (data is string[]) { cd.MinWidth = 120; cd.MaxWidth = 200; cd.Width = new GridLength(1.5, GridUnitType.Star); }
             panel.ColumnDefinitions.Add(cd);
 
-            CBPC_Physics_Column c = new(vm, (string)CollectiveCB.SelectedItem);
-            c.Header = key;
-            c.Data = data;
+            CBPC_Physics_Column c = new(vm, (string)CollectiveCB.SelectedItem)
+            {
+                Header = key,
+                Data = data
+            };
             if (options?.Length > 0) c.Option = options;
             if (data is string[]) c.Copy += (way) => CopyValues(way);
             c.SetValue(Grid.ColumnProperty, panel.ColumnDefinitions.Count - 1);
@@ -218,7 +211,7 @@ namespace SkyrimAnimationChecker
             else if (Data.DataType == "belly") Make_single();
             else if (Data.DataType == "mirrored") Make_Mirrored();
             else if (Data.DataType == "bbp") Make_Mirrored();
-            else if ( Data.DataType == "buut") Make_Mirrored();
+            else if (Data.DataType == "buut") Make_Mirrored();
         }
         private void Make_single()
         {

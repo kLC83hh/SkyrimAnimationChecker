@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace SkyrimAnimationChecker.Common
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public partial class VM_GENERAL : Notify.NotifyPropertyChanged
     {
         public VM_GENERAL() => Reset();
@@ -22,6 +19,10 @@ namespace SkyrimAnimationChecker.Common
     }
     public partial class VM_GENERAL : Notify.NotifyPropertyChanged
     {
+        // No-Brainer
+        [JsonIgnore]
+        public bool DoItRunning { get => Get<bool>(); set => Set(value); }
+
         [JsonIgnore]
         public bool DARrunning { get => Get<bool>(); set => Set(value); }
         [JsonIgnore]
@@ -31,6 +32,17 @@ namespace SkyrimAnimationChecker.Common
 
         [JsonIgnore]
         public bool CBPC_Physics_running { get => Get<bool>(); set => Set(value); }
+
+        [JsonIgnore]
+        public bool cbpc15xbeta3 { get => Get<bool>(); set => Set(value); }
+
+        [JsonIgnore]
+        public bool writeAll { get => Get<bool>(); set => Set(value); }
+        [JsonIgnore]
+        public bool writeSome { get => Get<bool>(); set => Set(value); }
+        [JsonIgnore]
+        public bool overwriteCBPC_Physics { get => Get<bool>(); set => Set(value); }
+
     }
     public partial class VM_GENERAL : Notify.NotifyPropertyChanged
     {
@@ -60,8 +72,6 @@ namespace SkyrimAnimationChecker.Common
             useCustomExample = false;
             weightNumber = 2;
             fileNIF_sphere = System.IO.Path.Combine(workdir, "sphere.nif");
-            //fileNIF_sphere0 = System.IO.Path.Combine(workdir, "example_1.nif");
-            //fileNIF_sphere1 = System.IO.Path.Combine(workdir, "example_0.nif");
             AutoCalcSpheres = true;
 
             useNIFs = true;
@@ -73,10 +83,10 @@ namespace SkyrimAnimationChecker.Common
             fileCBPC_Collision = "CBPCollisionConfig_Female.txt";
             fileCBPC_Collisions = new() { "CBPCollisionConfig.txt", "CBPCollisionConfig_Female.txt" };
             groupfilter = "[NPC L Pussy02],[NPC L RearThigh],[NPC L Thigh [LThg]],[NPC L UpperArm [LUar]],[NPC L Forearm [LLar]]";
+            overrideVaginal = false;
 
             //fileCBPC_Physics = "CBPConfig_3b.txt";
             fileCBPC_Physicss = new();
-            cbpc15xbeta3 = false;
             cbpcUpdateFromFile_DefaultLocation = workdir;
 
             CBPC_Checker = new() { "# Collision spheres", "# Affected Nodes", "# Collider Nodes" };
@@ -95,11 +105,8 @@ namespace SkyrimAnimationChecker.Common
         public bool useBodyChange { get => Get<bool>(); set { Set(value); OnPropertyChanged("dirNIF_bodyslide"); } }
         public bool useAdvanced { get => Get<bool>(); set => Set(value); }
 
-        // No-Brainer
-        [JsonIgnore]
-        public bool DoItRunning { get => Get<bool>(); set => Set(value); }
-
         // DAR
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
         public string _dirMods { get => Get<string>(); set => Set(value); }
         [JsonIgnore]
         public string dirMods
@@ -122,6 +129,7 @@ namespace SkyrimAnimationChecker.Common
         public int bodychangeNumber { get => Get<int>(); set => Set(value); }
 
         // NIF
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
         public string _dirNIF_bodyslide { get => Get<string>(); set => Set(value.Replace("\\\\", "\\")); }
         [JsonIgnore]
         public string dirNIF_bodyslide
@@ -143,10 +151,6 @@ namespace SkyrimAnimationChecker.Common
         public bool useCustomExample { get => Get<bool>(); set => Set(value); }
         public int weightNumber { get => Get<int>(); set { if (value > -1) Set(value); } }
         public string fileNIF_sphere { get => Get<string>(); set => Set(value); }
-        //public string fileNIF_sphere0 { get => Get<string>(); set => Set(value); }
-        //public string fileNIF_sphere1 { get => Get<string>(); set => Set(value); }
-        //[JsonIgnore]
-        //public string[] fileNIF_spheres => new string[] { fileNIF_sphere0, fileNIF_sphere1 };
 
         [JsonIgnore]
         public bool overwriteInterNIFs { get => Get<bool>(); set => Set(value); }
@@ -158,7 +162,9 @@ namespace SkyrimAnimationChecker.Common
         [JsonIgnore]
         public string[] fileNIF_outs => new string[] { fileNIF_out0, fileNIF_out1 };
 
+
         // CBPC
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
         public string _dirCBPC { get => Get<string>(); set => Set(value.Replace("\\\\", "\\")); }
         [JsonIgnore]
         public string dirCBPC
@@ -176,21 +182,12 @@ namespace SkyrimAnimationChecker.Common
         [JsonIgnore]
         public int fileCBPC_Collision_Index { get => Get<int>(); set => Set(value); }
         public string groupfilter { get => Get<string>(); set => Set(value); }
+        public bool overrideVaginal { get => Get<bool>(); set => Set(value); }
 
         [JsonIgnore]
         public string fileCBPC_Physics { get => Get<string>(); set => Set(value); }
         [JsonIgnore]
         public ObservableCollection<string> fileCBPC_Physicss { get => Get<ObservableCollection<string>>(); set => Set(value); }
-
-        [JsonIgnore]
-        public bool cbpc15xbeta3 { get => Get<bool>(); set => Set(value); }
-
-        [JsonIgnore]
-        public bool writeAll { get => Get<bool>(); set => Set(value); }
-        [JsonIgnore]
-        public bool writeSome { get => Get<bool>(); set => Set(value); }
-        [JsonIgnore]
-        public bool overwriteCBPC_Physics { get => Get<bool>(); set => Set(value); }
 
         public string cbpcUpdateFromFile_DefaultLocation { get => Get<string>(); set => Set(value); }
 

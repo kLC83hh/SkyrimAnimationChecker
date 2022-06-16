@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using nifly;
-using h2NIF.DataStructure;
+﻿using h2NIF.DataStructure;
 using h2NIF.Extensions;
+using nifly;
 
 namespace h2NIF.Sphere
 {
@@ -36,7 +31,7 @@ namespace h2NIF.Sphere
             Sector = sector;
         }
 
-        NifFile Nif;
+        private readonly NifFile Nif;
         public NiShape Sphere { get; set; }
         /// <summary>
         /// <c>Sphere</c>.name.get()
@@ -44,7 +39,7 @@ namespace h2NIF.Sphere
         public string Name => Sphere.name.get();
         public NiNode ParentNode => Nif.GetParentNode(Sphere);
 
-        Vertex[] _Vertices;
+        private readonly Vertex[] _Vertices;
         Vertex[] SplitVertices()
         {
             //M.D($"{Name} {SplitAxes?.Length}");
@@ -83,8 +78,8 @@ namespace h2NIF.Sphere
         /// </summary>
         public Vertex[] Vertices => SplitVertices();
 
-        char[]? SplitAxes = null;
-        int[][] Sector;
+        private readonly char[]? SplitAxes = null;
+        private readonly int[][] Sector;
 
         public string RawStrength { get; set; }
         public Vector3 Strength => Vectorize(RawStrength, 1f);
@@ -101,7 +96,7 @@ namespace h2NIF.Sphere
         public Action Adjust => AdjustManager.Create(Name, Sphere, ParentNode);
 
 
-        private Vector3 Vectorize(string s, Vector3? defaultVector = null)
+        private static Vector3 Vectorize(string s, Vector3? defaultVector = null)
         {
             if (!s.Contains(',')) return defaultVector ?? new();
             string[] vals = s.Split(',');
@@ -115,7 +110,7 @@ namespace h2NIF.Sphere
             }
             catch { return defaultVector ?? new(); }
         }
-        private Vector3 Vectorize(string s, params float[] defaultValue)
+        private static Vector3 Vectorize(string s, params float[] defaultValue)
         {
             if (defaultValue.Length == 1) return Vectorize(s, new Vector3(defaultValue[0], defaultValue[0], defaultValue[0]));
             else if (defaultValue.Length == 3) return Vectorize(s, new Vector3(defaultValue[0], defaultValue[1], defaultValue[2]));

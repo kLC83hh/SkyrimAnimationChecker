@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using h2NIF.DataStructure;
 using nifly;
-using h2NIF.DataStructure;
 
 namespace h2NIF.Extensions
 {
@@ -100,8 +95,8 @@ namespace h2NIF.Extensions
         }
         public static BSTriShape[] GetTriShapes(this NifFile nif)
         {
-            List<BSTriShape> bSTriShapes = new List<BSTriShape>();
-            foreach(var shape in nif.GetShapes())
+            List<BSTriShape> bSTriShapes = new();
+            foreach (var shape in nif.GetShapes())
             {
                 var trishape = nif.GetBlock<BSTriShape>(nif.GetBlockID(shape));
                 if (trishape != null) bSTriShapes.Add(trishape);

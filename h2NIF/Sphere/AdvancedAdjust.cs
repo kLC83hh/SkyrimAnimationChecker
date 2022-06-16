@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using h2NIF.Extensions;
+﻿using h2NIF.Extensions;
 
 namespace h2NIF.Sphere
 {
@@ -11,7 +6,8 @@ namespace h2NIF.Sphere
     {
         public AdvancedAdjust(nifly.NiShape s, nifly.Vector3? o = null) : base(s) => _origin = o ?? new();
 
-        char? _side;
+        private char? _side;
+#pragma warning disable IDE1006 // Naming Styles
         protected char? side
         {
             get
@@ -20,8 +16,9 @@ namespace h2NIF.Sphere
                 return _side;
             }
         }
-        nifly.Vector3 _origin;
+        private readonly nifly.Vector3 _origin;
         protected nifly.Vector3 origin => _origin;
+#pragma warning restore IDE1006 // Naming Styles
 
         /// <param name="axis">[sxyzSXYZ] s=side sphere by name</param>
         /// <param name="A"></param>

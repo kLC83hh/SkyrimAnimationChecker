@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkyrimAnimationChecker.CBPC
 {
@@ -13,11 +11,11 @@ namespace SkyrimAnimationChecker.CBPC
         public CBPC(Common.VM linker) => vm = linker.GENERAL;
 
 
-        private string AutoWriteComment = "### Automatically wrote by SAC";
-        private string[] AutoWriteCommentDelete = new[] { "### Automatically writed by SAC" };
+        private readonly string AutoWriteComment = "### Automatically wrote by SAC";
+        private readonly string[] AutoWriteCommentDelete = new[] { "### Automatically writed by SAC" };
 
 
-        protected void Backup(string path) => System.IO.File.Copy(path, System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), path.Split('\\').Last()), true);
+        protected static void Backup(string path) => System.IO.File.Copy(path, System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), path.Split('\\').Last()), true);
         public string[] ReadLines(string path, bool backup = false)
         {
             string[] outputArray = Array.Empty<string>();
@@ -36,17 +34,15 @@ namespace SkyrimAnimationChecker.CBPC
             //M.D(lines.Count);
             return outputArray;
         }
-        private bool WriteRefused(string path, bool overwrite = true) => System.IO.File.Exists(path) && !overwrite;
-        protected bool CanWrite(string path, bool overwrite = true) => !WriteRefused(path, overwrite);
+        private static bool WriteRefused(string path, bool overwrite = true) => System.IO.File.Exists(path) && !overwrite;
+        protected static bool CanWrite(string path, bool overwrite = true) => !WriteRefused(path, overwrite);
         public void Write(string data, string path, bool overwrite = true, bool backup = true)
         {
             if (WriteRefused(path, overwrite)) return;
             if (backup) Backup(path);
             data += $"{Environment.NewLine}{AutoWriteComment} at {DateTime.Now}";
-            using (System.IO.StreamWriter sw = new(path))
-            {
-                sw.Write(data);
-            }
+            using System.IO.StreamWriter sw = new(path);
+            sw.Write(data);
         }
 
     }

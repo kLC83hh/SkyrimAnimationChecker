@@ -1,9 +1,7 @@
-﻿using System;
+﻿using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
 
 namespace SkyrimAnimationChecker.CBPC
 {
@@ -14,6 +12,8 @@ namespace SkyrimAnimationChecker.CBPC
 
 
         private string[] PhysicsAll = Array.Empty<string>();
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
         private string path => System.IO.Path.Combine(vm.dirCBPC, vm.fileCBPC_Physics);
         public string[] Read(bool backup = false, bool force = false)
         {
@@ -72,7 +72,7 @@ namespace SkyrimAnimationChecker.CBPC
         }
         private Icbpc_data? Parse(string[] lines, string? type)
         {
-            Func<string?, Icbpc_data?> newObject = (type) =>
+            static Icbpc_data? newObject(string? type)
             {
                 if (type == "3ba") return new cbpc_breast_3ba();
                 else if (type == "bbp") return new cbpc_data_mirrored();
@@ -81,7 +81,7 @@ namespace SkyrimAnimationChecker.CBPC
                 else if (type == "leg") return new cbpc_leg();
                 else if (type == "vagina") return new cbpc_vagina();
                 else return null;
-            };
+            }
 
             Icbpc_data? CBPCDATA = newObject(type);
             if (CBPCDATA != null)
@@ -98,7 +98,7 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return CBPCDATA;
         }
-        private (string, string, double[]) Parseline(string line)
+        private static (string, string, double[]) Parseline(string line)
         {
             string[] part = line.Trim().Split(' ').ForEach(x => x.Trim());
             if (part.Length != 3 && part.Length != 2) throw EE.New(2201, $"Invalid data: {line}");
@@ -122,16 +122,18 @@ namespace SkyrimAnimationChecker.CBPC
             }
             return (name, key, buffer);
         }
-        private void Beta_auto_key_update_cbpc15xbeta3(ref string key)
+        private static void Beta_auto_key_update_cbpc15xbeta3(ref string key)
         {
-            Dictionary<string, string> changes = new();
-            changes.Add("linearXspreadforceYRot", "rotationXspreadforceY");
-            changes.Add("linearXspreadforceZRot", "rotationXspreadforceZ");
-            changes.Add("linearYspreadforceXRot", "rotationYspreadforceX");
-            changes.Add("linearYspreadforceZRot", "rotationYspreadforceZ");
-            changes.Add("linearZspreadforceXRot", "rotationZspreadforceX");
-            changes.Add("linearZspreadforceYRot", "rotationZspreadforceY");
-            if (changes.Keys.Contains(key)) key = changes[key];
+            Dictionary<string, string> changes = new()
+            {
+                { "linearXspreadforceYRot", "rotationXspreadforceY" },
+                { "linearXspreadforceZRot", "rotationXspreadforceZ" },
+                { "linearYspreadforceXRot", "rotationYspreadforceX" },
+                { "linearYspreadforceZRot", "rotationYspreadforceZ" },
+                { "linearZspreadforceXRot", "rotationZspreadforceX" },
+                { "linearZspreadforceYRot", "rotationZspreadforceY" }
+            };
+            if (changes.ContainsKey(key)) key = changes[key];
         }
 
 
@@ -140,13 +142,12 @@ namespace SkyrimAnimationChecker.CBPC
             if (PhysicsAll == null || PhysicsAll.Length == 0) Read();
             if (PhysicsAll == null || PhysicsAll.Length == 0) return (Array.Empty<string>(), Array.Empty<string>());
 
-            List<string> bonefilter = new();
-            List<string> keyfilter = new List<string>();
+            List<string> bonefilter = new(), keyfilter = new();
             foreach (string line in PhysicsAll)
             {
                 string buffer = line;
                 if (string.IsNullOrWhiteSpace(buffer) || buffer.StartsWith('#')) continue;
-                if (buffer.Contains('#')) buffer = buffer.Substring(0, buffer.IndexOf('#'));
+                if (buffer.Contains('#')) buffer = buffer[..buffer.IndexOf('#')];
                 string[] b1 = buffer.Split(' ');
                 if (b1 == null || b1.Length < 1 || !b1[0].Contains('.')) continue;
                 string[] b2 = b1[0].Split('.');
@@ -163,7 +164,7 @@ namespace SkyrimAnimationChecker.CBPC
             if (PhysicsAll == null || PhysicsAll.Length == 0) Read();
             if (PhysicsAll == null || PhysicsAll.Length == 0) return string.Empty;
             string[] data = PhysicsAll;
-            
+
             for (int i = 0; i < data.Length; i++)
             {
                 string buffer = data[i].TrimEnd(), comment = string.Empty;
@@ -171,8 +172,8 @@ namespace SkyrimAnimationChecker.CBPC
 
                 if (buffer.Contains('#'))
                 {
-                    comment = buffer.Substring(buffer.IndexOf('#'));
-                    buffer = buffer.Substring(0, buffer.IndexOf('#'));
+                    comment = buffer[buffer.IndexOf('#')..];
+                    buffer = buffer[..buffer.IndexOf('#')];
                 }
                 string[] b1 = buffer.Split(' ');
                 if (b1 == null || (b1.Length != 2 && b1.Length != 3) || !b1[0].Contains('.')) continue;
@@ -190,7 +191,7 @@ namespace SkyrimAnimationChecker.CBPC
                     values ??= o.Find(name)?.GetPhysics(key);
                 }
                 if (values == null) { M.D($"{name} {key}"); continue; }
-                
+
                 string newline = $"{b1[0]} {values[1]}";
                 if (values.Length > 1 && values[1] != values[0] || !vm.CBPCremoveUnnecessary)
                     newline += $" {values[0]}";
@@ -206,38 +207,26 @@ namespace SkyrimAnimationChecker.CBPC
     public static class CBPC_Physics_Keywords
     {
         public enum Keywords { _3ba, bbp, belly, butt, leg, vagina }
-        public static string GetKeyword(Keywords k)
+        public static string GetKeyword(Keywords k) => k switch
         {
-            switch (k)
-            {
-                case Keywords._3ba: return "3ba";
-                case Keywords.bbp: return "bbp";
-                case Keywords.belly: return "belly";
-                case Keywords.butt: return "butt";
-                case Keywords.leg: return "leg";
-                case Keywords.vagina: return "vagina";
-            }
-            throw EE.New(101);
-        }
-        public static string[] ValidNames(Keywords k)
+            Keywords._3ba => "3ba",
+            Keywords.bbp => "bbp",
+            Keywords.belly => "belly",
+            Keywords.butt => "butt",
+            Keywords.leg => "leg",
+            Keywords.vagina => "vagina",
+            _ => throw EE.New(101),
+        };
+        public static string[] ValidNames(Keywords k) => k switch
         {
-            switch (k)
-            {
-                case Keywords._3ba:
-                    return new string[] { "ExtraBreast1L", "ExtraBreast2L", "ExtraBreast3L", "ExtraBreast1R", "ExtraBreast2R", "ExtraBreast3R" };
-                case Keywords.bbp:
-                    return new string[] { "LBreast", "RBreast" };
-                case Keywords.belly:
-                    return new string[] { "Belly", "NPCBelly" };
-                case Keywords.butt:
-                    return new string[] { "LButt", "RButt" };
-                case Keywords.leg:
-                    return new string[] { "LFrontThigh", "LRearThigh", "LRearCalf", "RFrontThigh", "RRearThigh", "RRearCalf" };
-                case Keywords.vagina:
-                    return new string[] { "Vagina", "Labia", "VaginaB", "Clit", "LLabia", "RLabia" };
-            }
-            return Array.Empty<string>();
-        }
+            Keywords._3ba => new string[] { "ExtraBreast1L", "ExtraBreast2L", "ExtraBreast3L", "ExtraBreast1R", "ExtraBreast2R", "ExtraBreast3R" },
+            Keywords.bbp => new string[] { "LBreast", "RBreast" },
+            Keywords.belly => new string[] { "Belly", "NPCBelly" },
+            Keywords.butt => new string[] { "LButt", "RButt" },
+            Keywords.leg => new string[] { "LFrontThigh", "LRearThigh", "LRearCalf", "RFrontThigh", "RRearThigh", "RRearCalf" },
+            Keywords.vagina => new string[] { "Vagina", "Labia", "VaginaB", "Clit", "LLabia", "RLabia" },
+            _ => Array.Empty<string>(),
+        };
         public static bool IsFound(string name, out string? type)
         {
             foreach (Keywords n in Enum.GetValues(typeof(Keywords)))

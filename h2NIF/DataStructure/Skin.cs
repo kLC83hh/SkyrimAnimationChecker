@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using h2NIF.Extensions;
 using nifly;
-using h2NIF.Extensions;
 
 namespace h2NIF.DataStructure
 {
@@ -16,12 +11,12 @@ namespace h2NIF.DataStructure
             Shape = shape;
             dismember = new SkinDismember(nif, shape);
         }
-        NifFile Nif;
+        private readonly NifFile Nif;
         public NiShape Shape { get; set; }
 
         public string Name => Shape.name.get();
-        
-        SkinDismember dismember;
+
+        private readonly SkinDismember dismember;
 
         public bool Error => dismember.Error;
         public string Reason => dismember.Reason;

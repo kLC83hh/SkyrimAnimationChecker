@@ -1,19 +1,12 @@
-﻿using System;
+﻿using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using SkyrimAnimationChecker.Common;
 
 namespace SkyrimAnimationChecker
 {
@@ -25,7 +18,7 @@ namespace SkyrimAnimationChecker
         public MainWindow()
         {
             InitializeComponent();
-            
+
             // vm linking
             vmm = new VM();
             try { if (!vmm.Load()) throw EE.New(101); }
@@ -39,7 +32,7 @@ namespace SkyrimAnimationChecker
             // events and shortcuts
             this.Closing += MainWindow_Closing;
             this.ContentRendered += MainWindow_ContentRendered;
-            
+
             // title manipulation (version)
             foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -64,9 +57,9 @@ namespace SkyrimAnimationChecker
         }
 
         #region ui/ux operation
-        private VM vmm;
-        private VM_GENERAL vm;
-        private bool appUpdates = false;
+        private readonly VM vmm;
+        private readonly VM_GENERAL vm;
+        private readonly bool appUpdates = false;
         /* general events */
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -95,7 +88,7 @@ namespace SkyrimAnimationChecker
             //if (!vm.mo2Detected) vm.useAdvanced = true;
             LoadPhysicsLocation();
         }
-        private bool CheckMO2()
+        private static bool CheckMO2()
         {
             //string dir = System.IO.Directory.GetCurrentDirectory();
             //if (System.IO.Directory.Exists(System.IO.Path.Combine(dir, @"SKSE\Plugins")) &&
@@ -114,8 +107,8 @@ namespace SkyrimAnimationChecker
 
         /* shortcut commands */
         private static RoutedCommand MakeCommand(KeyGesture gesture, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
-            => new RoutedCommand(name, typeof(Window), new InputGestureCollection() { gesture });
-        public static RoutedCommand SaveCommand = MakeCommand(new KeyGesture(Key.S, ModifierKeys.Control));
+            => new(name, typeof(Window), new InputGestureCollection() { gesture });
+        public static readonly RoutedCommand SaveCommand = MakeCommand(new KeyGesture(Key.S, ModifierKeys.Control));
         private async void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             if (e.Command is RoutedCommand com)
@@ -126,7 +119,7 @@ namespace SkyrimAnimationChecker
                         switch (vm.panelNumber)
                         {
                             case 0:
-                                await RunCBPC();
+                                await PushToCBPC();
                                 break;
                             case 1:
                                 await WritePhysics();
@@ -138,8 +131,8 @@ namespace SkyrimAnimationChecker
         }
 
         /* text notifying */
-        private System.Threading.CancellationTokenSource cts = new();
-        Queue<string> NotifyRightCQ = new(), NotifyRightPQ = new();
+        private readonly System.Threading.CancellationTokenSource cts = new();
+        private readonly Queue<string> NotifyRightCQ = new(), NotifyRightPQ = new();
         private async Task Notifying_RightPanel()
         {
             int showtime = 1050, timerC = 0, timerP = 0;
@@ -173,7 +166,7 @@ namespace SkyrimAnimationChecker
         }
 
         /* flashing ui */
-        private List<int> flashing = new();
+        private readonly List<int> flashing = new();
         private async Task FlashUI(Control c)
         {
             if (flashing.Contains(c.GetHashCode())) return;
@@ -203,14 +196,12 @@ namespace SkyrimAnimationChecker
 
             string sres = string.Empty;
             dar.ForEach(x => sres += $"{x.Key}={string.Join(',', x.Value.ToArray())}\n");
-            if (sres.EndsWith('\n')) sres = sres.Substring(0, sres.Length - 1);
-            sres.Trim();
-            darBox.Text = sres;
+            if (sres.EndsWith('\n')) sres = sres[..^1];
+            darBox.Text = sres.Trim();
         }
         private void DARDuplicateCheck_Button_Click(object sender, RoutedEventArgs e) => RunDAR();
         #endregion
 
-        #region Collision
         // no-brainer
         private async void DoIt_Button_Click(object sender, RoutedEventArgs e) => await DoIt();
         private async Task DoIt()
@@ -218,9 +209,14 @@ namespace SkyrimAnimationChecker
             try
             {
                 vm.DoItRunning = true;
-                bool do0 = (vm.weightNumber == 2 || vm.weightNumber == 0) && !System.IO.File.Exists(vm.fileNIF_out0);
-                bool do1 = (vm.weightNumber == 2 || vm.weightNumber == 1) && !System.IO.File.Exists(vm.fileNIF_out1);
+                // flag for checking new NIFs were made
                 bool newmade = false;
+
+                // step for make NIFs
+                // check weight 0
+                bool do0 = (vm.weightNumber == 2 || vm.weightNumber == 0) && !System.IO.File.Exists(vm.fileNIF_out0);
+                // check weight 1
+                bool do1 = (vm.weightNumber == 2 || vm.weightNumber == 1) && !System.IO.File.Exists(vm.fileNIF_out1);
                 if (do0 || do1)
                 {
                     newmade = true;
@@ -245,9 +241,12 @@ namespace SkyrimAnimationChecker
                     }
                 }
 
+                // step for update cbpc config
+                // check weight 0
                 do0 = System.IO.File.Exists(vm.fileNIF_out0);
+                // check weight 1
                 do1 = System.IO.File.Exists(vm.fileNIF_out1);
-                bool do2 = do0 && do1;
+                //bool do2 = do0 && do1;
                 if (do0 || do1)
                 {
                     bool useNIFsBackup = vm.useNIFs, writeAllBackup = vm.writeAll, writeSomeBackup = vm.writeSome;
@@ -257,12 +256,12 @@ namespace SkyrimAnimationChecker
                         if (newmade || vm.useNIFs)
                         {
                             vm.useNIFs = true;
-                            await RunNIF_CBPC();
+                            await MakeCBPCDatas();
                         }
-                        else if (DATA_Colliders == null) await RunNIF_CBPC();
+                        else if (DATA_Colliders == null) await MakeCBPCDatas();
                         vm.writeAll = true;
                         vm.writeSome = true;
-                        await RunCBPC();
+                        await PushToCBPC();
                     }
                     catch (Exception ex) { MessageBox.Show(ex.Message); }
                     finally
@@ -277,6 +276,7 @@ namespace SkyrimAnimationChecker
             finally { vm.DoItRunning = false; }
         }
 
+        #region Collision
         // make inter nif
         private async void MakeIntermediumNIFs_1_Button_Click(object sender, RoutedEventArgs e) => await RunMakeInterNIF();
         private async Task RunMakeInterNIF()
@@ -285,7 +285,7 @@ namespace SkyrimAnimationChecker
             int res = await Task.Run(() => new NIF.Collider(vm).Make());
             if (res != 1)
             {
-                Action<string> msg = o => MessageBox.Show($"Error Code 01-{res}: {o}");
+                void msg(string o) => MessageBox.Show($"Error Code 01-{res}: {o}");
                 switch (res)
                 {
                     case 0: msg("Nothing is done"); break;
@@ -334,7 +334,7 @@ namespace SkyrimAnimationChecker
                 {
                     bool useNifsBackup = vm.useNIFs;
                     vm.useNIFs = false;
-                    try { await RunNIF_CBPC(); }
+                    try { await MakeCBPCDatas(); }
                     catch (Exception ex) { MessageBox.Show(ex.Message); }
                     finally { vm.useNIFs = useNifsBackup; }
                 }
@@ -347,10 +347,10 @@ namespace SkyrimAnimationChecker
             finally { vm.NIFrunning = false; }
         }
         // get sphere data
-        private async void SphereSize_2_Button_Click(object sender, RoutedEventArgs e) => await RunNIF_CBPC();
+        private async void SphereSize_2_Button_Click(object sender, RoutedEventArgs e) => await MakeCBPCDatas();
         collider_object[]? DATA_Colliders;
         (cc_options_object op, cc_extraoptions_object eop)? Options;
-        private async Task RunNIF_CBPC()
+        private async Task MakeCBPCDatas()
         {
             try
             {
@@ -359,8 +359,8 @@ namespace SkyrimAnimationChecker
                 catch (Exception ex) { if (EE.Parse(ex).code == 5201) Options = null; }
                 if (vm.useNIFs)
                 {
-                    var result = await Task.Run(() => new NIF.Collision(vm).Get(out DATA_Colliders));
-                    if (result.code > 0) MessageBox.Show(result.msg);
+                    var (code, msg) = await Task.Run(() => new NIF.Collision(vm).Get(out DATA_Colliders));
+                    if (code > 0) MessageBox.Show(msg);
                 }
                 else
                 {
@@ -408,8 +408,8 @@ namespace SkyrimAnimationChecker
         }
 
         // save data to cbpc
-        private async void WriteCollisionConfig_3_Button_Click(object sender, RoutedEventArgs e) => await RunCBPC();
-        private async Task RunCBPC()
+        private async void WriteCollisionConfig_3_Button_Click(object sender, RoutedEventArgs e) => await PushToCBPC();
+        private async Task PushToCBPC()
         {
             if (DATA_Colliders == null) return;
             CBPC_panel.Focus();
@@ -430,15 +430,53 @@ namespace SkyrimAnimationChecker
         private void CBPC_panel_All_CheckBox_Click(object sender, RoutedEventArgs e)
         {
             if (sender == null || sender is not CheckBox) return;
-            Action<bool> set = (val) =>
+            bool check(string name)
+            {
+                string[] vaginal = new[] { "Vagina", "Clit", "Pussy" };
+                foreach (string v in vaginal)
+                {
+                    if (!vm.overrideVaginal && name.Contains(v)) return false;
+                }
+                return true;
+            }
+            void set(bool val)
             {
                 foreach (var d in CBPC_panel.Children)
                 {
-                    if (d is CBPC_collider) ((CBPC_collider)d).ColliderObject.Write = val;
+                    if (d is CBPC_collider collider)
+                    {
+                        collider.ColliderObject.Write = val && check(collider.ColliderObject.Name);
+                    }
                 }
-            };
-            set((sender as CheckBox)?.IsChecked == true);
-            if ((sender as CheckBox)?.IsChecked == true) vm.writeSome = true;
+            }
+            set(vm.writeAll);
+            if (vm.writeAll) vm.writeSome = true;
+            else if (IsEveryWriteCheckbox(false)) vm.writeSome = false;
+        }
+        private void CheckBox_Check_Changed(object sender, RoutedEventArgs e)
+        {
+            if (sender == null || sender is not CheckBox) return;
+            bool check(string name)
+            {
+                string[] vaginal = new[] { "Vagina", "Clit", "Pussy" };
+                foreach (string v in vaginal)
+                {
+                    if (!vm.overrideVaginal && name.Contains(v)) return false;
+                }
+                return true;
+            }
+            void set(bool val)
+            {
+                foreach (var d in CBPC_panel.Children)
+                {
+                    if (d is CBPC_collider collider)
+                    {
+                        collider.ColliderObject.Write = val && check(collider.ColliderObject.Name);
+                    }
+                }
+            }
+            set(vm.writeAll);
+            if (vm.writeAll) vm.writeSome = true;
             else if (IsEveryWriteCheckbox(false)) vm.writeSome = false;
         }
         private bool IsEveryWriteCheckbox(bool tf)
@@ -448,7 +486,7 @@ namespace SkyrimAnimationChecker
                 bool checker = true;
                 foreach (var d in CBPC_panel.Children)
                 {
-                    if (d is CBPC_collider) checker &= ((CBPC_collider)d).ColliderObject.Write;
+                    if (d is CBPC_collider collider) checker &= collider.ColliderObject.Write;
                 }
                 return checker;
             }
@@ -457,7 +495,7 @@ namespace SkyrimAnimationChecker
                 bool checker = false;
                 foreach (var d in CBPC_panel.Children)
                 {
-                    if (d is CBPC_collider) checker |= ((CBPC_collider)d).ColliderObject.Write;
+                    if (d is CBPC_collider collider) checker |= collider.ColliderObject.Write;
                 }
                 return !checker;
             }
@@ -477,7 +515,7 @@ namespace SkyrimAnimationChecker
         }
         CBPC.Icbpc_data? DATA_CBPC;
         private volatile bool PhysicsReading = false;
-        private bool? leftonly = false, bindlr = null;
+        private bool? bindlr = null;//, leftonly = false
         private int collective = 0;
         private async Task ReadPhysics()
         {
@@ -511,7 +549,7 @@ namespace SkyrimAnimationChecker
                                 {
                                     cbpcPhyPanel.Children.Clear();
                                     var page = new CBPC_Physics_MultiBone(vmm, (CBPC.Icbpc_data_multibone)DATA_CBPC, bindlr: bindlr, collective: collective);
-                                    page.LeftOnlyUpdated += (val) => leftonly = val;
+                                    //page.LeftOnlyUpdated += (val) => leftonly = val;
                                     page.BindLRUpdated += (val) => bindlr = val;
                                     page.CollectiveUpdated += (val) => collective = val;
                                     cbpcPhyPanel.Children.Add(page);
@@ -531,7 +569,7 @@ namespace SkyrimAnimationChecker
                                 {
                                     cbpcPhyPanel.Children.Clear();
                                     var page = new CBPC_Physics(vmm, DATA_CBPC, bindlr: bindlr, collective: collective);
-                                    page.LeftOnlyUpdated += (val) => leftonly = val;
+                                    //page.LeftOnlyUpdated += (val) => leftonly = val;
                                     page.BindLRUpdated += (val) => bindlr = val;
                                     page.CollectiveUpdated += (val) => collective = val;
                                     cbpcPhyPanel.Children.Add(page);
@@ -578,22 +616,25 @@ namespace SkyrimAnimationChecker
 
         #endregion
         #region CBPC common
+        // because it IS used
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private void CBPCLocationLoader_Load(FolderLoader sender) => LoadPhysicsLocation(sender);
-        string[] filter = new string[] { "3b", "BBP", "butt", "belly", "leg", "Vagina" };
+        private readonly string[] filter = new string[] { "3b", "BBP", "butt", "belly", "leg", "Vagina" };
 
         private async void LoadPhysicsLocation(FolderLoader? sender = null)
         {
             if (System.IO.Directory.Exists(vm.dirCBPC))
             {
-                Func<string, string> getfilename = (path) =>
+                string getfilename(string path)
                 {
                     string name = path;
                     if (name.Contains('/')) name = path.Split('/').Last();
                     if (name.Contains('\\')) name = path.Split('\\').Last();
                     if (name.Contains("\\\\")) name = path.Split("\\\\").Last();
                     return name;
-                };
-                Func<string, string[]?, string[]> getfiles = (searchPattern, filter) => {
+                }
+                string[] getfiles(string searchPattern, string[]? filter)
+                {
                     string[] files = System.IO.Directory.GetFiles(vm.dirCBPC, searchPattern).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
                     List<string> output = new();
                     foreach (string file in files)
@@ -608,8 +649,8 @@ namespace SkyrimAnimationChecker
                         }
                     }
                     return output.ToArray();
-                };
-                
+                }
+
                 vm.fileCBPC_Collisions.Clear();
                 getfiles("CBPCollisionConfig*", null).ForEach(x => vm.fileCBPC_Collisions.Add(x));
                 if (vm.fileCBPC_Collisions.Contains(vm.fileCBPC_Collision)) vm.fileCBPC_Collision_Index = vm.fileCBPC_Collisions.IndexOf(vm.fileCBPC_Collision);
@@ -641,9 +682,11 @@ namespace SkyrimAnimationChecker
         }
         private async void CBPCPhysics_UpdateFromFile_Button_Click(object sender, RoutedEventArgs e)
         {
-            var filedialog = new Microsoft.Win32.OpenFileDialog();
-            filedialog.DefaultExt = ".txt";
-            filedialog.Filter = "Text Documents|*.txt";
+            var filedialog = new Microsoft.Win32.OpenFileDialog
+            {
+                DefaultExt = ".txt",
+                Filter = "Text Documents|*.txt"
+            };
             if (System.IO.Directory.Exists(vm.cbpcUpdateFromFile_DefaultLocation)) filedialog.InitialDirectory = vm.cbpcUpdateFromFile_DefaultLocation;
             bool? result = filedialog.ShowDialog();
             if (result == true)
@@ -677,7 +720,9 @@ namespace SkyrimAnimationChecker
         public int Delay { get; set; } = 25;
         public Action? A { get; set; }
 
+
         //private Task? Task { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
         private async Task _Task(int wait = 0)
         {
             if (A == null) { Working = false; return; }

@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace SkyrimAnimationChecker.Common
@@ -28,7 +20,8 @@ namespace SkyrimAnimationChecker
     public partial class CBPC_Physics_Column : UserControl
     {
         public CBPC_Physics_Column(Common.IVM_Visual vm, string col = "") { InitializeComponent(); this.vm = vm; if (!string.IsNullOrWhiteSpace(col)) { Collective = col; } }
-        private Common.IVM_Visual vm;
+
+        private readonly Common.IVM_Visual vm;
 
         #region DependencyProperty
         public string Collective
@@ -178,7 +171,7 @@ namespace SkyrimAnimationChecker
         private bool TryMakeOne(out UIElement? o, Common.physics_object d)
         {
             if (!d.Use) { o = null; return true; }
-            
+
             o = new Visuals.PhysicsBox() { Physics = d };
 
             string colpara = $"all,{GetCollective(d.Key)}";
@@ -240,7 +233,7 @@ namespace SkyrimAnimationChecker
             return false;
         }
 
-        private string GetCollective(string key)
+        private static string GetCollective(string key)
         {
             if (key.StartsWith("collision", StringComparison.CurrentCultureIgnoreCase)) return "collision";
             else if (key.EndsWith("Rot", StringComparison.CurrentCultureIgnoreCase) || key.StartsWith("rotation", StringComparison.CurrentCultureIgnoreCase)) return "rotation";

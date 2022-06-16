@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using nifly;
-using h2NIF.Extensions;
-using h2NIF.DataStructure;
+﻿using nifly;
 
 namespace h2NIF.Sphere
 {
@@ -22,7 +15,7 @@ namespace h2NIF.Sphere
                 vert.colorData[2] = 0;
                 vert.colorData[3] = 255;
             }
-            foreach (Triangle t in sphere.triangles) { }
+            //foreach (Triangle t in sphere.triangles) { }
             M.D($"{sphere.name.get()} {sphere.rawColors.Count} {sphere.HasVertexColors()} {sphere.triangles.Count}");
             return (new(), 0, "Manual update");
         }

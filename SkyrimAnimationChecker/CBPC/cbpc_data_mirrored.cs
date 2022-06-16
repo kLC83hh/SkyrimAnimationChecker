@@ -1,12 +1,11 @@
-﻿using System;
+﻿using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
 
 namespace SkyrimAnimationChecker.CBPC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public class cbpc_data_mirrored : PropertyHandler, Icbpc_data_mirrored
     {
         public cbpc_data_mirrored()
@@ -47,10 +46,10 @@ namespace SkyrimAnimationChecker.CBPC
         public virtual string GetNameShort(string? name = null)
         {
             string n = name ?? Name;
-            if (n.StartsWith("L") || n.StartsWith("R")) n = n.Substring(1);
-            if (n.EndsWith("L") || n.EndsWith("R")) n = n.Substring(0, n.Length - 1);
-            if (n.EndsWith("1") || n.EndsWith("2") || n.EndsWith("3")) n = n.Substring(0, n.Length - 1);
-            if (n.EndsWith("L") || n.EndsWith("R")) n = n.Substring(0, n.Length - 1);
+            if (n.StartsWith("L") || n.StartsWith("R")) n = n[1..];
+            if (n.EndsWith("L") || n.EndsWith("R")) n = n[..^1];
+            if (n.EndsWith("1") || n.EndsWith("2") || n.EndsWith("3")) n = n[..^1];
+            if (n.EndsWith("L") || n.EndsWith("R")) n = n[..^1];
             return n;
         }
 
@@ -66,31 +65,28 @@ namespace SkyrimAnimationChecker.CBPC
 
 
 
-        public virtual physics_object_set? Find(string name)
+        public virtual physics_object_set? Find(string name) => name switch
         {
-            switch (name)
-            {
-                case "ExtraBreast1L": return Left;
-                case "ExtraBreast2L": return Left;
-                case "ExtraBreast3L": return Left;
-                case "ExtraBreast1R": return Right;
-                case "ExtraBreast2R": return Right;
-                case "ExtraBreast3R": return Right;
-                case "LBreast": return Left;
-                case "RBreast": return Right;
-                case "LButt": return Left;
-                case "RButt": return Right;
-                case "LFrontThigh": return Left;
-                case "LRearThigh": return Left;
-                case "LRearCalf": return Left;
-                case "RFrontThigh": return Right;
-                case "RRearThigh": return Right;
-                case "RRearCalf": return Right;
-                case "LLabia": return Left;
-                case "RLabia": return Right;
-            }
-            return null;
-        }
+            "ExtraBreast1L" => Left,
+            "ExtraBreast2L" => Left,
+            "ExtraBreast3L" => Left,
+            "ExtraBreast1R" => Right,
+            "ExtraBreast2R" => Right,
+            "ExtraBreast3R" => Right,
+            "LBreast" => Left,
+            "RBreast" => Right,
+            "LButt" => Left,
+            "RButt" => Right,
+            "LFrontThigh" => Left,
+            "LRearThigh" => Left,
+            "LRearCalf" => Left,
+            "RFrontThigh" => Right,
+            "RRearThigh" => Right,
+            "RRearCalf" => Right,
+            "LLabia" => Left,
+            "RLabia" => Right,
+            _ => null,
+        };
 
 
         private string[] _UsingKeys = Array.Empty<string>();
@@ -122,21 +118,21 @@ namespace SkyrimAnimationChecker.CBPC
         public bool IsMirrored { get => Get<bool>(); set => Set(value); }
         protected void Mirror(physics_object o) => Find(MirrorName(o.Name))?.SetPhysics(GetPair(o.Key), CanMirror(o.Key) ? MirrorValue(o.Values) : o.Values);
 
-        protected string MirrorName(string name)
+        protected static string MirrorName(string name)
         {
             string m_name = name;
-            if (m_name.StartsWith("L")) m_name = "R" + m_name.Substring(1);
-            else if (m_name.StartsWith("R")) m_name = "L" + m_name.Substring(1);
-            else if (m_name.EndsWith("L")) m_name = m_name.Substring(0, m_name.Length - 1) + "R";
-            else if (m_name.EndsWith("R")) m_name = m_name.Substring(0, m_name.Length - 1) + "L";
+            if (m_name.StartsWith("L")) m_name = string.Concat("R", m_name.AsSpan(1));
+            else if (m_name.StartsWith("R")) m_name = string.Concat("L", m_name.AsSpan(1));
+            else if (m_name.EndsWith("L")) m_name = string.Concat(m_name.AsSpan(0, m_name.Length - 1), "R");
+            else if (m_name.EndsWith("R")) m_name = string.Concat(m_name.AsSpan(0, m_name.Length - 1), "L");
             return m_name;
         }
-        protected double MirrorValue(double value)
+        protected static double MirrorValue(double value)
         {
             if (value == 0) return 0;
             else return -value;
         }
-        protected double[] MirrorValue(double[] value)
+        protected static double[] MirrorValue(double[] value)
         {
             double[] buffer = new double[value.Length];
             for (int i = 0; i < value.Length; i++)

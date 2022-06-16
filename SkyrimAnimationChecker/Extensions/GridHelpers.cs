@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -37,7 +34,7 @@ namespace SkyrimAnimationChecker
         public static void RowCountChanged(
             DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            if (!(obj is Grid) || (int)e.NewValue < 0)
+            if (obj is not Grid || (int)e.NewValue < 0)
                 return;
 
             Grid grid = (Grid)obj;
@@ -79,7 +76,7 @@ namespace SkyrimAnimationChecker
         public static void ColumnCountChanged(
             DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            if (!(obj is Grid) || (int)e.NewValue < 0)
+            if (obj is not Grid || (int)e.NewValue < 0)
                 return;
 
             Grid grid = (Grid)obj;
@@ -121,7 +118,7 @@ namespace SkyrimAnimationChecker
         public static void StarRowsChanged(
             DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            if (!(obj is Grid) || string.IsNullOrEmpty(e.NewValue.ToString()))
+            if (obj is not Grid || string.IsNullOrEmpty(e.NewValue.ToString()))
                 return;
 
             SetStarRows((Grid)obj);
@@ -156,7 +153,7 @@ namespace SkyrimAnimationChecker
         public static void StarColumnsChanged(
             DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            if (!(obj is Grid) || string.IsNullOrEmpty(e.NewValue.ToString()))
+            if (obj is not Grid || string.IsNullOrEmpty(e.NewValue.ToString()))
                 return;
 
             SetStarColumns((Grid)obj);

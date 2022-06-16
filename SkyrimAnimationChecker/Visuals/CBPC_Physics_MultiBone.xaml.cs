@@ -1,19 +1,11 @@
-﻿using System;
+﻿using SkyrimAnimationChecker.CBPC;
+using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using SkyrimAnimationChecker.Common;
-using SkyrimAnimationChecker.CBPC;
 
 namespace SkyrimAnimationChecker.Common
 {
@@ -32,11 +24,11 @@ namespace SkyrimAnimationChecker.Common
         public void Reset() => Default_Vmultibone();
         public void New_Vmultibone() { VMbreast_BoneSelect = 1; }
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool VMbreast_BoneAll { get => Get<bool>(); set => Set(value); }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public int VMbreast_BoneSelect { get => Get<int>(); set { if (value > -1) Set(value); } }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool VMbreast_ShowLeftOnly { get => Get<bool>(); set => Set(value); }
         public bool VMmultibone_BindLR { get => Get<bool>(); set => Set(value); }
 
@@ -47,15 +39,15 @@ namespace SkyrimAnimationChecker.Common
 
 
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public string VMbreast_Name { get => Get<string>(); set => Set(value); }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public string VMbreast_Side { get => Get<string>(); set => Set(value); }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public int VMbreast_Number { get => Get<int>(); set => Set(value); }
 
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public string VM_V_collective { get => Get<string>(); set => Set(value); }
     }
 }
@@ -81,7 +73,7 @@ namespace SkyrimAnimationChecker
             if (!vm.VMmultibone_BindLR) SetIsMirrored();
             Make();
         }
-        VM_Vmultibone vm;
+        private readonly VM_Vmultibone vm;
 
         #region Properties
         public Icbpc_data_multibone Data
@@ -116,7 +108,7 @@ namespace SkyrimAnimationChecker
             Data.MirrorKeys = GetMirrorFilter(vm.VMmultibone_MirrorFilter.Split(','));
         }
         private string[] GetMirrorFilter(string[] filter) => CheckMirrorFilter(filter) || filter == null ? Data.DefaultMirrorKeys : filter;
-        private bool CheckMirrorFilter(string[]? filter) => filter?.Length < 1 || filter?.Length == 1 && filter[0] == "default";
+        private static bool CheckMirrorFilter(string[]? filter) => filter?.Length < 1 || filter?.Length == 1 && filter[0] == "default";
 
 
         private void MirrorPair_TextBox_TextChanged(object sender, TextChangedEventArgs e) => SetMirrorPair();
@@ -126,12 +118,12 @@ namespace SkyrimAnimationChecker
             Data.MirrorPairs = GetMirrorPair(vm.VMmultibone_MirrorPair);
         }
         private MirrorPair[] GetMirrorPair(string? sPair) => CheckMirrorPair(sPair, out MirrorPair[]? pairs) || pairs == null ? Data.DefaultMirrorPairs : pairs;
-        private bool CheckMirrorPair(string? s, out MirrorPair[]? pairs)
+        private static bool CheckMirrorPair(string? s, out MirrorPair[]? pairs)
         {
             if (s == null) { pairs = null; return true; }
             string[] sPairs = s.Split('|');
             List<MirrorPair> result = new();
-            foreach(string sPair in sPairs)
+            foreach (string sPair in sPairs)
             {
                 if (MirrorPair.TryParse(sPair, out MirrorPair? p) || p == null) { pairs = null; return true; }
                 result.Add(p);
@@ -147,9 +139,11 @@ namespace SkyrimAnimationChecker
             if (data is string[]) { cd.MinWidth = 120; cd.MaxWidth = 200; cd.Width = new GridLength(1.5, GridUnitType.Star); }
             panel.ColumnDefinitions.Add(cd);
 
-            CBPC_Physics_Column c = new(vm, (string)CollectiveCB.SelectedItem);
-            c.Header = key;
-            c.Data = data;
+            CBPC_Physics_Column c = new(vm, (string)CollectiveCB.SelectedItem)
+            {
+                Header = key,
+                Data = data
+            };
             if (options?.Length > 0) c.Option = options;
             if (data is string[]) c.Copy += (way) => CopyValues(way);
             c.SetValue(Grid.ColumnProperty, panel.ColumnDefinitions.Count - 1);
@@ -369,8 +363,12 @@ namespace SkyrimAnimationChecker
             }
 
         }
-        private string[] actualKeys(physics_object[] vals) => vals.ForEach(x => x.Key);
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
+        private static string[] actualKeys(physics_object[] vals) => vals.ForEach(x => x.Key);
+
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
         private void _3BA_RadioButton_Click(object sender, RoutedEventArgs e) => Make();
 
         private void Collective_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

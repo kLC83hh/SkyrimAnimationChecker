@@ -1,12 +1,11 @@
-﻿using System;
+﻿using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
 
 namespace SkyrimAnimationChecker.CBPC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public class cbpc_data : PropertyHandler, Icbpc_data
     {
         public cbpc_data()
@@ -43,7 +42,7 @@ namespace SkyrimAnimationChecker.CBPC
         public virtual string GetNameShort(string? name = null)
         {
             string n = name ?? Name;
-            if (n.EndsWith("1") || n.EndsWith("2") || n.EndsWith("3")) n = n.Substring(0, n.Length - 1);
+            if (n.EndsWith("1") || n.EndsWith("2") || n.EndsWith("3")) n = n[..^1];
             return n;
         }
 

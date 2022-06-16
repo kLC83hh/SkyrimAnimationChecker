@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkyrimAnimationChecker.NIF
 {
@@ -53,17 +51,17 @@ namespace SkyrimAnimationChecker.NIF
             vm.NIFrunning = false;
             return r1 * (r2 > 1 ? r2 + 1 : r2);
         }
-        private int Replace3BA(string sphere, string bodyslide, string bshands, string output, bool? overwrite = null)
+        private static int Replace3BA(string sphere, string bodyslide, string bshands, string output, bool? overwrite = null)
         {
             if (overwrite == null) overwrite = false;
             if (System.IO.File.Exists(output) && !(bool)overwrite) return 2;
             if (!System.IO.File.Exists(sphere) || !System.IO.File.Exists(bodyslide)) return 4;
-            nifly.NifFile spNI = new nifly.NifFile(), bsNI = new nifly.NifFile(), bhNI = new nifly.NifFile();
+            nifly.NifFile spNI = new(), bsNI = new(), bhNI = new();
             spNI.Load(sphere);
             bsNI.Load(bodyslide);
             if (!System.IO.File.Exists(bshands)) bhNI.Load(bshands);
             nifly.vectorNiShape eShapes = spNI.GetShapes(), bsShapes = bsNI.GetShapes(), bhShapes = bhNI.GetShapes();
-            Action<string, nifly.NiShape, nifly.vectorNiShape, nifly.NifFile> replace = (name, tshape, shapes, file) =>
+            void replace(string name, nifly.NiShape tshape, nifly.vectorNiShape shapes, nifly.NifFile file)
             {
                 if (tshape.name.get() == name)
                 {
@@ -78,7 +76,7 @@ namespace SkyrimAnimationChecker.NIF
                         spNI.CloneShape(shape, shape.name.get(), file);
                     }
                 }
-            };
+            }
             for (int i = 0; i < eShapes.Count; i++)
             {
                 replace("3BA", eShapes[i], bsShapes, bsNI);
@@ -93,7 +91,8 @@ namespace SkyrimAnimationChecker.NIF
         public void UpdateSpheres(Common.collider_object[] colliders)
         {
             nifly.NifFile?[] nifs = new nifly.NifFile?[] { null, null };
-            nifs.For((i, x) => {
+            nifs.For((i, x) =>
+            {
                 if (System.IO.File.Exists(vm.fileNIF_outs[i])) { nifs[i] = new(); nifs[i]?.Load(vm.fileNIF_outs[i]); }
             });
             if (nifs.All(x => x == null)) throw EE.New(1101);
@@ -137,7 +136,8 @@ namespace SkyrimAnimationChecker.NIF
         public void CalsSpheres()
         {
             nifly.NifFile?[] nifs = new nifly.NifFile?[] { null, null };
-            nifs.For((i, x) => {
+            nifs.For((i, x) =>
+            {
                 if (System.IO.File.Exists(vm.fileNIF_outs[i])) { nifs[i] = new(); nifs[i]?.Load(vm.fileNIF_outs[i]); }
             });
             if (nifs.All(x => x == null)) throw EE.New(1101);
@@ -161,7 +161,7 @@ namespace SkyrimAnimationChecker.NIF
                 }
             });
         }
-        public nifly.Vector3 Vectorize(string s, nifly.Vector3? defaultVector = null)
+        public static nifly.Vector3 Vectorize(string s, nifly.Vector3? defaultVector = null)
         {
             if (!s.Contains(',')) return defaultVector ?? new();
             string[] vals = s.Split(',');
@@ -175,7 +175,7 @@ namespace SkyrimAnimationChecker.NIF
             }
             catch { return defaultVector ?? new(); }
         }
-        public nifly.Vector3 Vectorize(string s, params float[] defaultValue)
+        public static nifly.Vector3 Vectorize(string s, params float[] defaultValue)
         {
             if (defaultValue.Length == 1) return Vectorize(s, new nifly.Vector3(defaultValue[0], defaultValue[0], defaultValue[0]));
             else if (defaultValue.Length == 3) return Vectorize(s, new nifly.Vector3(defaultValue[0], defaultValue[1], defaultValue[2]));
@@ -184,7 +184,8 @@ namespace SkyrimAnimationChecker.NIF
         public string[] CalsSpheresOld()
         {
             nifly.NifFile?[] nifs = new nifly.NifFile?[] { null, null };
-            nifs.For((i, x) => {
+            nifs.For((i, x) =>
+            {
                 if (System.IO.File.Exists(vm.fileNIF_outs[i])) { nifs[i] = new(); nifs[i]?.Load(vm.fileNIF_outs[i]); }
             });
             if (nifs.All(x => x == null)) throw EE.New(1101);
@@ -197,7 +198,7 @@ namespace SkyrimAnimationChecker.NIF
 
             return result[0].Concat(new string[] { Environment.NewLine }).Concat(result[1]).ToArray();
         }
-        private string[] CalcSphere(nifly.NifFile nif, string path, string sens, string str, bool bounding)
+        private static string[] CalcSphere(nifly.NifFile nif, string path, string sens, string str, bool bounding)
         {
             List<object> msg = new();
 
@@ -207,7 +208,7 @@ namespace SkyrimAnimationChecker.NIF
             foreach (var s in skins) nif.GetShader(s).SetAlpha(0.5f);
 
             // filter, Func, Action
-            Action<string, string[]> calc = (name, filter) => msg = CalcInSkin(msg, filter, name, skins, nif, sens, str, bounding);
+            void calc(string name, string[] filter) => msg = CalcInSkin(msg, filter, name, skins, nif, sens, str, bounding);
 
             calc("3BA", new string[] { "L Breast", "NPC L Butt", "NPC Belly", "Clitoral1", "VaginaB1", "NPC L Pussy02", "NPC L Calf [LClf]" });
             calc("Hands", new string[] { "NPC L Finger" });
@@ -224,20 +225,21 @@ namespace SkyrimAnimationChecker.NIF
             }
             return finalout;
         }
-        private List<object> CalcInSkin(List<object> msg, string[] filter, string name, nifly.NiShape[] skins, nifly.NifFile nif, string sens, string str, bool bounding)
+        private static List<object> CalcInSkin(List<object> msg, string[] filter, string name, nifly.NiShape[] skins, nifly.NifFile nif, string sens, string str, bool bounding)
         {
             nifly.NiShape skin = skins.First(x => x.name.get() == name);
 
             // Func, Action
-            Action<string, (nifly.Vector3 center, float radius, string msg)?> UpdateSphereResult = (name, result) => {
+            void UpdateSphereResult(string name, (nifly.Vector3 center, float radius, string msg)? result)
+            {
                 if (result != null)
                 {
                     msg.Add($"{name} Succeed center=({result.Value.center.x:N3},{result.Value.center.y:N3},{result.Value.center.z:N3}), r={result.Value.radius:N3}");
                     msg.Add(result.Value.msg + (bounding ? " using BoundingSphere" : string.Empty));
                 }
                 else msg.Add($"{name} Failed");
-            };
-            Func<Bone, Bone> getWorkbone = (bone) =>
+            }
+            Bone getWorkbone(Bone bone)
             {
                 if (bone.Name == "VaginaB1")
                 {
@@ -245,13 +247,13 @@ namespace SkyrimAnimationChecker.NIF
                     return buffer.First(x => x.Name == bone.Name);
                 }
                 return bone;
-            };
-            Func<Vertex[], char[], int, int, nifly.MatTransform, Vertex[]> splitVertices = (vertices, axes, i, j, tr) =>
+            }
+            Vertex[] splitVertices(Vertex[] vertices, char[] axes, int i, int j, nifly.MatTransform tr)
             {
                 if (axes.Length == 1) return vertices.LinearSplit(axes[0], tr)[i];
                 if (axes.Length == 2) return vertices.QuadrantSplit(axes, tr)[i, j];
                 return vertices;
-            };
+            }
 
             // get skin datas
             var skinDismember = new SkinDismember(nif, skin);

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using h2NIF.DataStructure;
 using nifly;
-using h2NIF.DataStructure;
 
 namespace h2NIF.Extensions
 {

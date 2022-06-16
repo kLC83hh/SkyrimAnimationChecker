@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
+﻿using SkyrimAnimationChecker.Common;
 
 namespace SkyrimAnimationChecker.CBPC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public class cbpc_breast_bbp : cbpc_data_mirrored, Icbpc_data_mirrored
     {
 
@@ -25,15 +21,12 @@ namespace SkyrimAnimationChecker.CBPC
         /// </summary>
         /// <param name="name">Fullname e.g. ExtraBreast1L</param>
         /// <returns></returns>
-        public override physics_object_set? Find(string name)
+        public override physics_object_set? Find(string name) => name switch
         {
-            switch (name)
-            {
-                case "LBreast": return Left;
-                case "RBreast": return Right;
-            }
-            return null;
-        }
+            "LBreast" => Left,
+            "RBreast" => Right,
+            _ => null,
+        };
 
 
         protected override string NameParser(string name)

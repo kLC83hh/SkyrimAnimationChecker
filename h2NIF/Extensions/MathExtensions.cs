@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using h2NIF.DataStructure;
 using nifly;
-using h2NIF.DataStructure;
 
 namespace h2NIF.Extensions
 {
@@ -45,8 +40,10 @@ namespace h2NIF.Extensions
             SkinWeight[] newWeights = new SkinWeight[weights.Length];
             for (int i = 0; i < weights.Length; i++)
             {
-                newWeights[i] = new();
-                newWeights[i].weight = weights[i].weight / max;
+                newWeights[i] = new()
+                {
+                    weight = weights[i].weight / max
+                };
             }
             return newWeights;
         }
@@ -126,17 +123,19 @@ namespace h2NIF.Extensions
             Vertex[] arr = array.Deepcopy();
             if (rotation != null) arr = arr.RotateBy(rotation.Transpose());
 
-            Vertex max = new(), min = new();
-
-            max.x = arr.MaxBy(v => v.x)?.x ?? 0f;
-            max.y = arr.MaxBy(v => v.y)?.y ?? 0f;
-            max.z = arr.MaxBy(v => v.z)?.z ?? 0f;
-            max.w = arr.MaxBy(v => v.w)?.w ?? 0f;
-
-            min.x = arr.MinBy(v => v.x)?.x ?? 0f;
-            min.y = arr.MinBy(v => v.y)?.y ?? 0f;
-            min.z = arr.MinBy(v => v.z)?.z ?? 0f;
-            min.w = arr.MinBy(v => v.w)?.w ?? 0f;
+            Vertex max = new()
+            {
+                x = arr.MaxBy(v => v.x)?.x ?? 0f,
+                y = arr.MaxBy(v => v.y)?.y ?? 0f,
+                z = arr.MaxBy(v => v.z)?.z ?? 0f,
+                w = arr.MaxBy(v => v.w)?.w ?? 0f
+            }, min = new()
+            {
+                x = arr.MinBy(v => v.x)?.x ?? 0f,
+                y = arr.MinBy(v => v.y)?.y ?? 0f,
+                z = arr.MinBy(v => v.z)?.z ?? 0f,
+                w = arr.MinBy(v => v.w)?.w ?? 0f
+            };
 
             return (max, min);
         }
@@ -191,8 +190,8 @@ namespace h2NIF.Extensions
             Vertex[] arr = parent != null ? array.RotateBy(parent.rotation.Transpose()) : array.Deepcopy();
             if (center == null)
             {
-                var total = arr.MaxMin();
-                center = total.max.Midpoint(total.min);
+                var (max, min) = arr.MaxMin();
+                center = max.Midpoint(min);
             }
             //List<Vertex> hi = new(), lo = new();
             //for(int i = 0; i < arr.Length; i++)
@@ -286,8 +285,8 @@ namespace h2NIF.Extensions
             if (axes.Length != 2) throw new ArgumentException("direction must has length of 2");
             Vertex[] arr = parent != null ? array.RotateBy(parent.rotation.Transpose()) : array.Deepcopy();
 
-            var total = arr.MaxMin();
-            Vector3 center = total.max.Midpoint(total.min);
+            var (max, min) = arr.MaxMin();
+            Vector3 center = max.Midpoint(min);
 
             Vertex[,][] quad = new Vertex[2, 2][];
             Vertex[][] first = arr.AxisSplit(axes[0], center);

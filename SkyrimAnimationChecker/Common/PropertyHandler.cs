@@ -71,7 +71,7 @@ namespace SkyrimAnimationChecker.Common
             }
             return true;
         }
-        protected int Ordering(string key, object[] order, int mult = 1, bool precede = false)
+        protected static int Ordering(string key, object[] order, int mult = 1, bool precede = false)
         {
             for (int i = 1; i < order.Length + 1; i++)
             {
@@ -90,9 +90,11 @@ namespace SkyrimAnimationChecker.Common
         //    }
         //    return f;
         //}
-        protected int product(IEnumerable<object> list, Func<object, int> expr) => list.Aggregate(1, (accu, next) => accu * expr(next));
-        protected int product_length(IEnumerable<object> list) => product(list, next => ((object[])next).Length);
-        protected int product_length(IEnumerable<PropertyOrder> list) => product(list, next => ((PropertyOrder)next).Length);
+#pragma warning disable IDE1006 // Naming Styles
+        protected static int product(IEnumerable<object> list, Func<object, int> expr) => list.Aggregate(1, (accu, next) => accu * expr(next));
+        protected static int product_length(IEnumerable<object> list) => product(list, next => ((object[])next).Length);
+        protected static int product_length(IEnumerable<PropertyOrder> list) => product(list, next => ((PropertyOrder)next).Length);
+#pragma warning restore IDE1006 // Naming Styles
         public virtual int KeysOrderComparer(string key, PropertyOrder[]? order = null)
         {
             int i = 0;
@@ -111,13 +113,13 @@ namespace SkyrimAnimationChecker.Common
 
             return i;
         }
-        private void Regexize(ref object[] order)
+        private static void Regexize(ref object[] order)
         {
             if (order.Length == 0) return;
             System.Text.RegularExpressions.Regex[] r = new System.Text.RegularExpressions.Regex[order.Length];
             for (int i = 0; i < order.Length; i++)
             {
-                if (order[i] is string) r[i] = new System.Text.RegularExpressions.Regex((string)order[i], System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (order[i] is string str) r[i] = new System.Text.RegularExpressions.Regex(str, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             }
             order = r;
         }

@@ -1,18 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SkyrimAnimationChecker.Common;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using SkyrimAnimationChecker.Common;
 
 namespace SkyrimAnimationChecker
 {
@@ -40,7 +28,7 @@ namespace SkyrimAnimationChecker
               );
         private static void OnColliderObjectChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is CBPC_collider) ((CBPC_collider)d).OnColliderObjectChanged(e);
+            if (d is CBPC_collider collider) collider.OnColliderObjectChanged(e);
         }
         private void OnColliderObjectChanged(DependencyPropertyChangedEventArgs e) => DataContext = e.NewValue;
 

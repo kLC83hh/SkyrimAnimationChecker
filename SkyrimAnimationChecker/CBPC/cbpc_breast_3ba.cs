@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 
 namespace SkyrimAnimationChecker.CBPC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public class cbpc_breast_3ba : Common.PropertyHandler, Icbpc_breast_data
     {
         public cbpc_breast_3ba() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType", "UsingKeys" })
@@ -15,12 +14,12 @@ namespace SkyrimAnimationChecker.CBPC
             B2 = new(2);
             B3 = new(3);
         }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public string DataType => "3ba";
         /// <summary>
         /// A short name from bone 1. Short names of all 3 bones should be same.
         /// </summary>
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public string Name { get => B1.NameShort; set { } }
         public string NameShort => Name;
         public string[] MirrorKeys
@@ -61,19 +60,16 @@ namespace SkyrimAnimationChecker.CBPC
         /// </summary>
         /// <param name="name">Fullname e.g. ExtraBreast1L</param>
         /// <returns></returns>
-        public Common.physics_object_set? Find(string name)
+        public Common.physics_object_set? Find(string name) => name switch
         {
-            switch (name)
-            {
-                case "ExtraBreast1L": return B1.Left;
-                case "ExtraBreast2L": return B2.Left;
-                case "ExtraBreast3L": return B3.Left;
-                case "ExtraBreast1R": return B1.Right;
-                case "ExtraBreast2R": return B2.Right;
-                case "ExtraBreast3R": return B3.Right;
-            }
-            return null;
-        }
+            "ExtraBreast1L" => B1.Left,
+            "ExtraBreast2L" => B2.Left,
+            "ExtraBreast3L" => B3.Left,
+            "ExtraBreast1R" => B1.Right,
+            "ExtraBreast2R" => B2.Right,
+            "ExtraBreast3R" => B3.Right,
+            _ => null,
+        };
 
         /// <summary>
         /// Breast data for bone 1
@@ -99,17 +95,17 @@ namespace SkyrimAnimationChecker.CBPC
         /// <param name="num">1,2,3</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public Icbpc_data GetData(int? num = null)
+        public Icbpc_data GetData(int? num = null) => num switch
         {
-            if (num == null) throw new ArgumentNullException(nameof(num));
-            switch (num)
+            null => throw new ArgumentNullException(nameof(num)),
+            _ => num switch
             {
-                case 1: return B1;
-                case 2: return B2;
-                case 3: return B3;
+                1 => B1,
+                2 => B2,
+                3 => B3,
+                _ => throw new ArgumentException(null, nameof(num)),
             }
-            throw new ArgumentNullException(nameof(num));
-        }
+        };
 
 
         private string[] _UsingKeys = Array.Empty<string>();
@@ -124,7 +120,7 @@ namespace SkyrimAnimationChecker.CBPC
         public void GetUsingKeys()
         {
             List<string> keys = new();
-            foreach(cbpc_breast b in Values)
+            foreach (cbpc_breast b in Values)
             {
                 foreach (var item in b.Left.Values)
                 {
@@ -136,8 +132,8 @@ namespace SkyrimAnimationChecker.CBPC
                 }
             }
             _UsingKeys = (from propName in keys
-                         orderby KeysOrderComparer(propName, B1.Left.KeysOrder), propName
-                         select propName).ToArray();
+                          orderby KeysOrderComparer(propName, B1.Left.KeysOrder), propName
+                          select propName).ToArray();
         }
         //public (Common.physics_object[] Left, Common.physics_object[] Right) GetUsingValues(string name)
         //{

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using SkyrimAnimationChecker.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkyrimAnimationChecker.Common;
+using System.Text.Json.Serialization;
 
 namespace SkyrimAnimationChecker.CBPC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     internal class cbpc_leg : PropertyHandler, Icbpc_data_multibone
     {
         public cbpc_leg() : base(KeysIgnore: new string[] { "MirrorKeys", "MirrorPairs", "Name", "NameShort", "DataType", "UsingKeys" })
@@ -15,12 +15,12 @@ namespace SkyrimAnimationChecker.CBPC
             RearThigh = new("RearThigh");
             RearCalf = new("RearCalf");
         }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public string DataType => "leg";
         /// <summary>
         /// A short name from bone 1. Short names of all 3 bones should be same.
         /// </summary>
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public string Name { get => FrontThigh.NameShort; set { } }
         public string NameShort => Name;
         public string[] MirrorKeys
@@ -61,19 +61,16 @@ namespace SkyrimAnimationChecker.CBPC
         /// </summary>
         /// <param name="name">Fullname e.g. ExtraBreast1L</param>
         /// <returns></returns>
-        public physics_object_set? Find(string name)
+        public physics_object_set? Find(string name) => name switch
         {
-            switch (name)
-            {
-                case "LFrontThigh": return FrontThigh.Left;
-                case "LRearThigh": return RearThigh.Left;
-                case "LRearCalf": return RearCalf.Left;
-                case "RFrontThigh": return FrontThigh.Right;
-                case "RRearThigh": return RearThigh.Right;
-                case "RRearCalf": return RearCalf.Right;
-            }
-            return null;
-        }
+            "LFrontThigh" => FrontThigh.Left,
+            "LRearThigh" => RearThigh.Left,
+            "LRearCalf" => RearCalf.Left,
+            "RFrontThigh" => FrontThigh.Right,
+            "RRearThigh" => RearThigh.Right,
+            "RRearCalf" => RearCalf.Right,
+            _ => null,
+        };
 
         /// <summary>
         /// Breast data for bone 1
@@ -99,17 +96,17 @@ namespace SkyrimAnimationChecker.CBPC
         /// <param name="num">1,2,3</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public Icbpc_data GetData(int? num = null)
+        public Icbpc_data GetData(int? num = null) => num switch
         {
-            if (num == null) throw new ArgumentNullException(nameof(num));
-            switch (num)
+            null => throw new ArgumentNullException(nameof(num)),
+            _ => num switch
             {
-                case 0: return FrontThigh;
-                case 1: return RearThigh;
-                case 2: return RearCalf;
+                0 => FrontThigh,
+                1 => RearThigh,
+                2 => RearCalf,
+                _ => throw new ArgumentException(null, nameof(num)),
             }
-            throw new ArgumentNullException(nameof(num));
-        }
+        };
 
 
         private string[] _UsingKeys = Array.Empty<string>();
